@@ -22,7 +22,8 @@ def csv_to_json(csv_path, json_path, process_func=None):
         return
 
     try:
-        df = pd.read_csv(csv_path)
+        # Read CSV with lenient error handling for inconsistent column counts
+        df = pd.read_csv(csv_path, on_bad_lines='warn')
 
         # Apply processing function if provided
         if process_func:
@@ -43,8 +44,12 @@ def csv_to_json(csv_path, json_path, process_func=None):
 def process_project_setup(df):
     """
     Process project setup CSV
-    Expected columns: key, value
+    Expected columns: key, value, example (optional)
     """
+    # Drop example column if it exists
+    if 'example' in df.columns:
+        df = df.drop(columns=['example'])
+
     # Convert key-value pairs to dictionary
     project_dict = {}
     chapters_list = []
@@ -80,6 +85,10 @@ def process_objects(df):
     Process objects CSV
     Expected columns: object_id, title, creator, date, description, etc.
     """
+    # Drop example column if it exists
+    if 'example' in df.columns:
+        df = df.drop(columns=['example'])
+
     # Clean up NaN values
     df = df.fillna('')
 
@@ -93,6 +102,10 @@ def process_glossary(df):
     Process glossary CSV
     Expected columns: term_id, title, short_definition, etc.
     """
+    # Drop example column if it exists
+    if 'example' in df.columns:
+        df = df.drop(columns=['example'])
+
     # Clean up NaN values
     df = df.fillna('')
 
@@ -106,6 +119,10 @@ def process_chapter(df):
     Process chapter CSV
     Expected columns: step, question, answer, object, x, y, zoom, layer1_title, etc.
     """
+    # Drop example column if it exists
+    if 'example' in df.columns:
+        df = df.drop(columns=['example'])
+
     # Clean up NaN values
     df = df.fillna('')
 

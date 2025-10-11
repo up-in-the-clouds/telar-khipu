@@ -1,0 +1,50 @@
+[
+  {
+    "term_id": "colonial-period",
+    "title": "Colonial Period",
+    "short_definition": "The era of Spanish colonial rule in the Americas (1492-1825).",
+    "definition": "The Colonial Period in the Americas began with Christopher Columbus's arrival in 1492 and lasted until the independence movements of the early 19th century. This era was characterized by Spanish territorial expansion, the establishment of administrative structures, and profound cultural exchange between European, Indigenous, and African populations.",
+    "image": "/assets/images/glossary/colonial.jpg",
+    "related_terms": "encomienda,viceroyalty"
+  },
+  {
+    "term_id": "encomienda",
+    "title": "Encomienda",
+    "short_definition": "Labor system in colonial Spanish America granting colonists indigenous labor.",
+    "definition": "The encomienda was a labor system instituted by the Spanish crown whereby Spanish colonists were granted the labor of indigenous peoples. In exchange, the encomendero was supposed to provide protection and Christian instruction. In practice, it often resulted in exploitation and harsh treatment of indigenous workers.",
+    "image": "",
+    "related_terms": "colonial-period,tribute"
+  },
+  {
+    "term_id": "viceroyalty",
+    "title": "Viceroyalty",
+    "short_definition": "Administrative division of the Spanish Empire governed by a viceroy.",
+    "definition": "A viceroyalty was the highest level of administrative division in the Spanish colonial empire. The viceroy served as the direct representative of the Spanish monarch, wielding executive, legislative, and judicial authority over vast territories. Major viceroyalties included New Spain and Peru.",
+    "image": "/assets/images/glossary/viceroyalty.jpg",
+    "related_terms": "colonial-period"
+  },
+  {
+    "term_id": "muisca",
+    "title": "Muisca",
+    "short_definition": "Indigenous people who inhabited the Bogotá savanna before Spanish colonization.",
+    "definition": "The Muisca were a highly organized indigenous society in the Colombian highlands, known for their sophisticated agricultural systems including terraced farming and water management. They lived in a confederation of chiefdoms and developed complex political and religious structures.",
+    "image": "",
+    "related_terms": "resguardo,encomienda"
+  },
+  {
+    "term_id": "resguardo",
+    "title": "Resguardo",
+    "short_definition": "Indigenous reservation established during Spanish colonial rule.",
+    "definition": "Resguardos were communal lands designated by the Spanish crown for indigenous populations after their forced relocation. While intended to protect indigenous communities, they often resulted in displacement from ancestral territories and concentration in smaller, less productive areas.",
+    "image": "",
+    "related_terms": "muisca,reducción"
+  },
+  {
+    "term_id": "reducción",
+    "title": "Reducción",
+    "short_definition": "The Spanish colonial policy of concentrating indigenous peoples into grid-like villages.",
+    "definition": "The reducción policy forcibly relocated dispersed indigenous populations into planned settlements modeled on Spanish towns. This facilitated Spanish control, Catholic evangelization, and labor extraction, while disrupting indigenous social structures and land use patterns.",
+    "image": "",
+    "related_terms": "resguardo,muisca"
+  }
+]

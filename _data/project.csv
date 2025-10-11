@@ -1,0 +1,16 @@
+key,value
+project_title,Your Exhibition Title
+tagline,A brief description of your exhibition
+author,Your Name or Institution
+email,contact@example.com
+primary_color,#2c3e50
+secondary_color,#8b4513
+font_headings,"Playfair Display, serif"
+font_body,"Source Sans Pro, sans-serif"
+logo,/assets/images/site/logo.png
+,
+CHAPTERS,,example
+1,Chapter 1,A painting of the Savanna
+2,Chapter 2,"Villages for the ""indios"""
+3,Chapter 3,From terraces to grasslands
+4,Conclusion,A divided landscape
