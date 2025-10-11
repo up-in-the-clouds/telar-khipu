@@ -19,6 +19,10 @@
 - **CollectionBuilder** - GitHub-only workflow
 - **KnightLab Tools** - Google Sheets as authoring interface
 
+### Credits
+
+Telar is developed by Adelaida Ávila, Juan Cobo Betancourt, Santiago Muñoz, and students and scholars at the [UCSB Archives, Memory, and Preservation Lab](https://ampl.clair.ucsb.edu), the UT Archives, Mapping, and Preservation Lab, and [Neogranadina](https://neogranadina.org).
+
 ---
 
 ## Technical Stack

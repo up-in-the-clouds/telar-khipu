@@ -2,6 +2,10 @@
 
 This document summarizes the research conducted during the design and planning phase of the Telar project.
 
+## Credits
+
+Telar is developed by Adelaida Ávila, Juan Cobo Betancourt, Santiago Muñoz, and students and scholars at the [UCSB Archives, Memory, and Preservation Lab](https://ampl.clair.ucsb.edu), the UT Archives, Mapping, and Preservation Lab, and [Neogranadina](https://neogranadina.org).
+
 ---
 
 ## Table of Contents
