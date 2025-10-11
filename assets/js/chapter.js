@@ -1,22 +1,35 @@
 /**
- * Telar Chapter - OpenSeadragon + Scrollama Integration
+ * Telar Chapter - UniversalViewer + Scrollama Integration
  * Handles scrollytelling interactions for chapter pages
  */
 
-let viewer;
+let uvInstance;
+let osdViewer; // OpenSeadragon viewer from UV
 let scroller;
 let currentObject = null;
 let panelStack = [];
+let objectsIndex = {}; // Quick lookup for object data
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
+  buildObjectsIndex();
   initializeViewer();
   initializeScrollama();
   initializePanels();
 });
 
 /**
- * Initialize OpenSeadragon viewer with IIIF support
+ * Build index of objects for quick lookup
+ */
+function buildObjectsIndex() {
+  const objects = window.objectsData || [];
+  objects.forEach(obj => {
+    objectsIndex[obj.object_id] = obj;
+  });
+}
+
+/**
+ * Initialize UniversalViewer with IIIF support
  */
 function initializeViewer() {
   // Get first object from chapter data
@@ -27,38 +40,75 @@ function initializeViewer() {
     return;
   }
 
-  // Build IIIF info.json URL
-  const infoJsonUrl = buildInfoJsonUrl(firstObjectId);
+  // Get manifest URL for first object
+  const manifestUrl = getManifestUrl(firstObjectId);
 
-  // Initialize viewer
-  viewer = OpenSeadragon({
-    id: 'viewer-container',
-    prefixUrl: 'https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.0/images/',
-    tileSources: infoJsonUrl,
-    minZoomLevel: 0.5,
-    maxZoomLevel: 5,
-    visibilityRatio: 1.0,
-    animationTime: 1.5,
-    showNavigationControl: true,
-    showZoomControl: true,
-    showHomeControl: true,
-    showFullPageControl: true,
-    defaultZoomLevel: 1
+  if (!manifestUrl) {
+    console.error('Could not determine manifest URL for:', firstObjectId);
+    return;
+  }
+
+  console.log('Initializing UniversalViewer with:', manifestUrl);
+
+  // Initialize UniversalViewer
+  var urlAdaptor = new UV.IIIFURLAdaptor();
+  const data = urlAdaptor.getInitialData({
+    manifest: manifestUrl,
+    embedded: true
   });
 
-  viewer.addHandler('open', function() {
-    console.log('Viewer opened successfully');
+  uvInstance = UV.init('viewer-container', data);
+  urlAdaptor.bindTo(uvInstance);
+
+  // Listen for UV events to access OpenSeadragon
+  uvInstance.on('created', function() {
+    console.log('UniversalViewer created');
     currentObject = firstObjectId;
   });
 
-  viewer.addHandler('open-failed', function(event) {
-    console.error('Failed to open IIIF image:', event.message);
-    // Fallback: show error message in viewer
-    document.getElementById('viewer-container').innerHTML =
-      '<div class="d-flex align-items-center justify-content-center h-100 text-white">' +
-      '<div class="text-center"><h3>Image Loading Error</h3>' +
-      '<p>Unable to load IIIF image. Please check the object configuration.</p></div></div>';
+  // Access the underlying OpenSeadragon viewer
+  // UV uses the uv-seadragon-extension for images
+  uvInstance.on('openseadragonExtension.opened', function() {
+    console.log('OpenSeadragon extension ready');
+
+    // Access OSD viewer through UV's extension
+    // The extension stores the viewer in its centerPanel
+    const extension = uvInstance.extension;
+    if (extension && extension.centerPanel && extension.centerPanel.viewer) {
+      osdViewer = extension.centerPanel.viewer;
+      console.log('OpenSeadragon viewer accessed:', osdViewer);
+    }
   });
+}
+
+/**
+ * Get manifest URL for an object
+ */
+function getManifestUrl(objectId) {
+  const object = objectsIndex[objectId];
+
+  if (!object) {
+    console.warn('Object not found:', objectId);
+    // Fallback to local IIIF
+    return buildLocalInfoJsonUrl(objectId);
+  }
+
+  // If object has iiif_manifest field and it's not empty, use it
+  if (object.iiif_manifest && object.iiif_manifest.trim() !== '') {
+    return object.iiif_manifest;
+  }
+
+  // Otherwise use local IIIF
+  return buildLocalInfoJsonUrl(objectId);
+}
+
+/**
+ * Build local IIIF info.json URL
+ */
+function buildLocalInfoJsonUrl(objectId) {
+  const baseUrl = window.location.origin;
+  const sitePath = window.location.pathname.split('/').slice(0, -2).join('/');
+  return `${baseUrl}${sitePath}/iiif/objects/${objectId}/info.json`;
 }
 
 /**
@@ -104,13 +154,15 @@ function handleStepEnter(response) {
     switchObject(objectId);
   }
 
-  // Animate to new position
-  if (viewer && !isNaN(x) && !isNaN(y) && !isNaN(zoom)) {
-    animateToPosition(x, y, zoom);
-  } else if (region) {
-    // If region is specified instead of x/y/zoom
-    animateToRegion(region);
-  }
+  // Animate to new position (wait a bit for viewer to be ready)
+  setTimeout(function() {
+    if (osdViewer && !isNaN(x) && !isNaN(y) && !isNaN(zoom)) {
+      animateToPosition(x, y, zoom);
+    } else if (region) {
+      // If region is specified instead of x/y/zoom
+      animateToRegion(region);
+    }
+  }, 500);
 
   // Update viewer info
   updateViewerInfo(stepNumber);
@@ -128,28 +180,49 @@ function handleStepExit(response) {
  * Switch to a different IIIF object
  */
 function switchObject(objectId) {
-  if (!viewer) return;
+  if (!uvInstance) return;
 
-  const infoJsonUrl = buildInfoJsonUrl(objectId);
+  const manifestUrl = getManifestUrl(objectId);
 
-  viewer.open(infoJsonUrl);
+  console.log('Switching to object:', objectId, 'manifest:', manifestUrl);
+
+  // Update UV with new manifest
+  var urlAdaptor = new UV.IIIFURLAdaptor();
+  const data = urlAdaptor.getInitialData({
+    manifest: manifestUrl,
+    embedded: true
+  });
+
+  // Reload UV with new manifest
+  uvInstance.set(data);
   currentObject = objectId;
 
-  console.log('Switched to object:', objectId);
+  // Wait for OSD to be ready again
+  setTimeout(function() {
+    const extension = uvInstance.extension;
+    if (extension && extension.centerPanel && extension.centerPanel.viewer) {
+      osdViewer = extension.centerPanel.viewer;
+      console.log('OpenSeadragon viewer updated');
+    }
+  }, 1000);
 }
 
 /**
  * Animate viewer to specific position
  */
 function animateToPosition(x, y, zoom) {
-  if (!viewer) return;
+  if (!osdViewer) {
+    console.warn('OpenSeadragon viewer not ready');
+    return;
+  }
 
-  // Create OpenSeadragon point (note: OSD uses [x, y] not [lat, lng])
+  // OpenSeadragon uses viewport coordinates (0-1 range for image)
+  // Create point (note: OSD uses [x, y] not [lat, lng])
   const point = new OpenSeadragon.Point(x, y);
 
   // Animate to position
-  viewer.viewport.zoomTo(zoom, null, true);
-  viewer.viewport.panTo(point, true);
+  osdViewer.viewport.zoomTo(zoom, point, true);
+  osdViewer.viewport.panTo(point, true);
 }
 
 /**
@@ -157,7 +230,10 @@ function animateToPosition(x, y, zoom) {
  * Region format: "x,y,width,height" (normalized 0-1)
  */
 function animateToRegion(region) {
-  if (!viewer) return;
+  if (!osdViewer) {
+    console.warn('OpenSeadragon viewer not ready');
+    return;
+  }
 
   const parts = region.split(',').map(parseFloat);
   if (parts.length !== 4) return;
@@ -165,21 +241,7 @@ function animateToRegion(region) {
   const [x, y, width, height] = parts;
   const rect = new OpenSeadragon.Rect(x, y, width, height);
 
-  viewer.viewport.fitBounds(rect, true);
-}
-
-/**
- * Build IIIF info.json URL from object ID
- */
-function buildInfoJsonUrl(objectId) {
-  // Check if it's an external IIIF URL
-  if (objectId.startsWith('http://') || objectId.startsWith('https://')) {
-    return objectId;
-  }
-
-  // Build local IIIF path
-  const baseUrl = window.location.origin + '/iiif/objects/';
-  return `${baseUrl}${objectId}/info.json`;
+  osdViewer.viewport.fitBounds(rect, true);
 }
 
 /**
@@ -273,21 +335,26 @@ function closePanel(panelType) {
  */
 function getPanelContent(panelType, contentId) {
   // This will be populated from the chapter's YAML/JSON data
-  // For now, return placeholder
   const steps = window.chapterData?.steps || [];
-  const step = steps.find(s => s.id === contentId);
+  const step = steps.find(s => s.step == contentId);
 
   if (!step) return null;
 
   if (panelType === 'layer1') {
     return {
-      title: step.layer1?.title || 'Layer 1',
-      html: formatPanelContent(step.layer1)
+      title: step.layer1_title || 'Layer 1',
+      html: formatPanelContent({
+        text: step.layer1_text,
+        media: step.layer1_media
+      })
     };
   } else if (panelType === 'layer2') {
     return {
-      title: step.layer2?.title || 'Layer 2',
-      html: formatPanelContent(step.layer2)
+      title: step.layer2_title || 'Layer 2',
+      html: formatPanelContent({
+        text: step.layer2_text,
+        media: step.layer2_media
+      })
     };
   } else if (panelType === 'glossary') {
     // Fetch from glossary data
@@ -312,8 +379,8 @@ function formatPanelContent(panelData) {
     html += `<p>${panelData.text}</p>`;
   }
 
-  if (panelData.media) {
-    html += `<img src="${panelData.media}" alt="${panelData.title || ''}" class="img-fluid">`;
+  if (panelData.media && panelData.media.trim() !== '') {
+    html += `<img src="${panelData.media}" alt="Panel image" class="img-fluid">`;
   }
 
   return html;
@@ -321,9 +388,11 @@ function formatPanelContent(panelData) {
 
 // Export for debugging
 window.TelarChapter = {
-  viewer,
+  uvInstance,
+  osdViewer,
   scroller,
   switchObject,
   animateToPosition,
-  openPanel
+  openPanel,
+  getManifestUrl
 };

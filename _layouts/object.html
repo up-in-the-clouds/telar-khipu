@@ -31,9 +31,9 @@ layout: default
         <dd class="col-sm-8">{{ page.creator }}</dd>
         {% endif %}
 
-        {% if page.date %}
-        <dt class="col-sm-4">Date</dt>
-        <dd class="col-sm-8">{{ page.date }}</dd>
+        {% if page.period %}
+        <dt class="col-sm-4">Period</dt>
+        <dd class="col-sm-8">{{ page.period }}</dd>
         {% endif %}
 
         {% if page.medium %}
@@ -54,6 +54,14 @@ layout: default
         {% if page.credit %}
         <dt class="col-sm-4">Credit</dt>
         <dd class="col-sm-8">{{ page.credit }}</dd>
+        {% endif %}
+
+        {% if page.iiif_manifest %}
+        <dt class="col-sm-4">IIIF Manifest</dt>
+        <dd class="col-sm-8"><a href="{{ page.iiif_manifest }}" target="_blank" rel="noopener">View manifest</a></dd>
+        {% elsif page.object_id %}
+        <dt class="col-sm-4">IIIF Manifest</dt>
+        <dd class="col-sm-8"><a href="{{ '/iiif/objects/' | append: page.object_id | append: '/info.json' | relative_url }}" target="_blank" rel="noopener">View manifest</a></dd>
         {% endif %}
       </dl>
 
@@ -82,41 +90,30 @@ layout: default
   </div>
 </div>
 
-<!-- OpenSeadragon -->
-<script src="{{ '/assets/js/openseadragon.min.js' | relative_url }}"></script>
+<!-- UniversalViewer IIIF Viewer -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/universalviewer@4.0.0/dist/uv.css">
+<script src="https://cdn.jsdelivr.net/npm/universalviewer@4.0.0/dist/umd/UV.js"></script>
 <script>
-  // Initialize viewer for this object
   document.addEventListener('DOMContentLoaded', function() {
     {% if page.iiif_manifest %}
-    const infoJsonUrl = '{{ page.iiif_manifest }}';
+    const manifestUrl = '{{ page.iiif_manifest }}';
     {% elsif page.object_id %}
-    const infoJsonUrl = '/iiif/objects/{{ page.object_id }}/info.json';
+    const manifestUrl = '{{ site.baseurl }}/iiif/objects/{{ page.object_id }}/info.json';
     {% else %}
     console.error('No IIIF source specified');
     return;
     {% endif %}
 
-    const viewer = OpenSeadragon({
-      id: 'object-viewer',
-      prefixUrl: 'https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.0/images/',
-      tileSources: infoJsonUrl,
-      minZoomLevel: 0.5,
-      maxZoomLevel: 10,
-      visibilityRatio: 1.0,
-      animationTime: 1.0,
-      showNavigationControl: true,
-      showZoomControl: true,
-      showHomeControl: true,
-      showFullPageControl: true,
-      defaultZoomLevel: 1
+    console.log('Loading IIIF resource with UniversalViewer:', manifestUrl);
+
+    // Initialize UniversalViewer with IIIF manifest
+    var urlAdaptor = new UV.IIIFURLAdaptor();
+    const data = urlAdaptor.getInitialData({
+      manifest: manifestUrl,
+      embedded: true
     });
 
-    viewer.addHandler('open-failed', function(event) {
-      console.error('Failed to open IIIF image:', event.message);
-      document.getElementById('object-viewer').innerHTML =
-        '<div class="d-flex align-items-center justify-content-center h-100 text-white">' +
-        '<div class="text-center"><h3>Image Loading Error</h3>' +
-        '<p>Unable to load IIIF image.</p></div></div>';
-    });
+    var uv = UV.init('object-viewer', data);
+    urlAdaptor.bindTo(uv);
   });
 </script>

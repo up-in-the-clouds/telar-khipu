@@ -31,7 +31,7 @@ Telar is developed by Adelaida Ávila, Juan Cobo Betancourt, Santiago Muñoz, an
 
 - **Static Site Generator**: Jekyll 4.3+
 - **IIIF Tile Generation**: Bodleian iiif-static-choices (Python)
-- **Image Viewer**: OpenSeadragon
+- **Image Viewer**: UniversalViewer (with OpenSeadragon for scrollytelling)
 - **Scrollytelling**: Scrollama
 - **CSS Framework**: Bootstrap 5
 - **Data Source**: Google Sheets (published as CSV)
@@ -51,30 +51,37 @@ Telar is developed by Adelaida Ávila, Juan Cobo Betancourt, Santiago Muñoz, an
 
 **JavaScript Libraries (CDN):**
 - Bootstrap 5.3
-- OpenSeadragon (latest)
+- UniversalViewer 4.0
 - Scrollama (latest)
 
-### Why OpenSeadragon?
+### Why UniversalViewer?
 
-OpenSeadragon was chosen over Universal Viewer and Mirador for several critical reasons:
+UniversalViewer was chosen after careful evaluation, inspired by Exhibit.so's successful implementation:
 
-1. **Programmatic Control**: Scrollytelling requires smooth, programmatic zoom and pan as users scroll. OpenSeadragon provides an excellent JavaScript API:
+1. **Universal IIIF Support**: Native support for both IIIF Presentation manifests AND Image API info.json:
+   - Handles external IIIF manifests from any institution (Huntington, Harvard Art Museums, etc.)
+   - Works with locally-generated IIIF tiles
+   - No hardcoded URL transformations needed
+
+2. **Scrollytelling Compatibility**: UniversalViewer is built on OpenSeadragon, providing programmatic control:
    ```javascript
-   viewer.viewport.panTo(new OpenSeadragon.Point(x, y), true);
-   viewer.viewport.zoomTo(zoomLevel, null, true);
+   // Access underlying OpenSeadragon viewer
+   uvInstance.on('openseadragonExtension.opened', function() {
+     osdViewer = uvInstance.extension.centerPanel.viewer;
+     osdViewer.viewport.panTo(point, true);
+     osdViewer.viewport.zoomTo(zoom, true);
+   });
    ```
 
-2. **Lightweight**: Pure JavaScript with no dependencies, resulting in faster page loads and better performance.
+3. **Proven for Storytelling**: Exhibit.so demonstrates UV successfully supports scrollytelling narratives.
 
-3. **Minimal Computing Alignment**: Smaller footprint supports minimal computing principles.
+4. **Future-Ready**: Built-in support for multi-media (video, 3D) if Telar expands scope in future versions.
 
-4. **Scope Match**: Telar v1 focuses on images only; OpenSeadragon is purpose-built for image viewing, while Universal Viewer's multi-media features would be unused.
+5. **Single Viewer Architecture**: Same viewer for both object pages (user exploration) and chapter pages (programmatic control).
 
-5. **Proven Track Record**: Already used successfully in the weaving_history proof of concept.
+6. **GLAM Standard**: Wide adoption by major cultural heritage institutions ensures longevity and support.
 
-6. **IIIF Compatibility**: Native support for IIIF Image API via info.json, works perfectly with Bodleian-generated tiles.
-
-**Trade-off**: We sacrifice Universal Viewer's rich UI chrome (metadata panels, thumbnails), but Telar builds custom UI through layered panels anyway.
+**Trade-off**: Slightly larger footprint than OpenSeadragon alone (~500KB vs 60KB), but eliminates custom manifest parsing and provides universal compatibility.
 
 ---
 
@@ -216,7 +223,7 @@ telar/
 │       ├── panel-layer1.html         # Offcanvas panel
 │       ├── panel-layer2.html         # Stacked overlay
 │       ├── panel-glossary.html       # Glossary popup
-│       └── viewer.html               # OpenSeadragon viewer container
+│       └── viewer.html               # UniversalViewer container
 ├── _layouts/
 │   ├── default.html                  # Base layout
 │   ├── home.html                     # Homepage
@@ -232,10 +239,11 @@ telar/
 │   └── [generated .md files]
 ├── assets/
 │   ├── css/
-│   │   └── main.css                  # Custom styles (Paisajes aesthetic)
+│   │   └── telar.css                 # Custom styles (Paisajes aesthetic)
 │   ├── js/
-│   │   ├── story.js                  # Scrollytelling runtime
-│   │   └── glossary.js               # Glossary link handler
+│   │   ├── chapter.js                # Scrollytelling runtime with UV/OSD
+│   │   ├── telar.js                  # Core utilities
+│   │   └── scrollama.min.js          # Scrollama library
 │   └── images/                       # Placeholder images
 ├── images/
 │   └── objects/                      # User uploads images here
@@ -371,8 +379,9 @@ telar/
 
 **Components:**
 - **Fixed right column:**
-  - OpenSeadragon viewer initialized with first object's IIIF tiles
-  - Updates smoothly on scroll via JavaScript API (zoom/pan or new image)
+  - UniversalViewer initialized with first object's IIIF manifest
+  - Updates smoothly on scroll via underlying OpenSeadragon API (zoom/pan or switch objects)
+  - Handles both local IIIF tiles and external manifests
 
 - **Scrolling left column:**
   - Story steps with question/answer
@@ -387,7 +396,8 @@ telar/
 
 **Interactions:**
 - Scrollama detects scroll position
-- Updates viewer coordinates
+- JavaScript accesses OpenSeadragon viewer through UniversalViewer extension
+- Updates viewer coordinates (pan/zoom) or switches manifests
 - Opens/closes panels
 - Manages glossary popups
 
@@ -407,13 +417,14 @@ telar/
 ### 4. Object Detail Page (`_layouts/object.html`)
 
 **Content:**
-- OpenSeadragon viewer with IIIF tiles
+- UniversalViewer displaying IIIF manifest or info.json
 - Complete metadata display:
   - Label, artist, type, location, date
   - Description
   - Source link
   - IIIF manifest link
 - "View in story" links (which chapters reference this object)
+- User can freely explore, zoom, pan (viewer in exploration mode)
 
 ### 5. Glossary Index (`pages/glossary.md`)
 
@@ -539,11 +550,11 @@ layer1_text,"The [[colonial-landscape]] transformed indigenous territories throu
 - [ ] Write documentation
 
 ### Phase 2: Core Features (Week 2)
-- [ ] Build homepage layout
-- [ ] Build chapter page layout
-- [ ] Integrate OpenSeadragon viewer
-- [ ] Implement Scrollama scrollytelling with OpenSeadragon API
-- [ ] Create layer panel system
+- [x] Build homepage layout
+- [x] Build chapter page layout
+- [x] Integrate UniversalViewer
+- [x] Implement Scrollama scrollytelling with OpenSeadragon API (via UV)
+- [x] Create layer panel system
 
 ### Phase 3: Collections (Week 3)
 - [ ] Build collection gallery page

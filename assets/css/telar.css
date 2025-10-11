@@ -90,10 +90,57 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--color-primary);
 }
 
-/* OpenSeadragon Container */
+/* Viewer Containers */
 #viewer-container {
   width: 100%;
   height: 100%;
+}
+
+#object-viewer {
+  width: 100%;
+  height: 600px;
+}
+
+/* UniversalViewer - Clean Object Page Display */
+/* Hide all UV controls on object pages for clean presentation */
+#object-viewer .headerPanel,
+#object-viewer .footerPanel,
+#object-viewer .leftPanel,
+#object-viewer .rightPanel,
+#object-viewer .mobilePanel,
+#object-viewer .btn,
+#object-viewer .download,
+#object-viewer .share,
+#object-viewer .embed,
+#object-viewer .more,
+#object-viewer .pagingToggle,
+#object-viewer .searchButton,
+#object-viewer .bookmark,
+#object-viewer .zoomIn,
+#object-viewer .zoomOut,
+#object-viewer .goHome {
+  display: none !important;
+}
+
+/* Keep only the essential image viewing area */
+#object-viewer .centerPanel {
+  top: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+}
+
+/* Remove UV branding, titles, and info overlays */
+#object-viewer .informationBox,
+#object-viewer .moreInfoButton,
+#object-viewer .attribution,
+#object-viewer .title,
+#object-viewer .subtitle,
+#object-viewer .titlePanel,
+#object-viewer .metadata,
+#object-viewer h1,
+#object-viewer h2 {
+  display: none !important;
 }
 
 /* Collection Gallery */

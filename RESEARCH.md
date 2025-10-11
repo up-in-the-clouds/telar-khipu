@@ -916,160 +916,186 @@ viewer.addHandler('open', function() {
 
 ---
 
-## Decision: OpenSeadragon for Telar
+## Decision: UniversalViewer for Telar
 
 ### Rationale
 
-After thorough comparison, **OpenSeadragon** was selected over Universal Viewer and Mirador for the following reasons:
+After thorough comparison and inspired by **Exhibit.so's** successful implementation, **UniversalViewer** was selected over OpenSeadragon alone and Mirador for the following reasons:
 
-#### 1. Scrollytelling Requirements
+#### 1. Universal IIIF Manifest Support
 
-Telar's core interaction pattern requires **programmatic control** of the viewer as users scroll. OpenSeadragon provides an excellent JavaScript API specifically designed for this:
+**The Critical Requirement:** Telar must support both local IIIF tiles AND external IIIF manifests from any institution (Huntington Library, Harvard Art Museums, British Museum, etc.).
+
+**UniversalViewer advantages:**
+- Native support for IIIF Presentation API (manifest.json)
+- Native support for IIIF Image API (info.json)
+- No hardcoded URL transformations needed
+- Works with any IIIF-compliant resource universally
+
+**OpenSeadragon limitation:**
+- Primarily designed for Image API (info.json)
+- Requires custom manifest parsing for Presentation API
+- Would need institution-specific URL transformations
+- Adds maintenance burden for diverse IIIF sources
+
+#### 2. Scrollytelling Compatibility
+
+**UniversalViewer is built on OpenSeadragon**, providing full programmatic control for scrollytelling:
 
 ```javascript
-// Smooth animated transitions on scroll
-viewer.viewport.panTo(new OpenSeadragon.Point(x, y), true);
-viewer.viewport.zoomTo(zoomLevel, null, true);
+// Initialize UniversalViewer
+var urlAdaptor = new UV.IIIFURLAdaptor();
+const data = urlAdaptor.getInitialData({
+  manifest: manifestUrl,
+  embedded: true
+});
+uvInstance = UV.init('viewer-container', data);
 
-// Event handling for coordination with Scrollama
-viewer.addHandler('animation-finish', function() {
-  // Sync with narrative
+// Access underlying OpenSeadragon viewer
+uvInstance.on('openseadragonExtension.opened', function() {
+  osdViewer = uvInstance.extension.centerPanel.viewer;
+
+  // Full OSD API available for scrollytelling
+  osdViewer.viewport.panTo(new OpenSeadragon.Point(x, y), true);
+  osdViewer.viewport.zoomTo(zoom, true);
 });
 ```
 
-Universal Viewer's API is less accessible for this type of programmatic control, as it wraps OpenSeadragon and adds abstraction layers.
+**Key insight:** We get OpenSeadragon's programmatic control PLUS universal manifest support.
 
-#### 2. Minimal Computing Alignment
+#### 3. Proven for Storytelling
 
-**File Size Comparison:**
-- OpenSeadragon: ~60KB minified
-- Universal Viewer: ~500KB+ (includes OpenSeadragon plus UI framework)
-- Mirador: ~1MB+ (includes React and extensive UI)
+**Exhibit.so validation:**
+- https://www.exhibit.so/ uses UniversalViewer
+- Successfully implements scrollytelling with IIIF
+- Supports multiple presentation modes
+- Demonstrates UV can handle both exploration and programmatic control
 
-For minimal computing principles:
-- Faster page loads
-- Lower bandwidth consumption
-- Better performance on slow connections
-- Smaller carbon footprint
+This real-world example proved UniversalViewer was the right choice for Telar's use case.
 
-#### 3. Scope Match
+#### 4. Single Viewer Architecture
 
-**Telar v1 scope:**
-- Images only (explicitly defined)
-- Custom UI via layered panels
-- Programmatic control essential
+**Simplified implementation:**
+- Same viewer for object pages (exploration mode) and chapter pages (scrollytelling mode)
+- No need to maintain two different viewer systems
+- Consistent user experience across site
+- Reduced JavaScript complexity
 
-**OpenSeadragon strengths:**
-- Purpose-built for images
-- Excellent programmatic API
-- Lightweight
-- No unused features
+**OpenSeadragon-only approach would require:**
+- Custom manifest parser for Presentation API
+- Institution-specific URL transformations
+- Fallback logic for unsupported manifests
+- Ongoing maintenance as IIIF sources change
 
-**Universal Viewer features (unused in Telar):**
-- Audio player
-- Video player
-- PDF viewer
-- 3D model support
-- Built-in metadata panels (Telar has custom panels)
-- Built-in navigation (Telar uses Scrollama)
+#### 5. Future-Ready
 
-#### 4. Proven Track Record
+**Built-in support for:**
+- 3D models (if Telar v2 expands scope)
+- Video and audio (future multimedia stories)
+- PDF documents
+- Complex multi-canvas objects
 
-- Successfully used in weaving_history proof of concept
-- Team already familiar with implementation
-- Known to work well with Scrollama
-- Proven with IIIF Level 0 tiles
+**Progressive enhancement path:**
+- Start with images (Telar v1)
+- Add multimedia without changing viewer (v2)
+- Leverage existing GLAM institution content
 
-#### 5. IIIF Compatibility
+#### 6. GLAM Standard
 
-- Native support for IIIF Image API
-- Works seamlessly with Bodleian-generated tiles
-- Simple configuration (just provide info.json URL)
-- Supports IIIF versions 1.0, 1.1, 2.x, and 3.x
-
-#### 6. Customization Flexibility
-
-- Pure JavaScript, no framework lock-in
-- Easy to style and customize
-- Extensive plugin ecosystem if needed
-- No UI chrome to work around or hide
-
-#### 7. Community and Documentation
-
-- Well-documented API
+**Wide adoption ensures:**
+- Long-term support and maintenance
+- Extensive documentation
 - Active community
-- Extensive examples
-- Beginner's guide published January 2025
-- Used by major institutions and projects
+- Compatibility with major repositories
+
+**Used by:**
+- Wellcome Library
+- British Library
+- National Library of Wales
+- Many cultural heritage institutions
 
 ### Trade-offs Accepted
 
-**What we lose by not using Universal Viewer:**
-- Built-in thumbnail strip
-- Metadata display panels
-- Full-screen button
-- Download options
-- Share links
-- Professional "out of box" appearance
+**File Size:**
+- UniversalViewer: ~500KB (includes OpenSeadragon + UI framework)
+- OpenSeadragon alone: ~60KB
 
 **Why this is acceptable:**
-- Telar builds custom UI through layered panels anyway
-- Scrollytelling interaction replaces traditional viewer navigation
-- Lighter weight supports minimal computing goals
-- Programmatic control is more important than built-in UI
+- Eliminates custom manifest parsing (~100KB saved)
+- Provides universal IIIF compatibility (worth the bytes)
+- Minimal computing principles still met (static site, no server)
+- Bandwidth trade-off justified by functionality gain
+
+**UI Chrome:**
+- UV includes built-in controls (can be customized or hidden)
+- Telar uses custom panels, so some UV UI is redundant
+- But viewer quality and universal compatibility outweigh this
 
 ### Technical Implementation Notes
 
-**Integration with Scrollama:**
-1. Initialize OpenSeadragon on page load
-2. Scrollama detects scroll position
-3. On step enter, calculate target coordinates
-4. Call OpenSeadragon API to animate to new position
-5. Coordinate timing with panel opening/closing
+**Architecture:**
+1. **Object pages**: UV in exploration mode (user controls viewer)
+2. **Chapter pages**: UV in scrollytelling mode (JavaScript controls viewport via OSD)
 
-**Sample Integration Code:**
+**Manifest handling:**
 ```javascript
-// Initialize viewer
-const viewer = OpenSeadragon({
-  id: "viewer-container",
-  prefixUrl: "/assets/openseadragon/images/",
-  tileSources: firstObjectInfoJson,
-  minZoomLevel: 0,
-  maxZoomLevel: 3,
-  visibilityRatio: 1.0,
-  animationTime: 1.5
+// Universal approach - works with ANY IIIF manifest
+function getManifestUrl(objectId) {
+  const object = objectsIndex[objectId];
+
+  // External manifest URL?
+  if (object.iiif_manifest && object.iiif_manifest.trim() !== '') {
+    return object.iiif_manifest;  // Huntington, Harvard, BM, etc.
+  }
+
+  // Local IIIF tiles
+  return `/iiif/objects/${objectId}/info.json`;
+}
+
+// UV handles both cases natively - no parsing needed
+uvInstance = UV.init('viewer-container', {
+  manifest: getManifestUrl(objectId),
+  embedded: true
 });
-
-// Scrollama integration
-scrollama()
-  .setup({ step: '.story-step' })
-  .onStepEnter(response => {
-    const step = response.element;
-    const x = parseFloat(step.dataset.x);
-    const y = parseFloat(step.dataset.y);
-    const zoom = parseFloat(step.dataset.zoom);
-
-    // Animate viewer
-    viewer.viewport.zoomTo(zoom, null, true);
-    viewer.viewport.panTo(
-      new OpenSeadragon.Point(x, y),
-      true
-    );
-  });
 ```
+
+**Collection page thumbnails:**
+- IIIF Image API: Standard thumbnail pattern
+- IIIF Presentation manifests: Fetch and extract thumbnail from JSON
+- Supports both IIIF v2 and v3 formats
+
+### Comparison to Initial OpenSeadragon Plan
+
+**What changed:**
+- Initial plan: Use OpenSeadragon for lightweight, programmatic control
+- User requirement: "We need to draw on images not hosted in the repo through IIIF manifests"
+- Reality check: OpenSeadragon doesn't natively handle Presentation manifests
+- Solution: Use UniversalViewer (which includes OpenSeadragon internally)
+
+**What we kept:**
+- Programmatic viewport control via OpenSeadragon API
+- Scrollytelling interaction pattern
+- Minimal computing principles (static site)
+- IIIF compatibility
+
+**What we gained:**
+- Universal manifest support (any institution)
+- No custom parsing needed
+- Professional viewer UI (when useful)
+- Future multimedia support
 
 ### Future Considerations
 
 **If Telar v2+ needs:**
-- Audio/video support → Consider adding separate players (not full viewer replacement)
-- 3D models → Add Sketchfab embeds (already supported in text via shortcodes)
-- Annotation → Add OpenSeadragon annotation plugin
-- Multi-image comparison → Could integrate Mirador for specific use cases
+- Multi-media support → Already built-in (video, audio, 3D)
+- Annotation → Consider UV annotation extensions
+- Multi-image comparison → Could integrate Mirador alongside UV for specific use cases
 
 **Migration path:**
-- OpenSeadragon API is stable
-- If Universal Viewer becomes necessary, it includes OpenSeadragon
-- Easy to wrap OpenSeadragon with additional UI later
+- UniversalViewer is stable and actively maintained
+- Based on OpenSeadragon (which is even more stable)
+- Can always access underlying OSD if UV API changes
+- Well-supported by IIIF community
 
 ---
 
@@ -1093,7 +1119,9 @@ scrollama()
 
 8. **Layered Narrative:** Paisajes model of 3 layers + glossary is powerful for scholarly content
 
-9. **Viewer Choice Matters:** OpenSeadragon's programmatic control and lightweight footprint make it ideal for scrollytelling over feature-rich alternatives
+9. **Viewer Choice Matters:** UniversalViewer provides universal IIIF manifest support while still allowing OpenSeadragon's programmatic control for scrollytelling - best of both worlds
+
+10. **Real-World Validation:** Exhibit.so's successful use of UniversalViewer for scrollytelling proved the approach works in production
 
 ### Design Principles Validated
 
