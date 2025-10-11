@@ -1,11 +1,11 @@
 # Telar - Digital Storytelling Framework
-# https://github.com/[username]/telar
+# https://github.com/UCSB-AMPLab/telar
 
 # Site Settings
 title: Telar
 description: A minimal computing framework for digital storytelling exhibitions with IIIF
-baseurl: "" # Set to /repository-name for GitHub Pages
-url: "" # Set to https://username.github.io for GitHub Pages
+baseurl: "/telar" # Set to /repository-name for GitHub Pages
+url: "https://ucsb-amplab.github.io" # Set to https://username.github.io for GitHub Pages
 author: ""
 email: ""
 

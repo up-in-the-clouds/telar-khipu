@@ -33,8 +33,8 @@ No local installation required!
 
 ```bash
 # Clone the repository
-git clone https://github.com/[username]/[repository].git
-cd [repository]
+git clone https://github.com/UCSB-AMPLab/telar.git
+cd telar
 
 # Install dependencies
 bundle install
@@ -265,8 +265,8 @@ Inspired by:
 ## Support
 
 For issues, questions, or contributions:
-- GitHub Issues: [repository]/issues
-- Documentation: [link to docs]
+- GitHub Issues: https://github.com/UCSB-AMPLab/telar/issues
+- Documentation: https://github.com/UCSB-AMPLab/telar
 
 ## Roadmap
 
