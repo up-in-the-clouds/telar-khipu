@@ -1,0 +1,278 @@
+# Telar
+
+A minimal computing framework for creating digital storytelling exhibitions with IIIF images and scrollytelling narratives.
+
+## Overview
+
+Telar (Spanish for "loom") is a static site generator built on Jekyll that weaves together IIIF images, narrative text, and layered contextual information into interactive digital exhibitions. It follows minimal computing principles: plain text authoring, static generation, and sustainable hosting.
+
+## Key Features
+
+- **Zero-installation authoring**: Edit content via Google Sheets web interface
+- **IIIF integration**: Support for both local images (auto-generated tiles) and external IIIF resources
+- **Scrollytelling**: Fixed IIIF viewer with scrolling narrative that controls viewport
+- **Layered panels**: Progressive disclosure with three content layers plus glossary
+- **Collection gallery**: Browsable object grid with detail pages
+- **Minimal computing**: Plain text, static generation, GitHub Pages hosting
+- **Mobile responsive**: Optimized for all screen sizes
+
+## Quick Start
+
+### For Content Creators (Web-Only Workflow)
+
+1. **Fork this repository** on GitHub
+2. **Enable GitHub Pages** in repository settings
+3. **Create your Google Sheet** (template link below)
+4. **Publish to web** and get CSV URLs
+5. **Add secret** GOOGLE_SHEETS_URL to repository
+6. **Commit to main branch** - site builds automatically
+
+No local installation required!
+
+### For Developers (Local Development)
+
+```bash
+# Clone the repository
+git clone https://github.com/[username]/[repository].git
+cd [repository]
+
+# Install dependencies
+bundle install
+
+# Serve locally
+bundle exec jekyll serve
+
+# View at http://localhost:4000
+```
+
+## Installation
+
+### Prerequisites
+
+- Ruby 3.0+ (for Jekyll)
+- Bundler
+- Python 3.9+ (for IIIF generation, GitHub Actions only)
+
+### Local Setup
+
+1. Install Ruby and Bundler:
+   ```bash
+   # macOS (using Homebrew)
+   brew install ruby
+   gem install bundler
+
+   # Ubuntu/Debian
+   sudo apt-get install ruby-full build-essential
+   gem install bundler
+   ```
+
+2. Install Jekyll dependencies:
+   ```bash
+   bundle install
+   ```
+
+3. Optional - Install Python dependencies (for IIIF generation):
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+## Content Structure
+
+### Google Sheets Data Source
+
+Telar uses a single Google Sheet with multiple tabs:
+
+1. **Instructions** (Tab 1): Read-only guidance
+2. **Project Setup** (Tab 2): Site settings + chapters list
+3. **Objects** (Tab 3): Collection metadata
+4. **Glossary** (Tab 4): Term definitions
+5. **Chapter [N]** (Tab 5+): Story steps for each chapter
+
+[Link to Google Sheets template - TBD]
+
+### Jekyll Collections
+
+Content is organized into three collections:
+
+- `_chapters/`: Scrollytelling narratives
+- `_objects/`: Collection object metadata
+- `_glossary/`: Glossary term definitions
+
+See README files in each directory for detailed documentation.
+
+## IIIF Integration
+
+### Option 1: Local Images (Recommended)
+
+1. Add high-resolution images to `source_images/` directory
+2. Name files to match object IDs (e.g., `textile-001.jpg`)
+3. GitHub Actions automatically generates IIIF tiles on commit
+4. Tiles are saved to `iiif/objects/[object-id]/`
+
+**File Size Limits:**
+- Individual images: Up to 100 MB
+- Total repository: Keep under 1 GB
+- For larger collections, use external IIIF or Git LFS
+
+### Option 2: External IIIF
+
+Reference external IIIF resources in object metadata:
+
+```yaml
+iiif_manifest: https://example.org/iiif/image/abc123/info.json
+```
+
+## Configuration
+
+### Site Settings (_config.yml)
+
+```yaml
+title: Your Exhibition Title
+baseurl: /repository-name  # For GitHub Pages
+url: https://username.github.io
+
+telar:
+  project_title: "Exhibition Title"
+  primary_color: "#2c3e50"
+  font_headings: "Playfair Display, serif"
+```
+
+### Google Sheets Integration
+
+1. Publish your Google Sheet to web (File → Share → Publish to web)
+2. Get the shareable link
+3. Add as repository secret: `GOOGLE_SHEETS_URL`
+4. Update GID values in `.github/workflows/build.yml` for each tab
+
+## GitHub Actions Workflow
+
+The automated build process:
+
+1. **Fetch**: Download CSVs from published Google Sheets
+2. **Convert**: Transform CSV to JSON for Jekyll
+3. **Generate**: Create IIIF tiles from source images
+4. **Build**: Compile Jekyll site
+5. **Deploy**: Publish to GitHub Pages
+
+Triggers:
+- Push to main branch
+- Manual workflow dispatch
+- Daily schedule (optional, for auto-updates)
+
+## Customization
+
+### Styling
+
+Edit `assets/css/telar.css` to customize:
+- Colors (CSS variables in `:root`)
+- Typography
+- Layout spacing
+- Responsive breakpoints
+
+### Layouts
+
+Modify layouts in `_layouts/`:
+- `default.html`: Base template
+- `chapter.html`: Scrollytelling page
+- `object.html`: Object detail page
+- `glossary.html`: Term definition page
+
+### JavaScript
+
+Core functionality in `assets/js/`:
+- `telar.js`: Base utilities
+- `chapter.js`: OpenSeadragon + Scrollama integration
+
+## Development
+
+### Local Testing
+
+```bash
+# Serve with live reload
+bundle exec jekyll serve --livereload
+
+# Build only (output to _site/)
+bundle exec jekyll build
+
+# Clean build artifacts
+bundle exec jekyll clean
+```
+
+### Adding a Chapter
+
+1. Create markdown file in `_chapters/`
+2. Add front matter with chapter metadata
+3. Include story steps with data attributes
+4. Reference object IDs and coordinates
+
+See `_chapters/README.md` for complete documentation.
+
+### Adding Objects
+
+1. Create markdown file in `_objects/`
+2. Add front matter with object metadata
+3. Add source image to `source_images/` (if using local IIIF)
+4. OR specify external `iiif_manifest` URL
+
+### Adding Glossary Terms
+
+1. Create markdown file in `_glossary/`
+2. Add front matter with term metadata
+3. Write full definition in markdown content
+4. Reference `term_id` in chapters
+
+## Browser Support
+
+- Chrome/Edge 90+
+- Firefox 88+
+- Safari 14+
+- Mobile browsers (iOS Safari, Chrome Mobile)
+
+## Performance
+
+- Static HTML generation
+- CDN delivery via GitHub Pages
+- Progressive IIIF tile loading
+- Lazy loading for collection images
+- Mobile-optimized responsive design
+
+## Accessibility
+
+- Semantic HTML structure
+- ARIA labels on interactive elements
+- Keyboard navigation support
+- Alt text for all images
+- Sufficient color contrast
+
+## License
+
+[Specify your license - e.g., MIT, GPL, CC BY]
+
+## Credits
+
+Built with:
+- [Jekyll](https://jekyllrb.com/) - Static site generator
+- [OpenSeadragon](https://openseadragon.github.io/) - IIIF image viewer
+- [Scrollama](https://github.com/russellgoldenberg/scrollama) - Scrollytelling library
+- [Bootstrap 5](https://getbootstrap.com/) - CSS framework
+- [iiif-static](https://github.com/bodleian/iiif-static-choices) - IIIF tile generator
+
+Inspired by:
+- [Wax](https://minicomp.github.io/wax/) - Minimal computing for digital exhibitions
+- [CollectionBuilder](https://collectionbuilder.github.io/) - Static digital collections
+- [Paisajes Coloniales](https://paisajescoloniales.com/) - Layered narrative design
+
+## Support
+
+For issues, questions, or contributions:
+- GitHub Issues: [repository]/issues
+- Documentation: [link to docs]
+
+## Roadmap
+
+- [ ] Visual chapter editor
+- [ ] Annotation support
+- [ ] Audio narration
+- [ ] Multi-language support
+- [ ] 3D object support via Sketchfab
+- [ ] Timeline visualizations
