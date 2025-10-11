@@ -1,0 +1,75 @@
+# Telar - Digital Storytelling Framework
+# https://github.com/[username]/telar
+
+# Site Settings
+title: Telar
+description: A minimal computing framework for digital storytelling exhibitions with IIIF
+baseurl: "" # Set to /repository-name for GitHub Pages
+url: "" # Set to https://username.github.io for GitHub Pages
+author: ""
+email: ""
+
+# Build Settings
+markdown: kramdown
+permalink: pretty
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+  - .github
+  - README.md
+  - PLAN.md
+  - RESEARCH.md
+
+# Collections
+collections:
+  chapters:
+    output: true
+    permalink: /chapters/:name/
+  objects:
+    output: true
+    permalink: /collection/:name/
+  glossary:
+    output: true
+    permalink: /glossary/:name/
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+      type: "chapters"
+    values:
+      layout: "chapter"
+  - scope:
+      path: ""
+      type: "objects"
+    values:
+      layout: "object"
+  - scope:
+      path: ""
+      type: "glossary"
+    values:
+      layout: "glossary"
+
+# Telar Settings (from Google Sheets Project Setup)
+telar:
+  project_title: "" # Overridden by _data/project.json
+  tagline: ""
+  primary_color: "#2c3e50" # Paisajes Colonial default
+  secondary_color: "#8b4513"
+  font_headings: "Playfair Display, serif"
+  font_body: "Source Sans Pro, sans-serif"
+  logo: "" # Path to logo image
+
+# OpenSeadragon Settings
+openseadragon:
+  prefixUrl: "/assets/images/openseadragon/"
+  minZoomLevel: 0
+  maxZoomLevel: 5
+  animationTime: 1.5
+  visibilityRatio: 1.0
+
+# Plugins
+plugins:
+  - jekyll-seo-tag

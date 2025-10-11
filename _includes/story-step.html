@@ -1,0 +1,30 @@
+<!--
+  Story Step Component
+  Used to render individual story steps with data attributes for Scrollama
+-->
+
+<div class="story-step"
+     data-step="{{ include.step_number }}"
+     data-object="{{ include.object_id }}"
+     data-x="{{ include.x }}"
+     data-y="{{ include.y }}"
+     data-zoom="{{ include.zoom }}"
+     data-region="{{ include.region }}">
+
+  <!-- Question (Main Heading) -->
+  <h2 class="step-question">{{ include.question }}</h2>
+
+  <!-- Answer (Main Content) -->
+  <div class="step-answer">
+    {{ include.answer | markdownify }}
+
+    <!-- Panel Triggers -->
+    {% if include.layer1_title %}
+    <p>
+      <button class="panel-trigger" data-panel="layer1" data-step="{{ include.step_number }}">
+        Read more →
+      </button>
+    </p>
+    {% endif %}
+  </div>
+</div>

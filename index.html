@@ -1,0 +1,57 @@
+---
+layout: default
+title: Home
+---
+
+<div class="container my-5">
+  <div class="row">
+    <div class="col-lg-8 mx-auto text-center">
+      {% if site.telar.logo %}
+      <img src="{{ site.telar.logo | relative_url }}" alt="{{ site.title }}" class="mb-4" style="max-width: 200px;">
+      {% endif %}
+
+      <h1 class="display-4 mb-3">{{ site.telar.project_title | default: site.title }}</h1>
+
+      {% if site.telar.tagline %}
+      <p class="lead mb-5">{{ site.telar.tagline }}</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Chapter List -->
+  <div class="row">
+    <div class="col-lg-10 mx-auto">
+      <h2 class="mb-4">Chapters</h2>
+
+      {% if site.chapters.size > 0 %}
+      <div class="list-group">
+        {% for chapter in site.chapters %}
+        <a href="{{ chapter.url | relative_url }}" class="list-group-item list-group-item-action">
+          <div class="d-flex w-100 justify-content-between">
+            <h3 class="h5 mb-1">{{ chapter.chapter_number }}. {{ chapter.title }}</h3>
+          </div>
+          {% if chapter.description %}
+          <p class="mb-1">{{ chapter.description }}</p>
+          {% endif %}
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="alert alert-info">
+        <p class="mb-0">No chapters available yet. Create chapter files in the <code>_chapters/</code> directory to get started.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Collection Teaser -->
+  {% if site.objects.size > 0 %}
+  <div class="row mt-5">
+    <div class="col-lg-10 mx-auto">
+      <h2 class="mb-4">Explore the Collection</h2>
+      <p class="lead">Browse {{ site.objects.size }} objects from the collection.</p>
+      <a href="{{ '/collection/' | relative_url }}" class="btn btn-primary">View Collection</a>
+    </div>
+  </div>
+  {% endif %}
+</div>
