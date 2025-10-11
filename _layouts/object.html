@@ -1,0 +1,122 @@
+---
+layout: default
+---
+
+<div class="container my-5">
+  <div class="row">
+    <div class="col-12">
+      <a href="{{ '/collection/' | relative_url }}" class="btn btn-sm btn-outline-secondary mb-3">
+        ← Back to Collection
+      </a>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Object Viewer -->
+    <div class="col-lg-8">
+      <div id="object-viewer" style="width: 100%; height: 600px; background: #000;"></div>
+    </div>
+
+    <!-- Object Metadata -->
+    <div class="col-lg-4">
+      <h1>{{ page.title }}</h1>
+
+      {% if page.description %}
+      <p class="lead">{{ page.description }}</p>
+      {% endif %}
+
+      <dl class="row mt-4">
+        {% if page.creator %}
+        <dt class="col-sm-4">Creator</dt>
+        <dd class="col-sm-8">{{ page.creator }}</dd>
+        {% endif %}
+
+        {% if page.date %}
+        <dt class="col-sm-4">Date</dt>
+        <dd class="col-sm-8">{{ page.date }}</dd>
+        {% endif %}
+
+        {% if page.medium %}
+        <dt class="col-sm-4">Medium</dt>
+        <dd class="col-sm-8">{{ page.medium }}</dd>
+        {% endif %}
+
+        {% if page.dimensions %}
+        <dt class="col-sm-4">Dimensions</dt>
+        <dd class="col-sm-8">{{ page.dimensions }}</dd>
+        {% endif %}
+
+        {% if page.location %}
+        <dt class="col-sm-4">Location</dt>
+        <dd class="col-sm-8">{{ page.location }}</dd>
+        {% endif %}
+
+        {% if page.credit %}
+        <dt class="col-sm-4">Credit</dt>
+        <dd class="col-sm-8">{{ page.credit }}</dd>
+        {% endif %}
+      </dl>
+
+      <!-- Long Description -->
+      {% if content %}
+      <div class="object-content mt-4 pt-4 border-top">
+        {{ content }}
+      </div>
+      {% endif %}
+
+      <!-- Related Chapters -->
+      {% assign related_chapters = site.chapters | where_exp: "chapter", "chapter.objects contains page.object_id" %}
+      {% if related_chapters.size > 0 %}
+      <div class="related-chapters mt-4 pt-4 border-top">
+        <h3>Appears in Chapters</h3>
+        <ul class="list-unstyled">
+          {% for chapter in related_chapters %}
+          <li class="mb-2">
+            <a href="{{ chapter.url | relative_url }}">{{ chapter.chapter_number }}. {{ chapter.title }}</a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- OpenSeadragon -->
+<script src="{{ '/assets/js/openseadragon.min.js' | relative_url }}"></script>
+<script>
+  // Initialize viewer for this object
+  document.addEventListener('DOMContentLoaded', function() {
+    {% if page.iiif_manifest %}
+    const infoJsonUrl = '{{ page.iiif_manifest }}';
+    {% elsif page.object_id %}
+    const infoJsonUrl = '/iiif/objects/{{ page.object_id }}/info.json';
+    {% else %}
+    console.error('No IIIF source specified');
+    return;
+    {% endif %}
+
+    const viewer = OpenSeadragon({
+      id: 'object-viewer',
+      prefixUrl: 'https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.0/images/',
+      tileSources: infoJsonUrl,
+      minZoomLevel: 0.5,
+      maxZoomLevel: 10,
+      visibilityRatio: 1.0,
+      animationTime: 1.0,
+      showNavigationControl: true,
+      showZoomControl: true,
+      showHomeControl: true,
+      showFullPageControl: true,
+      defaultZoomLevel: 1
+    });
+
+    viewer.addHandler('open-failed', function(event) {
+      console.error('Failed to open IIIF image:', event.message);
+      document.getElementById('object-viewer').innerHTML =
+        '<div class="d-flex align-items-center justify-content-center h-100 text-white">' +
+        '<div class="text-center"><h3>Image Loading Error</h3>' +
+        '<p>Unable to load IIIF image.</p></div></div>';
+    });
+  });
+</script>
