@@ -37,7 +37,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Fetch data from Google Sheets
-        if: ${{ secrets.GOOGLE_SHEETS_URL != '' }}
+        if: secrets.GOOGLE_SHEETS_URL != ''
         env:
           GOOGLE_SHEETS_URL: ${{ secrets.GOOGLE_SHEETS_URL }}
         run: |
@@ -58,7 +58,7 @@ jobs:
           # curl -L "${GOOGLE_SHEETS_URL}&gid=CHAPTER_1_GID&output=csv" -o _data/chapter-1.csv
 
       - name: Convert CSV to JSON
-        if: ${{ secrets.GOOGLE_SHEETS_URL != '' }}
+        if: secrets.GOOGLE_SHEETS_URL != ''
         run: |
           python scripts/csv_to_json.py
 
