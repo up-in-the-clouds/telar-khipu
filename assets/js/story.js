@@ -42,6 +42,9 @@ function initializeViewer() {
     return;
   }
 
+  // Set current object immediately to prevent unnecessary switching
+  currentObject = firstObjectId;
+
   // Get manifest URL for first object
   const manifestUrl = getManifestUrl(firstObjectId);
 
@@ -64,30 +67,35 @@ function initializeViewer() {
 
   // Listen for UV events to access OpenSeadragon
   uvInstance.on('created', function() {
-    console.log('UniversalViewer created');
-    currentObject = firstObjectId;
-  });
+    // Wait for OpenSeadragon to be fully initialized
+    setTimeout(function() {
+      if (uvInstance._assignedContentHandler) {
+        // Try to get viewer directly
+        if (uvInstance._assignedContentHandler.viewer) {
+          osdViewer = uvInstance._assignedContentHandler.viewer;
+          isViewerReady = true;
 
-  // Access the underlying OpenSeadragon viewer
-  // UV uses the uv-seadragon-extension for images
-  uvInstance.on('openseadragonExtension.opened', function() {
-    console.log('OpenSeadragon extension ready');
+          // Execute any pending zoom operation
+          if (pendingZoom) {
+            animateToPosition(pendingZoom.x, pendingZoom.y, pendingZoom.zoom);
+            pendingZoom = null;
+          }
+        } else if (uvInstance._assignedContentHandler.extension) {
+          // Get viewer through extension
+          const ext = uvInstance._assignedContentHandler.extension;
 
-    // Access OSD viewer through UV's extension
-    // The extension stores the viewer in its centerPanel
-    const extension = uvInstance.extension;
-    if (extension && extension.centerPanel && extension.centerPanel.viewer) {
-      osdViewer = extension.centerPanel.viewer;
-      isViewerReady = true;
-      console.log('OpenSeadragon viewer accessed and ready:', osdViewer);
+          if (ext.centerPanel && ext.centerPanel.viewer) {
+            osdViewer = ext.centerPanel.viewer;
+            isViewerReady = true;
 
-      // Execute any pending zoom operation
-      if (pendingZoom) {
-        console.log('Executing pending zoom:', pendingZoom);
-        animateToPosition(pendingZoom.x, pendingZoom.y, pendingZoom.zoom);
-        pendingZoom = null;
+            if (pendingZoom) {
+              animateToPosition(pendingZoom.x, pendingZoom.y, pendingZoom.zoom);
+              pendingZoom = null;
+            }
+          }
+        }
       }
-    }
+    }, 3000);
   });
 }
 
@@ -168,7 +176,6 @@ function handleStepEnter(response) {
   const zoom = parseFloat(step.dataset.zoom);
   const region = step.dataset.region;
 
-  console.log('Step entered:', stepNumber, { objectId, x, y, zoom });
 
   // Check if we need to switch objects
   if (objectId && objectId !== currentObject) {
@@ -179,10 +186,9 @@ function handleStepEnter(response) {
   if (!isNaN(x) && !isNaN(y) && !isNaN(zoom)) {
     if (isViewerReady) {
       // Viewer is ready, animate immediately
-      setTimeout(() => animateToPosition(x, y, zoom), 300);
+      setTimeout(() => animateToPosition(x, y, zoom), 100);
     } else {
       // Queue the zoom operation for when viewer is ready
-      console.log('Viewer not ready, queuing zoom operation');
       pendingZoom = { x, y, zoom };
     }
   } else if (region) {
@@ -244,21 +250,33 @@ function animateToPosition(x, y, zoom) {
     return;
   }
 
-  console.log('Animating to position:', { x, y, zoom });
-
-  // OpenSeadragon viewport uses normalized coordinates (0-1)
-  // where (0,0) is top-left and (1,1) is bottom-right
   const viewport = osdViewer.viewport;
 
-  // Create a point at the center position
-  const center = new OpenSeadragon.Point(x, y);
+  // Get home zoom for reference
+  const homeZoom = viewport.getHomeZoom();
 
-  // Animate to the new position
-  // Use panTo to center on the point, then zoomTo for the zoom level
-  viewport.panTo(center, true);
-  viewport.zoomTo(zoom, center, true);
+  // Get image aspect ratio
+  const imageBounds = viewport.getHomeBounds();
 
-  console.log('Viewport updated to:', center, 'zoom:', zoom);
+  // OpenSeadragon viewport coordinates are normalized where image width = 1.0
+  // For a portrait image, height > 1.0. For landscape, height < 1.0
+  // Scale Y coordinate based on image height
+  const point = {
+    x: x,
+    y: y * imageBounds.height
+  };
+
+  // Calculate the actual zoom level
+  // Our zoom values (1, 2.5, 3, etc.) are relative to home zoom
+  const actualZoom = homeZoom * zoom;
+
+  // Smooth animation: zoom toward the point, then pan to center it
+  viewport.zoomTo(actualZoom, point, true);
+
+  // Small delay to let zoom start, then ensure point is centered
+  setTimeout(() => {
+    viewport.panTo(point, true);
+  }, 150);
 }
 
 /**
@@ -280,7 +298,8 @@ function animateToRegion(region) {
   }
 
   const [x, y, width, height] = parts;
-  const rect = new OpenSeadragon.Rect(x, y, width, height);
+  // Use a simple object instead of OpenSeadragon.Rect
+  const rect = { x: x, y: y, width: width, height: height };
 
   osdViewer.viewport.fitBounds(rect, true);
 }
