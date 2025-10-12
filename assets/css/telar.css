@@ -77,17 +77,161 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 1.5rem;
 }
 
-/* Panels */
+/* Panels - Colonial Landscapes Style */
 .panel-trigger {
   display: inline-block;
-  color: var(--color-secondary);
-  text-decoration: underline;
+  padding: 0.5rem 1.25rem;
+  background: #E8DCC4;
+  color: #2c3e50;
+  text-decoration: none;
   cursor: pointer;
   font-weight: 600;
+  border-radius: 20px;
+  border: none;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
 }
 
 .panel-trigger:hover {
-  color: var(--color-primary);
+  background: #D4C5A8;
+  color: #1a252f;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Layer 1 Panel - Light blue background, wide coverage */
+#panel-layer1 {
+  width: 65% !important;
+  max-width: 900px;
+  background: #A8C5D4;
+}
+
+#panel-layer1 .offcanvas-header {
+  background: #A8C5D4;
+  border-bottom: none;
+  padding: 1.5rem 2rem;
+}
+
+#panel-layer1 .offcanvas-body {
+  background: #A8C5D4;
+  color: #2c3e50;
+  padding: 2rem;
+  font-size: 1.05rem;
+  line-height: 1.8;
+}
+
+#panel-layer1 .offcanvas-title {
+  color: #ffffff;
+  font-family: var(--font-headings);
+  font-size: 2rem;
+  font-weight: 400;
+}
+
+/* Layer 2 Panel - Dark purple background, narrower than layer1 */
+#panel-layer2 {
+  width: 55% !important;
+  max-width: 800px;
+  background: #3d2645;
+}
+
+#panel-layer2 .offcanvas-header {
+  background: #3d2645;
+  border-bottom: none;
+  padding: 1.5rem 2rem;
+}
+
+#panel-layer2 .offcanvas-body {
+  background: #3d2645;
+  color: #ffffff;
+  padding: 2rem;
+  font-size: 1.05rem;
+  line-height: 1.8;
+}
+
+#panel-layer2 .offcanvas-title {
+  color: #ffffff;
+  font-family: var(--font-headings);
+  font-size: 2rem;
+  font-weight: 400;
+}
+
+/* Panel buttons styling */
+#panel-layer1 .btn-close,
+#panel-layer2 .btn-close {
+  filter: brightness(0) invert(1);
+  opacity: 0.7;
+}
+
+#panel-layer1 .btn-close:hover,
+#panel-layer2 .btn-close:hover {
+  opacity: 1;
+}
+
+#panel-layer1-back,
+#panel-layer2-back {
+  background: rgba(255,255,255,0.2);
+  color: #ffffff;
+  border: 1px solid rgba(255,255,255,0.3);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+}
+
+#panel-layer1-back:hover,
+#panel-layer2-back:hover {
+  background: rgba(255,255,255,0.3);
+  color: #ffffff;
+}
+
+/* Glossary Panel - Cream/beige background */
+#panel-glossary {
+  width: 65% !important;
+  max-width: 900px;
+  background: #F5EDE1;
+}
+
+#panel-glossary .offcanvas-header {
+  background: #F5EDE1;
+  border-bottom: none;
+  padding: 1.5rem 2rem;
+}
+
+#panel-glossary .offcanvas-body {
+  background: #F5EDE1;
+  color: #5d4037;
+  padding: 2rem;
+  font-size: 1.05rem;
+  line-height: 1.8;
+}
+
+#panel-glossary .offcanvas-title {
+  color: #8b4513;
+  font-family: var(--font-headings);
+  font-size: 2rem;
+  font-weight: 400;
+}
+
+#panel-glossary .btn-close {
+  filter: none;
+  opacity: 0.7;
+}
+
+#panel-glossary .btn-close:hover {
+  opacity: 1;
+}
+
+#panel-glossary-back {
+  background: rgba(139,69,19,0.1);
+  color: #8b4513;
+  border: 1px solid rgba(139,69,19,0.2);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+}
+
+#panel-glossary-back:hover {
+  background: rgba(139,69,19,0.15);
+  color: #8b4513;
 }
 
 /* Viewer Containers */
