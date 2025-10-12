@@ -2,6 +2,6 @@ term_id,title,short_definition,definition_file,image,related_terms
 colonial-period,Colonial Period,"The era of Spanish colonial rule in the Americas (1492-1825).",colonial-period.md,/assets/images/glossary/colonial.jpg,"encomienda,viceroyalty"
 encomienda,Encomienda,"Labor system in colonial Spanish America granting colonists indigenous labor.",encomienda.md,,"colonial-period,tribute"
 viceroyalty,Viceroyalty,"Administrative division of the Spanish Empire governed by a viceroy.",viceroyalty.md,/assets/images/glossary/viceroyalty.jpg,colonial-period
-muisca,Muisca,"Indigenous people who inhabited the Bogotá savanna before Spanish colonization.",muisca.md,,"resguardo,encomienda"
+muisca,Muisca,"Indigenous people who inhabited the Bogotá savannah before Spanish colonization.",muisca.md,,"resguardo,encomienda"
 resguardo,Resguardo,"Indigenous reservation established during Spanish colonial rule.",resguardo.md,,"muisca,reducción"
 reducción,Reducción,"The Spanish colonial policy of concentrating indigenous peoples into grid-like villages.",reduccion.md,,"resguardo,muisca"

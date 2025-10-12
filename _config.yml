@@ -4,8 +4,8 @@
 # Site Settings
 title: Telar
 description: A minimal computing framework for digital storytelling exhibitions with IIIF
-baseurl: "/telar" # Set to /repository-name for GitHub Pages
-url: "https://ucsb-amplab.github.io" # Set to https://username.github.io for GitHub Pages
+baseurl: "/telar"
+url: "https://ampl.clair.ucsb.edu"
 author: ""
 email: ""
 

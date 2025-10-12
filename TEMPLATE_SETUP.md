@@ -127,7 +127,7 @@ tagline       | Brief description            |
 ...           |                              |
               |                              |
 STORIES      |                              | example
-1             | Story 1                    | A painting of the Savanna
+1             | Story 1                    | A painting of the savannah
 2             | Story 2                    | Villages for the "indios"
 ```
 

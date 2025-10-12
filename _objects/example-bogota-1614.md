@@ -12,4 +12,4 @@ iiif_manifest:
 layout: object
 ---
 
-A legal map/painting used as evidence in a land ownership dispute between the crown prosecutor and Francisco Maldonado y Mendoza over land in the Bogotá savanna.
+A legal map/painting used as evidence in a land ownership dispute between the crown prosecutor and Francisco Maldonado y Mendoza over land in the Bogotá savannah.
