@@ -281,7 +281,7 @@ function animateToPosition(x, y, zoom) {
   const originalAnimationTime = osdViewer.animationTime;
   const originalSpringStiffness = osdViewer.springStiffness;
 
-  osdViewer.animationTime = 12.0;  // Seconds for animation - very slow, cinematic
+  osdViewer.animationTime = 36.0;  // Seconds for animation - extremely slow, cinematic (3x slower)
   osdViewer.springStiffness = 0.8;  // Lower = smoother, less bouncy (very fluid)
 
   // Use viewport methods with immediate flag set to false for smooth animation
@@ -292,7 +292,7 @@ function animateToPosition(x, y, zoom) {
   setTimeout(() => {
     osdViewer.animationTime = originalAnimationTime;
     osdViewer.springStiffness = originalSpringStiffness;
-  }, 12100);
+  }, 36100);
 }
 
 /**
