@@ -72,15 +72,15 @@ layout: default
       </div>
       {% endif %}
 
-      <!-- Related Chapters -->
-      {% assign related_chapters = site.chapters | where_exp: "chapter", "chapter.objects contains page.object_id" %}
-      {% if related_chapters.size > 0 %}
-      <div class="related-chapters mt-4 pt-4 border-top">
-        <h3>Appears in Chapters</h3>
+      <!-- Related Stories -->
+      {% assign related_stories = site.stories | where_exp: "story", "story.objects contains page.object_id" %}
+      {% if related_stories.size > 0 %}
+      <div class="related-stories mt-4 pt-4 border-top">
+        <h3>Appears in Stories</h3>
         <ul class="list-unstyled">
-          {% for chapter in related_chapters %}
+          {% for story in related_stories %}
           <li class="mb-2">
-            <a href="{{ chapter.url | relative_url }}">{{ chapter.chapter_number }}. {{ chapter.title }}</a>
+            <a href="{{ story.url | relative_url }}">{{ story.story_number }}. {{ story.title }}</a>
           </li>
           {% endfor %}
         </ul>
@@ -110,7 +110,7 @@ layout: default
     var urlAdaptor = new UV.IIIFURLAdaptor();
     const data = urlAdaptor.getInitialData({
       manifest: manifestUrl,
-      embedded: true
+      embedded: false  // false = show full controls (zoom, fullscreen, etc.)
     });
 
     var uv = UV.init('object-viewer', data);
