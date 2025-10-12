@@ -66,18 +66,21 @@ jobs:
       #   run: |
       #     python scripts/csv_to_json.py
 
-      - name: Generate IIIF tiles
-        run: |
-          # Check if source_images directory exists
-          if [ -d "source_images" ]; then
-            python scripts/generate_iiif.py
-          else
-            echo "No source_images directory found. Skipping IIIF generation."
-          fi
-
       - name: Build Jekyll site
         run: |
           bundle exec jekyll build
+
+      - name: Generate IIIF tiles into _site
+        run: |
+          # Check if source images directory exists
+          if [ -d "components/images/objects" ]; then
+            python scripts/generate_iiif.py \
+              --source-dir components/images/objects \
+              --output-dir _site/iiif/objects \
+              --base-url https://ampl.clair.ucsb.edu
+          else
+            echo "No components/images/objects directory found. Skipping IIIF generation."
+          fi
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
