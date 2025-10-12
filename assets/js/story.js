@@ -258,12 +258,11 @@ function animateToPosition(x, y, zoom) {
   // Get image aspect ratio
   const imageBounds = viewport.getHomeBounds();
 
-  // OpenSeadragon viewport coordinates are normalized where image width = 1.0
-  // For a portrait image, height > 1.0. For landscape, height < 1.0
-  // Scale Y coordinate based on image height
+  // OpenSeadragon viewport coordinates: image bounds give us the frame
+  // We need to position within that frame using our 0-1 coordinates
   const point = {
-    x: x,
-    y: y * imageBounds.height
+    x: imageBounds.x + (x * imageBounds.width),
+    y: imageBounds.y + (y * imageBounds.height)
   };
 
   // Calculate the actual zoom level
