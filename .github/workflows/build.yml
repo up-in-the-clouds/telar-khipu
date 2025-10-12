@@ -36,31 +36,35 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Fetch data from Google Sheets
-        if: secrets.GOOGLE_SHEETS_URL != ''
-        env:
-          GOOGLE_SHEETS_URL: ${{ secrets.GOOGLE_SHEETS_URL }}
-        run: |
-          # Create data directory if it doesn't exist
-          mkdir -p _data
-
-          # Fetch Project Setup (tab 2)
-          curl -L "${GOOGLE_SHEETS_URL}&gid=PROJECT_SETUP_GID&output=csv" -o _data/project.csv
-
-          # Fetch Objects (tab 3)
-          curl -L "${GOOGLE_SHEETS_URL}&gid=OBJECTS_GID&output=csv" -o _data/objects.csv
-
-          # Fetch Glossary (tab 4)
-          curl -L "${GOOGLE_SHEETS_URL}&gid=GLOSSARY_GID&output=csv" -o _data/glossary.csv
-
-          # Fetch Chapter tabs (tab 5+)
-          # Note: You'll need to add GIDs for each chapter tab
-          # curl -L "${GOOGLE_SHEETS_URL}&gid=CHAPTER_1_GID&output=csv" -o _data/chapter-1.csv
-
-      - name: Convert CSV to JSON
-        if: secrets.GOOGLE_SHEETS_URL != ''
-        run: |
-          python scripts/csv_to_json.py
+      # Google Sheets integration - commented out for now, using committed data files
+      # Uncomment and configure GOOGLE_SHEETS_URL secret when ready to use
+      # - name: Fetch data from Google Sheets
+      #   env:
+      #     GOOGLE_SHEETS_URL: ${{ secrets.GOOGLE_SHEETS_URL }}
+      #   if: ${{ env.GOOGLE_SHEETS_URL != '' }}
+      #   run: |
+      #     # Create data directory if it doesn't exist
+      #     mkdir -p _data
+      #
+      #     # Fetch Project Setup (tab 2)
+      #     curl -L "${GOOGLE_SHEETS_URL}&gid=PROJECT_SETUP_GID&output=csv" -o _data/project.csv
+      #
+      #     # Fetch Objects (tab 3)
+      #     curl -L "${GOOGLE_SHEETS_URL}&gid=OBJECTS_GID&output=csv" -o _data/objects.csv
+      #
+      #     # Fetch Glossary (tab 4)
+      #     curl -L "${GOOGLE_SHEETS_URL}&gid=GLOSSARY_GID&output=csv" -o _data/glossary.csv
+      #
+      #     # Fetch Chapter tabs (tab 5+)
+      #     # Note: You'll need to add GIDs for each chapter tab
+      #     # curl -L "${GOOGLE_SHEETS_URL}&gid=CHAPTER_1_GID&output=csv" -o _data/chapter-1.csv
+      #
+      # - name: Convert CSV to JSON
+      #   env:
+      #     GOOGLE_SHEETS_URL: ${{ secrets.GOOGLE_SHEETS_URL }}
+      #   if: ${{ env.GOOGLE_SHEETS_URL != '' }}
+      #   run: |
+      #     python scripts/csv_to_json.py
 
       - name: Generate IIIF tiles
         run: |
