@@ -262,16 +262,27 @@ function initializePanels() {
   document.querySelectorAll('[data-panel="layer1"]').forEach(trigger => {
     trigger.addEventListener('click', function() {
       const stepNumber = this.dataset.step;
+      // Clear stack and open layer1
+      panelStack = [];
       openPanel('layer1', stepNumber);
     });
   });
 
-  // Layer 2 back button
+  // Layer 2 panel triggers
+  document.querySelectorAll('[data-panel="layer2"]').forEach(trigger => {
+    trigger.addEventListener('click', function() {
+      const stepNumber = this.dataset.step;
+      // Open layer2 on top of layer1
+      openPanel('layer2', stepNumber);
+    });
+  });
+
+  // Layer 2 back button - goes back to layer1
   const layer2Back = document.getElementById('panel-layer2-back');
   if (layer2Back) {
     layer2Back.addEventListener('click', function() {
       closePanel('layer2');
-      openPanel('layer1', panelStack[panelStack.length - 1]);
+      // Layer 1 should still be visible underneath
     });
   }
 
@@ -280,10 +291,10 @@ function initializePanels() {
   if (glossaryBack) {
     glossaryBack.addEventListener('click', function() {
       closePanel('glossary');
-      // Reopen previous panel if exists
+      // Return to previous panel if exists
       if (panelStack.length > 0) {
-        const previous = panelStack.pop();
-        openPanel(previous.type, previous.id);
+        const previous = panelStack[panelStack.length - 1];
+        // Panel should still be open
       }
     });
   }
@@ -306,8 +317,13 @@ function openPanel(panelType, contentId) {
     document.getElementById(`${panelId}-title`).textContent = content.title;
     document.getElementById(`${panelId}-content`).innerHTML = content.html;
 
-    // Add to stack
-    panelStack.push({ type: panelType, id: contentId });
+    // Track current panel
+    if (panelType === 'layer1') {
+      panelStack = [{ type: panelType, id: contentId }];
+    } else {
+      // Layer 2 or glossary - keep layer1 in stack
+      panelStack.push({ type: panelType, id: contentId });
+    }
 
     // Open panel
     const bsOffcanvas = new bootstrap.Offcanvas(panel);

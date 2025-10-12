@@ -32,8 +32,8 @@ h1, h2, h3, h4, h5, h6 {
   border-top: 1px solid #dee2e6;
 }
 
-/* Chapter Layout - Split Screen */
-.chapter-container {
+/* Story Layout - Split Screen */
+.story-container {
   display: flex;
   height: 100vh;
   overflow: hidden;
@@ -201,7 +201,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Responsive */
 @media (max-width: 768px) {
-  .chapter-container {
+  .story-container {
     flex-direction: column;
     height: auto;
   }
