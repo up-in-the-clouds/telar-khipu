@@ -1,14 +1,14 @@
 ---
 layout: default
-title: Collection
-permalink: /collection/
+title: Objects in the Stories
+permalink: /objects/
 ---
 
 <div class="container my-5">
   <div class="row">
     <div class="col-12">
-      <h1>Collection</h1>
-      <p class="lead">Browse {{ site.objects.size }} objects from the collection.</p>
+      <h1>Objects in the Stories</h1>
+      <p class="lead">Browse {{ site.objects.size }} objects featured in the stories.</p>
     </div>
   </div>
 

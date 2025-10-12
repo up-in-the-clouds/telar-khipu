@@ -18,16 +18,16 @@
 
   {% seo %}
 </head>
-<body class="chapter-page">
-  <div class="chapter-container">
+<body class="story-page">
+  <div class="story-container">
     <!-- Left Column: Scrolling Narrative -->
     <div class="narrative-column">
-      <!-- Chapter Header -->
-      <div class="chapter-header mb-4">
+      <!-- Story Header -->
+      <div class="story-header mb-4">
         <a href="{{ '/' | relative_url }}" class="btn btn-sm btn-outline-secondary mb-3">
           ← Back to Home
         </a>
-        <h1 class="chapter-title">{{ page.chapter_number }}. {{ page.title }}</h1>
+        <h1 class="story-title">{{ page.story_number }}. {{ page.title }}</h1>
         {% if page.description %}
         <p class="lead">{{ page.description }}</p>
         {% endif %}
@@ -48,6 +48,7 @@
               y=step.y
               zoom=step.zoom
               layer1_title=step.layer1_title
+              layer2_title=step.layer2_title
             %}
           {% endfor %}
         {% else %}
@@ -55,21 +56,21 @@
         {% endif %}
       </div>
 
-      <!-- Chapter Navigation -->
-      <div class="chapter-navigation mt-5 pt-4 border-top">
+      <!-- Story Navigation -->
+      <div class="story-navigation mt-5 pt-4 border-top">
         <div class="row">
-          {% if page.previous_chapter %}
+          {% if page.previous_story %}
           <div class="col-6">
-            <a href="{{ page.previous_chapter | relative_url }}" class="btn btn-outline-primary">
-              ← Previous Chapter
+            <a href="{{ page.previous_story | relative_url }}" class="btn btn-outline-primary">
+              ← Previous Story
             </a>
           </div>
           {% endif %}
 
           <div class="col-6 text-end">
-            {% if page.next_chapter %}
-            <a href="{{ page.next_chapter | relative_url }}" class="btn btn-primary">
-              Next Chapter →
+            {% if page.next_story %}
+            <a href="{{ page.next_story | relative_url }}" class="btn btn-primary">
+              Next Story →
             </a>
             {% else %}
             <a href="{{ '/' | relative_url }}" class="btn btn-outline-primary">
@@ -103,19 +104,19 @@
   <!-- Telar Core -->
   <script src="{{ '/assets/js/telar.js' | relative_url }}"></script>
 
-  <!-- Chapter-specific JavaScript -->
+  <!-- Story-specific JavaScript -->
   <script>
-    // Pass chapter data to JavaScript
+    // Pass story data to JavaScript
     {% if page.data_file %}
     // Load steps from data file
     {% assign data_file_name = page.data_file %}
     {% assign steps_data = site.data[data_file_name] %}
-    window.chapterData = {
+    window.storyData = {
       steps: {{ steps_data | jsonify }},
       firstObject: "{{ steps_data[0].object }}"
     };
     {% else %}
-    window.chapterData = {
+    window.storyData = {
       steps: {{ page.steps | jsonify }},
       firstObject: "{{ page.first_object }}"
     };
@@ -124,6 +125,6 @@
     // Pass objects data for manifest lookup
     window.objectsData = {{ site.data.objects | jsonify }};
   </script>
-  <script src="{{ '/assets/js/chapter.js' | relative_url }}"></script>
+  <script src="{{ '/assets/js/story.js' | relative_url }}"></script>
 </body>
 </html>

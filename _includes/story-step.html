@@ -22,7 +22,15 @@
     {% if include.layer1_title %}
     <p>
       <button class="panel-trigger" data-panel="layer1" data-step="{{ include.step_number }}">
-        Read more →
+        {{ include.layer1_title }} →
+      </button>
+    </p>
+    {% endif %}
+
+    {% if include.layer2_title %}
+    <p>
+      <button class="panel-trigger" data-panel="layer2" data-step="{{ include.step_number }}">
+        {{ include.layer2_title }} →
       </button>
     </p>
     {% endif %}

@@ -18,39 +18,39 @@ title: Home
     </div>
   </div>
 
-  <!-- Chapter List -->
+  <!-- Stories List -->
   <div class="row">
     <div class="col-lg-10 mx-auto">
-      <h2 class="mb-4">Chapters</h2>
+      <h2 class="mb-4">Stories</h2>
 
-      {% if site.chapters.size > 0 %}
+      {% if site.stories.size > 0 %}
       <div class="list-group">
-        {% for chapter in site.chapters %}
-        <a href="{{ chapter.url | relative_url }}" class="list-group-item list-group-item-action">
+        {% for story in site.stories %}
+        <a href="{{ story.url | relative_url }}" class="list-group-item list-group-item-action">
           <div class="d-flex w-100 justify-content-between">
-            <h3 class="h5 mb-1">{{ chapter.chapter_number }}. {{ chapter.title }}</h3>
+            <h3 class="h5 mb-1">{{ story.story_number }}. {{ story.title }}</h3>
           </div>
-          {% if chapter.description %}
-          <p class="mb-1">{{ chapter.description }}</p>
+          {% if story.description %}
+          <p class="mb-1">{{ story.description }}</p>
           {% endif %}
         </a>
         {% endfor %}
       </div>
       {% else %}
       <div class="alert alert-info">
-        <p class="mb-0">No chapters available yet. Create chapter files in the <code>_chapters/</code> directory to get started.</p>
+        <p class="mb-0">No stories available yet. Create story files in the <code>_stories/</code> directory to get started.</p>
       </div>
       {% endif %}
     </div>
   </div>
 
-  <!-- Collection Teaser -->
+  <!-- Objects Teaser -->
   {% if site.objects.size > 0 %}
   <div class="row mt-5">
     <div class="col-lg-10 mx-auto">
-      <h2 class="mb-4">Explore the Collection</h2>
-      <p class="lead">Browse {{ site.objects.size }} objects from the collection.</p>
-      <a href="{{ '/collection/' | relative_url }}" class="btn btn-primary">View Collection</a>
+      <h2 class="mb-4">Explore the objects behind the stories</h2>
+      <p class="lead">Browse {{ site.objects.size }} objects featured in the stories.</p>
+      <a href="{{ '/objects/' | relative_url }}" class="btn btn-primary">View Objects</a>
     </div>
   </div>
   {% endif %}
