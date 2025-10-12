@@ -268,13 +268,13 @@ function initializePanels() {
     });
   });
 
-  // Layer 2 panel triggers
-  document.querySelectorAll('[data-panel="layer2"]').forEach(trigger => {
-    trigger.addEventListener('click', function() {
-      const stepNumber = this.dataset.step;
+  // Layer 2 panel triggers (using delegation since buttons are added dynamically)
+  document.addEventListener('click', function(e) {
+    if (e.target.matches('[data-panel="layer2"]')) {
+      const stepNumber = e.target.dataset.step;
       // Open layer2 on top of layer1
       openPanel('layer2', stepNumber);
-    });
+    }
   });
 
   // Layer 2 back button - goes back to layer1
@@ -357,12 +357,19 @@ function getPanelContent(panelType, contentId) {
   if (!step) return null;
 
   if (panelType === 'layer1') {
+    let html = formatPanelContent({
+      text: step.layer1_text,
+      media: step.layer1_media
+    });
+
+    // Add layer2 button if layer2 exists
+    if (step.layer2_title && step.layer2_title.trim() !== '') {
+      html += `<p><button class="panel-trigger" data-panel="layer2" data-step="${contentId}">${step.layer2_title} →</button></p>`;
+    }
+
     return {
       title: step.layer1_title || 'Layer 1',
-      html: formatPanelContent({
-        text: step.layer1_text,
-        media: step.layer1_media
-      })
+      html: html
     };
   } else if (panelType === 'layer2') {
     return {
