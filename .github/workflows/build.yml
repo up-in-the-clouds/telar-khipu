@@ -74,10 +74,17 @@ jobs:
         run: |
           # Check if source images directory exists
           if [ -d "components/images/objects" ]; then
+            # Extract URL and baseurl from _config.yml
+            SITE_URL=$(python3 -c "import yaml; config=yaml.safe_load(open('_config.yml')); print(config.get('url', ''))")
+            BASE_URL=$(python3 -c "import yaml; config=yaml.safe_load(open('_config.yml')); print(config.get('baseurl', ''))")
+            FULL_URL="${SITE_URL}${BASE_URL}"
+
+            echo "Generating IIIF tiles with base URL: $FULL_URL"
+
             python scripts/generate_iiif.py \
               --source-dir components/images/objects \
               --output-dir _site/iiif/objects \
-              --base-url https://ampl.clair.ucsb.edu
+              --base-url "$FULL_URL"
           else
             echo "No components/images/objects directory found. Skipping IIIF generation."
           fi
