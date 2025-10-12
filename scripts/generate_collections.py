@@ -78,47 +78,47 @@ layout: glossary
 
         print(f"✓ Generated {filepath}")
 
-def generate_chapters():
-    """Generate chapter markdown files based on project.json chapters list"""
+def generate_stories():
+    """Generate story markdown files based on project.json stories list"""
 
-    # Parse project.csv directly to get chapters
-    chapters = []
+    # Parse project.csv directly to get stories
+    stories = []
     with open('_data/project.csv', 'r') as f:
-        in_chapters = False
+        in_stories = False
         for line in f:
-            if 'CHAPTERS' in line:
-                in_chapters = True
+            if 'STORIES' in line:
+                in_stories = True
                 continue
-            if in_chapters:
+            if in_stories:
                 parts = line.strip().split(',')
                 if len(parts) >= 2 and parts[0].strip():
-                    chapter_num = parts[0].strip()
-                    chapter_title = parts[1].strip().strip('"')
-                    chapters.append({
-                        'number': chapter_num,
-                        'title': chapter_title
+                    story_num = parts[0].strip()
+                    story_title = parts[1].strip().strip('"')
+                    stories.append({
+                        'number': story_num,
+                        'title': story_title
                     })
 
-    chapters_dir = Path('_chapters')
-    chapters_dir.mkdir(exist_ok=True)
+    stories_dir = Path('_stories')
+    stories_dir.mkdir(exist_ok=True)
 
-    for chapter in chapters:
-        chapter_num = chapter['number']
-        chapter_title = chapter['title']
+    for story in stories:
+        story_num = story['number']
+        story_title = story['title']
 
-        # Check if chapter data file exists
-        data_file = Path(f'_data/chapter-{chapter_num}.json')
+        # Check if story data file exists
+        data_file = Path(f'_data/story-{story_num}.json')
         if not data_file.exists():
-            print(f"Warning: No data file found for Chapter {chapter_num}")
+            print(f"Warning: No data file found for Story {story_num}")
             continue
 
-        filepath = chapters_dir / f"chapter-{chapter_num}.md"
+        filepath = stories_dir / f"story-{story_num}.md"
 
         content = f"""---
-chapter_number: {chapter_num}
-title: "{chapter_title}"
-layout: chapter
-data_file: chapter-{chapter_num}
+story_number: {story_num}
+title: "{story_title}"
+layout: story
+data_file: story-{story_num}
 ---
 
 """
@@ -139,7 +139,7 @@ def main():
     generate_glossary()
     print()
 
-    generate_chapters()
+    generate_stories()
 
     print("-" * 50)
     print("Generation complete!")

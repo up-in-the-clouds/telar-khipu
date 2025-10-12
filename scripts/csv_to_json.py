@@ -52,22 +52,22 @@ def process_project_setup(df):
 
     # Convert key-value pairs to dictionary
     project_dict = {}
-    chapters_list = []
+    stories_list = []
 
-    in_chapters_section = False
+    in_stories_section = False
 
     for _, row in df.iterrows():
         key = str(row.get('key', '')).strip()
         value = row.get('value', '')
 
-        if key == 'CHAPTERS':
-            in_chapters_section = True
+        if key == 'STORIES':
+            in_stories_section = True
             continue
 
-        if in_chapters_section:
-            # Parse chapter entries
+        if in_stories_section:
+            # Parse story entries
             if pd.notna(value):
-                chapters_list.append({
+                stories_list.append({
                     'number': key,
                     'title': value
                 })
@@ -77,7 +77,7 @@ def process_project_setup(df):
                 project_dict[key] = value
 
     # Return combined structure
-    result = {**project_dict, 'chapters': chapters_list}
+    result = {**project_dict, 'stories': stories_list}
     return pd.DataFrame([result])
 
 def process_objects(df):
@@ -114,9 +114,9 @@ def process_glossary(df):
 
     return df
 
-def process_chapter(df):
+def process_story(df):
     """
-    Process chapter CSV
+    Process story CSV
     Expected columns: step, question, answer, object, x, y, zoom, layer1_title, etc.
     """
     # Drop example column if it exists
@@ -160,14 +160,14 @@ def main():
         process_glossary
     )
 
-    # Convert chapter files
-    # Look for any CSV files that start with "chapter-"
-    for csv_file in data_dir.glob('chapter-*.csv'):
+    # Convert story files
+    # Look for any CSV files that start with "story-"
+    for csv_file in data_dir.glob('story-*.csv'):
         json_file = csv_file.with_suffix('.json')
         csv_to_json(
             str(csv_file),
             str(json_file),
-            process_chapter
+            process_story
         )
 
     print("-" * 50)
