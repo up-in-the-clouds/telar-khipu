@@ -1,6 +1,6 @@
 /**
- * Telar Chapter - UniversalViewer + Scrollama Integration
- * Handles scrollytelling interactions for chapter pages
+ * Telar Story - UniversalViewer + Scrollama Integration
+ * Handles scrollytelling interactions for story pages
  */
 
 let uvInstance;
@@ -32,11 +32,11 @@ function buildObjectsIndex() {
  * Initialize UniversalViewer with IIIF support
  */
 function initializeViewer() {
-  // Get first object from chapter data
-  const firstObjectId = window.chapterData?.firstObject;
+  // Get first object from story data
+  const firstObjectId = window.storyData?.firstObject;
 
   if (!firstObjectId) {
-    console.error('No first object specified in chapter data');
+    console.error('No first object specified in story data');
     return;
   }
 
@@ -298,7 +298,7 @@ function openPanel(panelType, contentId) {
 
   if (!panel) return;
 
-  // Get content from chapter data
+  // Get content from story data
   const content = getPanelContent(panelType, contentId);
 
   if (content) {
@@ -331,11 +331,11 @@ function closePanel(panelType) {
 }
 
 /**
- * Get panel content from chapter data
+ * Get panel content from story data
  */
 function getPanelContent(panelType, contentId) {
-  // This will be populated from the chapter's YAML/JSON data
-  const steps = window.chapterData?.steps || [];
+  // This will be populated from the story's YAML/JSON data
+  const steps = window.storyData?.steps || [];
   const step = steps.find(s => s.step == contentId);
 
   if (!step) return null;
@@ -387,7 +387,7 @@ function formatPanelContent(panelData) {
 }
 
 // Export for debugging
-window.TelarChapter = {
+window.TelarStory = {
   uvInstance,
   osdViewer,
   scroller,
