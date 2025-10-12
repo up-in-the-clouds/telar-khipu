@@ -28,3 +28,8 @@ Thumbs.db
 
 # Build artifacts
 *.log
+
+# IIIF Generated Tiles
+# TODO: Remove this when testing GitHub Actions workflow
+# Tiles should be tracked in production for optimization
+iiif/objects/
