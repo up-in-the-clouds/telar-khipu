@@ -101,6 +101,48 @@ h1, h2, h3, h4, h5, h6 {
   height: 600px;
 }
 
+/* UniversalViewer - Clean Story Viewer Display */
+/* Hide all UV controls in story pages for clean presentation */
+#viewer-container .headerPanel,
+#viewer-container .footerPanel,
+#viewer-container .leftPanel,
+#viewer-container .rightPanel,
+#viewer-container .mobilePanel,
+#viewer-container .btn,
+#viewer-container .download,
+#viewer-container .share,
+#viewer-container .embed,
+#viewer-container .more,
+#viewer-container .pagingToggle,
+#viewer-container .searchButton,
+#viewer-container .bookmark,
+#viewer-container .zoomIn,
+#viewer-container .zoomOut,
+#viewer-container .goHome {
+  display: none !important;
+}
+
+/* Keep only the essential image viewing area */
+#viewer-container .centerPanel {
+  top: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+}
+
+/* Remove UV branding, titles, and info overlays */
+#viewer-container .informationBox,
+#viewer-container .moreInfoButton,
+#viewer-container .attribution,
+#viewer-container .title,
+#viewer-container .subtitle,
+#viewer-container .titlePanel,
+#viewer-container .metadata,
+#viewer-container h1,
+#viewer-container h2 {
+  display: none !important;
+}
+
 /* UniversalViewer - Clean Object Page Display */
 /* Hide all UV controls on object pages for clean presentation */
 #object-viewer .headerPanel,

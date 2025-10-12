@@ -106,9 +106,20 @@ function getManifestUrl(objectId) {
  * Build local IIIF manifest.json URL
  */
 function buildLocalInfoJsonUrl(objectId) {
-  const baseUrl = window.location.origin;
-  const sitePath = window.location.pathname.split('/').slice(0, -2).join('/');
-  return `${baseUrl}${sitePath}/iiif/objects/${objectId}/manifest.json`;
+  // Get the site's base URL from the page
+  // For /telar/stories/story-1/, we want /telar
+  const pathParts = window.location.pathname.split('/').filter(p => p);
+
+  // Find the baseurl by removing the last 2 path segments (stories/story-1)
+  let basePath = '';
+  if (pathParts.length >= 2) {
+    basePath = '/' + pathParts.slice(0, -2).join('/');
+  }
+
+  const manifestUrl = `${window.location.origin}${basePath}/iiif/objects/${objectId}/manifest.json`;
+  console.log('Building local IIIF manifest URL:', manifestUrl);
+
+  return manifestUrl;
 }
 
 /**
