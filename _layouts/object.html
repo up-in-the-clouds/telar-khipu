@@ -61,7 +61,7 @@ layout: default
         <dd class="col-sm-8"><a href="{{ page.iiif_manifest }}" target="_blank" rel="noopener">View manifest</a></dd>
         {% elsif page.object_id %}
         <dt class="col-sm-4">IIIF Manifest</dt>
-        <dd class="col-sm-8"><a href="{{ '/iiif/objects/' | append: page.object_id | append: '/info.json' | relative_url }}" target="_blank" rel="noopener">View manifest</a></dd>
+        <dd class="col-sm-8"><a href="{{ '/iiif/objects/' | append: page.object_id | append: '/manifest.json' | relative_url }}" target="_blank" rel="noopener">View manifest</a></dd>
         {% endif %}
       </dl>
 
@@ -98,7 +98,7 @@ layout: default
     {% if page.iiif_manifest %}
     const manifestUrl = '{{ page.iiif_manifest }}';
     {% elsif page.object_id %}
-    const manifestUrl = '{{ site.baseurl }}/iiif/objects/{{ page.object_id }}/info.json';
+    const manifestUrl = '{{ site.baseurl }}/iiif/objects/{{ page.object_id }}/manifest.json';
     {% else %}
     console.error('No IIIF source specified');
     return;

@@ -103,12 +103,12 @@ function getManifestUrl(objectId) {
 }
 
 /**
- * Build local IIIF info.json URL
+ * Build local IIIF manifest.json URL
  */
 function buildLocalInfoJsonUrl(objectId) {
   const baseUrl = window.location.origin;
   const sitePath = window.location.pathname.split('/').slice(0, -2).join('/');
-  return `${baseUrl}${sitePath}/iiif/objects/${objectId}/info.json`;
+  return `${baseUrl}${sitePath}/iiif/objects/${objectId}/manifest.json`;
 }
 
 /**

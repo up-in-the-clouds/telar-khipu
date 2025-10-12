@@ -26,7 +26,7 @@
   {
     "term_id": "muisca",
     "title": "Muisca",
-    "short_definition": "Indigenous people who inhabited the Bogotá savanna before Spanish colonization.",
+    "short_definition": "Indigenous people who inhabited the Bogot\u00e1 savanna before Spanish colonization.",
     "definition": "The Muisca were a highly organized indigenous society in the Colombian highlands, known for their sophisticated agricultural systems including terraced farming and water management. They lived in a confederation of chiefdoms and developed complex political and religious structures.",
     "image": "",
     "related_terms": "resguardo,encomienda"
@@ -37,13 +37,13 @@
     "short_definition": "Indigenous reservation established during Spanish colonial rule.",
     "definition": "Resguardos were communal lands designated by the Spanish crown for indigenous populations after their forced relocation. While intended to protect indigenous communities, they often resulted in displacement from ancestral territories and concentration in smaller, less productive areas.",
     "image": "",
-    "related_terms": "muisca,reducción"
+    "related_terms": "muisca,reducci\u00f3n"
   },
   {
-    "term_id": "reducción",
-    "title": "Reducción",
+    "term_id": "reducci\u00f3n",
+    "title": "Reducci\u00f3n",
     "short_definition": "The Spanish colonial policy of concentrating indigenous peoples into grid-like villages.",
-    "definition": "The reducción policy forcibly relocated dispersed indigenous populations into planned settlements modeled on Spanish towns. This facilitated Spanish control, Catholic evangelization, and labor extraction, while disrupting indigenous social structures and land use patterns.",
+    "definition": "The reducci\u00f3n policy forcibly relocated dispersed indigenous populations into planned settlements modeled on Spanish towns. This facilitated Spanish control, Catholic evangelization, and labor extraction, while disrupting indigenous social structures and land use patterns.",
     "image": "",
     "related_terms": "resguardo,muisca"
   }

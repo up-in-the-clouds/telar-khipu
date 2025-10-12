@@ -1,15 +1,54 @@
 [
   {
-    "object_id": "example-muisca-textile",
-    "title": "Muisca Textile Fragment",
-    "description": "Painted textile made of cotton. Plain weave with paired warps and vertical stripe in supplementary warp pattern in brown along each edge; fringe along the bottom edge. Painted designs in brown and blue depict geometric interlocking panels and a seated figure.",
-    "creator": "Unknown Muisca Artist",
-    "date": "Pre-colonial era",
-    "medium": "Cotton",
+    "object_id": "example-terrafirma-map",
+    "title": "Terra firma et novum regnum Granatense et Popayan",
+    "description": "Historical map of New Granada (present-day Colombia) and Popayan region, created by Jan Jansson and Hendrik Hondius. This copper-engraved map appeared in only two Jansson/Hondius atlases with a blank verso.",
+    "creator": "Jan Jansson (1588-1664) and Hendrik Hondius (1597-1651)",
+    "period": "1630-1631",
+    "medium": "Copper engraving",
     "dimensions": "",
-    "location": "British Museum",
-    "credit": "© Trustees of the British Museum",
+    "location": "Huntington Library",
+    "credit": "Huntington Digital Library",
     "thumbnail": "",
-    "iiif_manifest": "https://media.britishmuseum.org/iiif/image/AN00091859/info.json"
+    "iiif_manifest": "https://hdl.huntington.org/iiif/info/p15150coll4/3342/manifest.json"
+  },
+  {
+    "object_id": "example-bogota-1614",
+    "title": "Painting of the lands marshes and swamps of the town of Bogot\u00e1",
+    "description": "A legal map/painting used as evidence in a land ownership dispute between the crown prosecutor and Francisco Maldonado y Mendoza over land in the Bogot\u00e1 savanna.",
+    "creator": "Juan de Aguilar Rend\u00f3n (painter) and Alonso Ruiz Gad\u00e1lmez (guarantor)",
+    "period": "April 1614",
+    "medium": "Oil on canvas, cartographic painting",
+    "dimensions": "",
+    "location": "Archivo General de Indias",
+    "credit": "Archivo General de Indias, Seville",
+    "thumbnail": "",
+    "iiif_manifest": ""
+  },
+  {
+    "object_id": "example-muisca-goldwork",
+    "title": "Votive Figure in the Shape of a Fence",
+    "description": "Gold votive figure from the Muisca culture, demonstrating sophisticated metalworking techniques and ritual practices.",
+    "creator": "Unknown Muisca Artist",
+    "period": "600-1600",
+    "medium": "Gold alloy",
+    "dimensions": "",
+    "location": "Museo del Oro",
+    "credit": "Museo del Oro, Bogot\u00e1. Registration Number: O08319",
+    "thumbnail": "",
+    "iiif_manifest": ""
+  },
+  {
+    "object_id": "example-ceramic-figure",
+    "title": "Anthropomorphic Ceramic Figure",
+    "description": "Ceramic figure from the Muisca period representing indigenous material culture and ritual practices before Spanish colonization.",
+    "creator": "Unknown Muisca Artist",
+    "period": "Pre-colonial era",
+    "medium": "Ceramic",
+    "dimensions": "",
+    "location": "Museo del Oro",
+    "credit": "Museo del Oro, Bogot\u00e1",
+    "thumbnail": "",
+    "iiif_manifest": ""
   }
 ]
