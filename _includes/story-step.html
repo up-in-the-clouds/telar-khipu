@@ -19,11 +19,11 @@
     {{ include.answer | markdownify }}
 
     <!-- Layer 1 Panel Trigger -->
-    {% assign trimmed_title = include.layer1_title | strip %}
-    {% if trimmed_title != "" %}
+    {% assign trimmed_button = include.layer1_button | strip %}
+    {% if trimmed_button != "" %}
     <p>
       <button class="panel-trigger" data-panel="layer1" data-step="{{ include.step_number }}">
-        {{ include.layer1_title }} →
+        {{ include.layer1_button }} →
       </button>
     </p>
     {% endif %}
