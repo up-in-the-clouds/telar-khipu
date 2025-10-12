@@ -11,6 +11,8 @@ let panelStack = [];
 let objectsIndex = {}; // Quick lookup for object data
 let isViewerReady = false; // Track if UV is fully initialized
 let pendingZoom = null; // Queue zoom operations if viewer isn't ready
+let isPanelOpen = false; // Track if any panel is open
+let scrollLockActive = false; // Track if scroll-lock is active
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
@@ -18,6 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
   initializeViewer();
   initializeScrollama();
   initializePanels();
+  initializeScrollLock();
 });
 
 /**
@@ -409,6 +412,10 @@ function openPanel(panelType, contentId) {
     // Open panel
     const bsOffcanvas = new bootstrap.Offcanvas(panel);
     bsOffcanvas.show();
+
+    // Activate scroll lock
+    isPanelOpen = true;
+    activateScrollLock();
   }
 }
 
@@ -425,6 +432,15 @@ function closePanel(panelType) {
   if (bsOffcanvas) {
     bsOffcanvas.hide();
   }
+
+  // Check if all panels are closed
+  setTimeout(() => {
+    const anyPanelOpen = document.querySelector('.offcanvas.show');
+    if (!anyPanelOpen) {
+      isPanelOpen = false;
+      deactivateScrollLock();
+    }
+  }, 350); // Wait for Bootstrap animation to complete
 }
 
 /**
@@ -490,6 +506,63 @@ function formatPanelContent(panelData) {
   return html;
 }
 
+/**
+ * Initialize scroll-lock system
+ * Auto-closes panels when user continues scrolling
+ */
+function initializeScrollLock() {
+  const narrativeColumn = document.querySelector('.narrative-column');
+  if (!narrativeColumn) return;
+
+  let scrollTimeout;
+
+  narrativeColumn.addEventListener('scroll', function() {
+    if (!isPanelOpen) return;
+
+    // Clear existing timeout
+    clearTimeout(scrollTimeout);
+
+    // Set timeout to close panels if scrolling continues
+    scrollTimeout = setTimeout(() => {
+      if (isPanelOpen) {
+        closeAllPanels();
+      }
+    }, 300); // Close after 300ms of scrolling
+  });
+}
+
+/**
+ * Activate scroll lock
+ * Prevents step changes while panel is open
+ */
+function activateScrollLock() {
+  scrollLockActive = true;
+}
+
+/**
+ * Deactivate scroll lock
+ * Allows step changes when panel is closed
+ */
+function deactivateScrollLock() {
+  scrollLockActive = false;
+}
+
+/**
+ * Close all open panels
+ */
+function closeAllPanels() {
+  const openPanels = document.querySelectorAll('.offcanvas.show');
+  openPanels.forEach(panel => {
+    const bsOffcanvas = bootstrap.Offcanvas.getInstance(panel);
+    if (bsOffcanvas) {
+      bsOffcanvas.hide();
+    }
+  });
+
+  isPanelOpen = false;
+  deactivateScrollLock();
+}
+
 // Export for debugging
 window.TelarStory = {
   uvInstance,
@@ -498,5 +571,6 @@ window.TelarStory = {
   switchObject,
   animateToPosition,
   openPanel,
-  getManifestUrl
+  getManifestUrl,
+  closeAllPanels
 };
