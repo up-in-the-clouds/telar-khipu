@@ -4,13 +4,13 @@ Welcome to the Telar Google Sheets template! This spreadsheet is your authoring 
 
 ## Overview
 
-This template has **5 tabs** (or more if you add additional stories):
+This template has **5 CSV files**:
 
-1. **Instructions** (this tab) - Read-only reference
-2. **Project Setup** - Site configuration and stories list
-3. **Objects** - Collection metadata
-4. **Glossary** - Term definitions
-5. **Story 1** - Story steps (add more story tabs as needed)
+1. **01-instructions.csv** - Read-only reference
+2. **02-project-setup.csv** - Site configuration and stories list
+3. **03-objects.csv** - Collection metadata
+4. **04-glossary.csv** - Term definitions
+5. **05-stories.csv** - All story steps for all stories
 
 ## Example Data
 
@@ -67,7 +67,7 @@ After site settings, leave a blank row, then:
 | Column A: key | Column B: value | Column C: example |
 |---------------|-----------------|-------------------|
 | `STORIES` | *(leave blank)* | example |
-| `1` | Story 1 Title | A painting of the Savanna |
+| `1` | Story 1 Title | A painting of the savannah |
 | `2` | Story 2 Title | Villages for the "indios" |
 | `3` | Story 3 Title | From terraces to grasslands |
 | `4` | *(optional)* | A divided landscape |
@@ -120,9 +120,9 @@ One row per term.
 
 ---
 
-## Tab 5+: Story Tabs
+## File 5: Stories (05-stories.csv)
 
-One tab per story. Name tabs exactly: `Story 1`, `Story 2`, etc.
+All story steps for all stories in a single CSV file.
 
 ### Required Columns:
 - **step**: Step number (1, 2, 3...)
@@ -134,15 +134,19 @@ One tab per story. Name tabs exactly: `Story 1`, `Story 2`, etc.
 - **zoom**: Zoom level (1 = fit, higher = zoom in)
 
 ### Optional Columns (Layer 1):
-- **layer1_title**: Panel heading
+- **layer1_button**: Button label (e.g., "Learn more")
+- **layer1_title**: Panel heading (content-specific title)
 - **layer1_text**: Detailed context
 - **layer1_media**: Image path
 
 ### Optional Columns (Layer 2):
-- **layer2_title**: Panel heading
+- **layer2_button**: Button label (e.g., "Go deeper")
+- **layer2_title**: Panel heading (content-specific title)
 - **layer2_text**: Scholarly detail
 - **layer2_media**: Image path
 - **example**: Marks example rows (delete this column when customizing)
+
+**Note**: The `layer1_button` and `layer2_button` fields contain generic button labels that appear in the narrative ("Learn more", "Go deeper"). The `layer1_title` and `layer2_title` fields contain specific content titles that appear when the panels open.
 
 ### Coordinate System:
 - Origin (0, 0) = top-left corner
@@ -210,13 +214,15 @@ Each tab has a unique GID for GitHub Actions:
 
 Before publishing:
 
-- [ ] All required tabs present (Instructions, Project Setup, Objects, Glossary, Story 1)
+- [ ] All required CSV files present (01-instructions, 02-project-setup, 03-objects, 04-glossary, 05-stories)
 - [ ] Column headers match exactly (case-sensitive)
 - [ ] No empty rows between data
-- [ ] Object IDs consistent across tabs
+- [ ] Object IDs consistent across files
 - [ ] Coordinates are decimals (0.5 not 50%)
 - [ ] File paths start with `/`
 - [ ] External IIIF URLs are complete
+- [ ] Button labels (layer1_button, layer2_button) are generic
+- [ ] Panel titles (layer1_title, layer2_title) are content-specific
 - [ ] Sheet published to web as CSV
 - [ ] Auto-republish enabled
 
