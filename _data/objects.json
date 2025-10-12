@@ -14,9 +14,9 @@
   },
   {
     "object_id": "example-bogota-1614",
-    "title": "Painting of the lands marshes and swamps of the town of Bogot\u00e1",
-    "description": "A legal map/painting used as evidence in a land ownership dispute between the crown prosecutor and Francisco Maldonado y Mendoza over land in the Bogot\u00e1 savanna.",
-    "creator": "Juan de Aguilar Rend\u00f3n (painter) and Alonso Ruiz Gad\u00e1lmez (guarantor)",
+    "title": "Painting of the lands marshes and swamps of the town of Bogotá",
+    "description": "A legal map/painting used as evidence in a land ownership dispute between the crown prosecutor and Francisco Maldonado y Mendoza over land in the Bogotá savannah.",
+    "creator": "Juan de Aguilar Rendón (painter) and Alonso Ruiz Gadálmez (guarantor)",
     "period": "April 1614",
     "medium": "Oil on canvas, cartographic painting",
     "dimensions": "",
@@ -27,14 +27,14 @@
   },
   {
     "object_id": "example-muisca-goldwork",
-    "title": "Votive Figure in the Shape of a Fence",
+    "title": "Votive Figure in the Shape of a Residential Compound (Cercado)",
     "description": "Gold votive figure from the Muisca culture, demonstrating sophisticated metalworking techniques and ritual practices.",
     "creator": "Unknown Muisca Artist",
     "period": "600-1600",
     "medium": "Gold alloy",
     "dimensions": "",
     "location": "Museo del Oro",
-    "credit": "Museo del Oro, Bogot\u00e1. Registration Number: O08319",
+    "credit": "Museo del Oro, Bogotá. Registration Number: O08319",
     "thumbnail": "",
     "iiif_manifest": ""
   },
@@ -47,7 +47,7 @@
     "medium": "Ceramic",
     "dimensions": "",
     "location": "Museo del Oro",
-    "credit": "Museo del Oro, Bogot\u00e1",
+    "credit": "Museo del Oro, Bogotá",
     "thumbnail": "",
     "iiif_manifest": ""
   }

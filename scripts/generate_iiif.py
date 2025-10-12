@@ -37,27 +37,92 @@ def generate_iiif_for_image(image_path, output_dir, object_id, base_url):
         base_url: Base URL for the site
     """
     from iiif.static import IIIFStatic
+    from PIL import Image
+    import tempfile
+
+    # Preprocess PNG images with transparency (RGBA) to RGB
+    # because IIIF library saves as JPEG which doesn't support alpha
+    processed_image_path = image_path
+    temp_file = None
+
+    try:
+        img = Image.open(image_path)
+        if img.mode == 'RGBA':
+            print(f"  ⚠️  Converting RGBA to RGB (removing transparency)")
+            # Create RGB image with white background
+            rgb_img = Image.new('RGB', img.size, (255, 255, 255))
+            rgb_img.paste(img, mask=img.split()[3])  # Use alpha channel as mask
+
+            # Save to temporary file
+            temp_file = tempfile.NamedTemporaryFile(suffix='.jpg', delete=False)
+            rgb_img.save(temp_file.name, 'JPEG', quality=95)
+            processed_image_path = Path(temp_file.name)
+            temp_file.close()
+    except Exception as e:
+        print(f"  ⚠️  Error preprocessing image: {e}")
+        # Continue with original image
 
     # Note: iiif library creates a subdirectory with the identifier name
     # We pass the parent directory, and it creates parent_dir/object_id/
     parent_dir = output_dir.parent
-
-    # Create static generator
-    sg = IIIFStatic(
-        dst=str(parent_dir),
-        prefix=f"{base_url}/iiif/objects/{object_id}/",
-        tilesize=512,
-        api_version='3.0'
-    )
-
-    # Generate tiles (this creates parent_dir/object_id/)
-    sg.generate(src=str(image_path), identifier=object_id)
-
-    # The actual tiles are in parent_dir/object_id/
     tiles_dir = parent_dir / object_id
+
+    try:
+        # Create static generator
+        sg = IIIFStatic(
+            dst=str(parent_dir),
+            prefix=f"{base_url}/iiif/objects/{object_id}",  # No trailing slash - iiif library adds it
+            tilesize=512,
+            api_version='3.0'
+        )
+
+        # Generate tiles (this creates parent_dir/object_id/)
+        sg.generate(src=str(processed_image_path), identifier=object_id)
+
+        # Copy full-resolution image for UniversalViewer BEFORE cleaning up temp file
+        # UniversalViewer expects a base image at the path declared in the manifest
+        copy_base_image(processed_image_path, tiles_dir, object_id)
+    finally:
+        # Clean up temporary file if created
+        if temp_file and Path(temp_file.name).exists():
+            Path(temp_file.name).unlink()
 
     # Create manifest wrapper for UniversalViewer
     create_manifest(tiles_dir, object_id, image_path, base_url)
+
+def copy_base_image(source_image_path, output_dir, object_id):
+    """
+    Copy the full-resolution image to the location expected by UniversalViewer
+
+    UniversalViewer tries to load the base image at {object_id}/{object_id}.jpg
+    which is declared in the manifest body.id. IIIF Level 0 doesn't automatically
+    create this file, so we copy it manually.
+
+    Args:
+        source_image_path: Path to the processed source image
+        output_dir: Output directory for IIIF tiles
+        object_id: Object identifier
+    """
+    from PIL import Image
+
+    dest_path = output_dir / f"{object_id}.jpg"
+
+    try:
+        # Open and save as JPEG (in case source was PNG or other format)
+        img = Image.open(source_image_path)
+        if img.mode in ('RGBA', 'LA', 'P'):
+            # Convert to RGB if necessary
+            rgb_img = Image.new('RGB', img.size, (255, 255, 255))
+            if img.mode == 'P':
+                img = img.convert('RGBA')
+            if img.mode in ('RGBA', 'LA'):
+                rgb_img.paste(img, mask=img.split()[-1])  # Use alpha channel as mask
+            img = rgb_img
+
+        img.save(dest_path, 'JPEG', quality=95)
+        print(f"  ✓ Copied base image to {object_id}.jpg")
+    except Exception as e:
+        print(f"  ⚠️  Error copying base image: {e}")
 
 def create_manifest(output_dir, object_id, image_path, base_url):
     """
@@ -117,7 +182,7 @@ def create_manifest(output_dir, object_id, image_path, base_url):
                                 "type": "Annotation",
                                 "motivation": "painting",
                                 "body": {
-                                    "id": info.get('id', f"{base_url}/iiif/objects/{object_id}/full/max/0/default.jpg"),
+                                    "id": f"{base_url}/iiif/objects/{object_id}/{object_id}.jpg",
                                     "type": "Image",
                                     "format": "image/jpeg",
                                     "height": height,

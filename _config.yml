@@ -77,3 +77,10 @@ openseadragon:
 # Plugins
 plugins:
   - jekyll-seo-tag
+
+# WEBrick server configuration for development (enables CORS for IIIF)
+webrick:
+  headers:
+    Access-Control-Allow-Origin: "*"
+    Access-Control-Allow-Methods: "GET, POST, OPTIONS"
+    Access-Control-Allow-Headers: "Content-Type"

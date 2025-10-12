@@ -277,6 +277,14 @@ function initializePanels() {
     }
   });
 
+  // Layer 1 back button - closes the panel
+  const layer1Back = document.getElementById('panel-layer1-back');
+  if (layer1Back) {
+    layer1Back.addEventListener('click', function() {
+      closePanel('layer1');
+    });
+  }
+
   // Layer 2 back button - goes back to layer1
   const layer2Back = document.getElementById('panel-layer2-back');
   if (layer2Back) {
