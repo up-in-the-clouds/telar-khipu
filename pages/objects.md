@@ -30,7 +30,7 @@ permalink: /objects/
         </div>
         {% elsif object.object_id %}
         {%- comment -%}For local objects, use generated IIIF{%- endcomment -%}
-        <img src="{{ '/iiif/objects/' | append: object.object_id | append: '/full/!400,400/0/default.jpg' | relative_url }}" alt="{{ object.title }}">
+        <img src="{{ '/iiif/objects/' | append: object.object_id | append: '/full/231,/0/default.jpg' | relative_url }}" alt="{{ object.title }}">
         {% else %}
         <div class="placeholder-image bg-secondary d-flex align-items-center justify-content-center" style="height: 250px;">
           <span class="text-white">No image</span>
