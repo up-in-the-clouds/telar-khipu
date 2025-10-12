@@ -24,12 +24,12 @@ exclude:
 
 # Collections
 collections:
-  chapters:
+  stories:
     output: true
-    permalink: /chapters/:name/
+    permalink: /stories/:name/
   objects:
     output: true
-    permalink: /collection/:name/
+    permalink: /objects/:name/
   glossary:
     output: true
     permalink: /glossary/:name/
@@ -38,9 +38,9 @@ collections:
 defaults:
   - scope:
       path: ""
-      type: "chapters"
+      type: "stories"
     values:
-      layout: "chapter"
+      layout: "story"
   - scope:
       path: ""
       type: "objects"
