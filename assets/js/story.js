@@ -219,40 +219,85 @@ function switchObject(objectId) {
 }
 
 /**
- * Animate viewer to specific position
+ * Animate viewer to specific position using UV xywh parameter
  */
 function animateToPosition(x, y, zoom) {
-  if (!osdViewer) {
-    console.warn('OpenSeadragon viewer not ready');
+  if (!uvInstance) {
+    console.warn('UniversalViewer not ready');
     return;
   }
 
-  // OpenSeadragon uses viewport coordinates (0-1 range for image)
-  // Create point (note: OSD uses [x, y] not [lat, lng])
-  const point = new OpenSeadragon.Point(x, y);
+  // Get current canvas dimensions from the manifest
+  // We need to convert normalized coordinates (0-1) to pixel coordinates
+  const extension = uvInstance.extension;
+  if (!extension || !extension.helper || !extension.helper.getCurrentCanvas()) {
+    console.warn('Cannot get current canvas');
+    return;
+  }
 
-  // Animate to position
-  osdViewer.viewport.zoomTo(zoom, point, true);
-  osdViewer.viewport.panTo(point, true);
+  const canvas = extension.helper.getCurrentCanvas();
+  const imageWidth = canvas.getWidth();
+  const imageHeight = canvas.getHeight();
+
+  console.log('Canvas dimensions:', imageWidth, 'x', imageHeight);
+
+  // Convert normalized x, y, zoom to xywh region
+  // x, y are center point (0-1 range)
+  // zoom is zoom level where 1 = fit to screen, higher = more zoomed in
+
+  // Calculate visible region width/height based on zoom
+  // Lower zoom = larger visible region
+  const regionWidth = imageWidth / zoom;
+  const regionHeight = imageHeight / zoom;
+
+  // Convert center point to top-left corner
+  const regionX = (x * imageWidth) - (regionWidth / 2);
+  const regionY = (y * imageHeight) - (regionHeight / 2);
+
+  // Ensure region stays within image bounds
+  const boundedX = Math.max(0, Math.min(regionX, imageWidth - regionWidth));
+  const boundedY = Math.max(0, Math.min(regionY, imageHeight - regionHeight));
+
+  const xywh = `${Math.round(boundedX)},${Math.round(boundedY)},${Math.round(regionWidth)},${Math.round(regionHeight)}`;
+
+  console.log('Zooming to region:', xywh);
+
+  // Use UV's URL adaptor to navigate to the region
+  var urlAdaptor = new UV.IIIFURLAdaptor();
+  const currentData = uvInstance.getSettings();
+  const manifestUrl = getManifestUrl(currentObject);
+
+  const data = urlAdaptor.getInitialData({
+    manifest: manifestUrl,
+    embedded: true,
+    xywh: xywh
+  });
+
+  uvInstance.set(data);
 }
 
 /**
- * Animate viewer to named region
- * Region format: "x,y,width,height" (normalized 0-1)
+ * Animate viewer to named region using xywh
+ * Region format: "x,y,width,height" (can be normalized 0-1 or pixel coordinates)
  */
 function animateToRegion(region) {
-  if (!osdViewer) {
-    console.warn('OpenSeadragon viewer not ready');
+  if (!uvInstance) {
+    console.warn('UniversalViewer not ready');
     return;
   }
 
-  const parts = region.split(',').map(parseFloat);
-  if (parts.length !== 4) return;
+  console.log('Animating to region:', region);
 
-  const [x, y, width, height] = parts;
-  const rect = new OpenSeadragon.Rect(x, y, width, height);
+  const manifestUrl = getManifestUrl(currentObject);
+  var urlAdaptor = new UV.IIIFURLAdaptor();
 
-  osdViewer.viewport.fitBounds(rect, true);
+  const data = urlAdaptor.getInitialData({
+    manifest: manifestUrl,
+    embedded: true,
+    xywh: region
+  });
+
+  uvInstance.set(data);
 }
 
 /**
