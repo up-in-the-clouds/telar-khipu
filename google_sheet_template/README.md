@@ -4,22 +4,22 @@ Welcome to the Telar Google Sheets template! This spreadsheet is your authoring 
 
 ## Overview
 
-This template has **5 tabs** (or more if you add additional chapters):
+This template has **5 tabs** (or more if you add additional stories):
 
 1. **Instructions** (this tab) - Read-only reference
-2. **Project Setup** - Site configuration and chapter list
+2. **Project Setup** - Site configuration and stories list
 3. **Objects** - Collection metadata
 4. **Glossary** - Term definitions
-5. **Chapter 1** - Story steps (add more chapter tabs as needed)
+5. **Story 1** - Story steps (add more story tabs as needed)
 
 ## Example Data
 
 The template includes an **"example" column** in most tabs with real data from the [Colonial Landscapes](https://colonial-landscapes.com) project. These examples show:
 
-- **Chapter titles** (Project Setup): Four chapters from a real exhibition
+- **Story titles** (Project Setup): Four stories from a real exhibition
 - **Objects** (Objects tab): The 1614 Bogotá painting and related items
 - **Glossary terms** (Glossary tab): Colonial history terminology
-- **Story steps** (Chapter tabs): A complete narrative arc with coordinates and layers
+- **Story steps** (Story tabs): A complete narrative arc with coordinates and layers
 
 **You can**:
 - Study the examples to understand the format
@@ -60,16 +60,16 @@ The examples complement the placeholder data in the main columns.
 | `font_body` | Source Sans Pro, sans-serif | Body font |
 | `logo` | /assets/images/site/logo.png | Logo path |
 
-### Section 2: Chapters List
+### Section 2: Stories List
 
 After site settings, leave a blank row, then:
 
 | Column A: key | Column B: value | Column C: example |
 |---------------|-----------------|-------------------|
-| `CHAPTERS` | *(leave blank)* | example |
-| `1` | Chapter 1 Title | A painting of the Savanna |
-| `2` | Chapter 2 Title | Villages for the "indios" |
-| `3` | Chapter 3 Title | From terraces to grasslands |
+| `STORIES` | *(leave blank)* | example |
+| `1` | Story 1 Title | A painting of the Savanna |
+| `2` | Story 2 Title | Villages for the "indios" |
+| `3` | Story 3 Title | From terraces to grasslands |
 | `4` | *(optional)* | A divided landscape |
 
 *Note: Column C shows examples from Colonial Landscapes. Delete this column when customizing.*
@@ -120,9 +120,9 @@ One row per term.
 
 ---
 
-## Tab 5+: Chapter Tabs
+## Tab 5+: Story Tabs
 
-One tab per chapter. Name tabs exactly: `Chapter 1`, `Chapter 2`, etc.
+One tab per story. Name tabs exactly: `Story 1`, `Story 2`, etc.
 
 ### Required Columns:
 - **step**: Step number (1, 2, 3...)
@@ -210,7 +210,7 @@ Each tab has a unique GID for GitHub Actions:
 
 Before publishing:
 
-- [ ] All required tabs present (Instructions, Project Setup, Objects, Glossary, Chapter 1)
+- [ ] All required tabs present (Instructions, Project Setup, Objects, Glossary, Story 1)
 - [ ] Column headers match exactly (case-sensitive)
 - [ ] No empty rows between data
 - [ ] Object IDs consistent across tabs

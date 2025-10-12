@@ -10,9 +10,9 @@ The Google Sheet should have the following tabs in this exact order:
 2. **Project Setup** (Tab 2)
 3. **Objects** (Tab 3)
 4. **Glossary** (Tab 4)
-5. **Chapter 1** (Tab 5)
-6. **Chapter 2** (Tab 6)
-7. ... (additional chapter tabs as needed)
+5. **Story 1** (Tab 5)
+6. **Story 2** (Tab 6)
+7. ... (additional story tabs as needed)
 
 ## Tab 1: Instructions
 
@@ -33,7 +33,7 @@ Free-form text and tables for reference. This tab is not processed by the system
 
 ## Tab 2: Project Setup
 
-Site configuration and chapter list in a single tab.
+Site configuration and stories list in a single tab.
 
 ### Section 1: Site Settings
 
@@ -51,13 +51,13 @@ Key-value pairs for site-wide configuration.
 | `font_body` | Source Sans Pro, sans-serif |
 | `logo` | /assets/images/site/logo.png |
 
-### Section 2: Chapter List
+### Section 2: Stories List
 
-After site settings, add a separator row and list chapters.
+After site settings, add a separator row and list stories.
 
 | Column A: key | Column B: value |
 |---------------|-----------------|
-| `CHAPTERS` | *(leave blank)* |
+| `STORIES` | *(leave blank)* |
 | `1` | Introduction to the Collection |
 | `2` | Colonial Period Textiles |
 | `3` | Modern Interpretations |
@@ -67,8 +67,8 @@ After site settings, add a separator row and list chapters.
 
 - Leave blank rows between sections for readability
 - All values in Column B
-- Chapter numbers in Column A after CHAPTERS marker
-- Chapter titles in Column B
+- Story numbers in Column A after STORIES marker
+- Story titles in Column B
 
 ## Tab 3: Objects
 
@@ -146,15 +146,15 @@ viceroyalty | Viceroyalty | Administrative division of Spanish Empire | A vicero
 - Separate `related_terms` with commas, no spaces
 - Related terms must exist as other rows in the glossary
 
-## Tab 5+: Chapter Tabs
+## Tab 5+: Story Tabs
 
-One tab per chapter, containing story steps.
+One tab per story, containing story steps.
 
 ### Tab Naming
 
-- **Chapter 1** (not "01" or "Chapter_1")
-- **Chapter 2**
-- **Chapter 3**
+- **Story 1** (not "01" or "Chapter_1")
+- **Story 2**
+- **Story 3**
 - etc.
 
 ### Column Definitions
@@ -170,10 +170,10 @@ One tab per chapter, containing story steps.
 | `zoom` | Yes | number | Zoom level | `1.5` |
 | `layer1_title` | No | text | Layer 1 heading | `Weaving Techniques` |
 | `layer1_text` | No | text | Layer 1 content | `The interlocking warp pattern...` |
-| `layer1_media` | No | path | Layer 1 image | `/assets/images/chapters/detail.jpg` |
+| `layer1_media` | No | path | Layer 1 image | `/assets/images/stories/detail.jpg` |
 | `layer2_title` | No | text | Layer 2 heading | `Technical Analysis` |
 | `layer2_text` | No | text | Layer 2 content | `Microscopic analysis reveals...` |
-| `layer2_media` | No | path | Layer 2 image | `/assets/images/chapters/microscope.jpg` |
+| `layer2_media` | No | path | Layer 2 image | `/assets/images/stories/microscope.jpg` |
 
 ### Row 1: Headers
 
@@ -236,8 +236,8 @@ Each tab has a unique GID needed for the workflow:
 PROJECT_SETUP_GID: 0  # Usually 0 for first content tab
 OBJECTS_GID: 123456789  # Your Objects tab GID
 GLOSSARY_GID: 234567890  # Your Glossary tab GID
-CHAPTER_1_GID: 345678901  # Your Chapter 1 tab GID
-CHAPTER_2_GID: 456789012  # Your Chapter 2 tab GID
+STORY_1_GID: 345678901  # Your Story 1 tab GID
+STORY_2_GID: 456789012  # Your Story 2 tab GID
 # etc.
 ```
 
@@ -246,11 +246,11 @@ CHAPTER_2_GID: 456789012  # Your Chapter 2 tab GID
 Before publishing your sheet:
 
 - [ ] All 4 required tabs present (Instructions, Project Setup, Objects, Glossary)
-- [ ] At least one Chapter tab
+- [ ] At least one Story tab
 - [ ] All required columns present in each tab
 - [ ] Column headers match exactly (case-sensitive)
 - [ ] No empty rows between data rows
-- [ ] Object IDs match between Objects tab and Chapter tabs
+- [ ] Object IDs match between Objects tab and Story tabs
 - [ ] Coordinates are decimal numbers (0.5 not 50%)
 - [ ] File paths start with `/`
 - [ ] External IIIF URLs are complete info.json URLs
@@ -259,7 +259,7 @@ Before publishing your sheet:
 
 ## Example Data
 
-See the `_chapters/01-example-chapter.md`, `_objects/example-object-01.md`, and `_glossary/example-term.md` files for examples of how the data should be structured.
+See the `_stories/01-example-story.md`, `_objects/example-object-01.md`, and `_glossary/example-term.md` files for examples of how the data should be structured.
 
 ## Getting Help
 

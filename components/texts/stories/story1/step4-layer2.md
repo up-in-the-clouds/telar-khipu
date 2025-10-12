@@ -1,1 +1,0 @@
-This map incorporates color and cultural pigmentation techniques unique to the colonial period. Signed by its creator Juan de Aguilar Rendón (rare for the time), it represents territorial interpretation through visual medium, serving both legal and aesthetic purposes.

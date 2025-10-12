@@ -12,7 +12,7 @@ Telar (Spanish for "loom") is a static site generator built on Jekyll that weave
 - **IIIF integration**: Support for both local images (auto-generated tiles) and external IIIF resources
 - **Scrollytelling**: Fixed IIIF viewer with scrolling narrative that controls viewport
 - **Layered panels**: Progressive disclosure with three content layers plus glossary
-- **Collection gallery**: Browsable object grid with detail pages
+- **Objects gallery**: Browsable object grid with detail pages
 - **Minimal computing**: Plain text, static generation, GitHub Pages hosting
 - **Mobile responsive**: Optimized for all screen sizes
 
@@ -83,10 +83,10 @@ bundle exec jekyll serve
 Telar uses a single Google Sheet with multiple tabs:
 
 1. **Instructions** (Tab 1): Read-only guidance
-2. **Project Setup** (Tab 2): Site settings + chapters list
-3. **Objects** (Tab 3): Collection metadata
+2. **Project Setup** (Tab 2): Site settings + stories list
+3. **Objects** (Tab 3): Object metadata
 4. **Glossary** (Tab 4): Term definitions
-5. **Chapter [N]** (Tab 5+): Story steps for each chapter
+5. **Story [N]** (Tab 5+): Story steps for each story
 
 [Link to Google Sheets template - TBD]
 
@@ -94,8 +94,8 @@ Telar uses a single Google Sheet with multiple tabs:
 
 Content is organized into three collections:
 
-- `_chapters/`: Scrollytelling narratives
-- `_objects/`: Collection object metadata
+- `_stories/`: Scrollytelling narratives
+- `_objects/`: Object metadata
 - `_glossary/`: Glossary term definitions
 
 See README files in each directory for detailed documentation.
@@ -173,7 +173,7 @@ Edit `assets/css/telar.css` to customize:
 
 Modify layouts in `_layouts/`:
 - `default.html`: Base template
-- `chapter.html`: Scrollytelling page
+- `story.html`: Scrollytelling page
 - `object.html`: Object detail page
 - `glossary.html`: Term definition page
 
@@ -181,7 +181,7 @@ Modify layouts in `_layouts/`:
 
 Core functionality in `assets/js/`:
 - `telar.js`: Base utilities
-- `chapter.js`: OpenSeadragon + Scrollama integration
+- `story.js`: UniversalViewer + Scrollama integration
 
 ## Development
 
@@ -198,14 +198,14 @@ bundle exec jekyll build
 bundle exec jekyll clean
 ```
 
-### Adding a Chapter
+### Adding a Story
 
-1. Create markdown file in `_chapters/`
-2. Add front matter with chapter metadata
+1. Create markdown file in `_stories/`
+2. Add front matter with story metadata
 3. Include story steps with data attributes
 4. Reference object IDs and coordinates
 
-See `_chapters/README.md` for complete documentation.
+See `_stories/README.md` for complete documentation.
 
 ### Adding Objects
 
@@ -219,7 +219,7 @@ See `_chapters/README.md` for complete documentation.
 1. Create markdown file in `_glossary/`
 2. Add front matter with term metadata
 3. Write full definition in markdown content
-4. Reference `term_id` in chapters
+4. Reference `term_id` in stories
 
 ## Browser Support
 
@@ -233,7 +233,7 @@ See `_chapters/README.md` for complete documentation.
 - Static HTML generation
 - CDN delivery via GitHub Pages
 - Progressive IIIF tile loading
-- Lazy loading for collection images
+- Lazy loading for object images
 - Mobile-optimized responsive design
 
 ## Accessibility
@@ -270,7 +270,7 @@ For issues, questions, or contributions:
 
 ## Roadmap
 
-- [ ] Visual chapter editor
+- [ ] Visual story editor
 - [ ] Annotation support
 - [ ] Audio narration
 - [ ] Multi-language support

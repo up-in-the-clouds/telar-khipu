@@ -9,7 +9,7 @@ Complete guide to creating digital storytelling exhibitions with Telar.
 3. [Project Configuration](#project-configuration)
 4. [Adding Objects](#adding-objects)
 5. [Creating Glossary Terms](#creating-glossary-terms)
-6. [Building Chapters](#building-chapters)
+6. [Building Stories](#building-stories)
 7. [IIIF Coordinates](#iiif-coordinates)
 8. [Layered Panels](#layered-panels)
 9. [File Size Limits](#file-size-limits)
@@ -56,11 +56,11 @@ Your Google Sheet should have these tabs in order:
 
 #### Tab 2: Project Setup
 - Site configuration
-- Chapter list
+- Stories list
 - See [Project Configuration](#project-configuration) below
 
 #### Tab 3: Objects
-- Collection metadata
+- Object metadata
 - One row per object
 - See [Adding Objects](#adding-objects) below
 
@@ -69,10 +69,10 @@ Your Google Sheet should have these tabs in order:
 - One row per term
 - See [Creating Glossary Terms](#creating-glossary-terms) below
 
-#### Tab 5+: Chapters
-- One tab per chapter
+#### Tab 5+: Stories
+- One tab per story
 - Story steps with coordinates
-- See [Building Chapters](#building-chapters) below
+- See [Building Stories](#building-stories) below
 
 ### Publishing Your Sheet
 
@@ -103,13 +103,13 @@ Key-value pairs for site configuration:
 | `font_body` | `Source Sans Pro, sans-serif` | Body text font |
 | `logo` | `/assets/images/site/logo.png` | Logo path (optional) |
 
-### Section 2: Chapters List
+### Section 2: Stories List
 
-After site settings, add a row with key `CHAPTERS`, then list chapters:
+After site settings, add a row with key `STORIES`, then list stories:
 
 | Key | Value |
 |-----|-------|
-| `CHAPTERS` | (leave blank) |
+| `STORIES` | (leave blank) |
 | `1` | Introduction |
 | `2` | Colonial Period |
 | `3` | Modern Era |
@@ -171,13 +171,13 @@ Each row in the **Glossary** tab represents one term.
 | `image` | Image path | `/assets/images/glossary/colonial.jpg` |
 | `related_terms` | Related term IDs (comma-separated) | `encomienda, viceroyalty` |
 
-### Using Glossary Terms in Chapters
+### Using Glossary Terms in Stories
 
 Reference terms in your narrative text, and they'll automatically link to the glossary panel.
 
-## Building Chapters
+## Building Stories
 
-Each **Chapter** tab contains story steps that make up your scrollytelling narrative.
+Each **Story** tab contains story steps that make up your scrollytelling narrative.
 
 ### Required Columns
 
@@ -207,7 +207,7 @@ Each **Chapter** tab contains story steps that make up your scrollytelling narra
 | `layer2_text` | Scholarly detail |
 | `layer2_media` | Image path |
 
-### Example Chapter Row
+### Example Story Row
 
 ```
 step: 1
@@ -219,7 +219,7 @@ y: 0.5
 zoom: 1
 layer1_title: Weaving Techniques
 layer1_text: The interlocking warp pattern visible here indicates...
-layer1_media: /assets/images/chapters/weaving-detail.jpg
+layer1_media: /assets/images/stories/weaving-detail.jpg
 ```
 
 ## IIIF Coordinates
@@ -242,12 +242,12 @@ Understanding the coordinate system for positioning the viewer.
 - Bottom-right quadrant: `x: 0.75, y: 0.75`
 
 **Method 2: Interactive Preview** (future feature)
-- Visual chapter editor will allow point-and-click coordinate selection
+- Visual story editor will allow point-and-click coordinate selection
 
 **Method 3: OpenSeadragon Inspector**
-1. Open your chapter in browser
+1. Open your story in browser
 2. Open browser console (F12)
-3. Type: `TelarChapter.viewer.viewport.getCenter()`
+3. Type: `TelarStory.viewer.viewport.getCenter()`
 4. Returns current x, y coordinates
 
 ### Common Patterns
@@ -451,7 +451,7 @@ The site rebuilds automatically when:
 
 ### Panels Not Opening
 
-**Check chapter data:**
+**Check story data:**
 - `layer1_title` and `layer1_text` both filled
 - Step has panel trigger button
 - JavaScript loaded without errors

@@ -64,23 +64,23 @@ Import each CSV file from the `google_sheet_template/` directory:
 5. Import location: **Replace current sheet**
 6. Click **Import data**
 
-#### Tab 5: Chapter 1
+#### Tab 5: Story 1
 
 1. Click **+** to add a new sheet
-2. Rename it to: `Chapter 1`
+2. Rename it to: `Story 1`
 3. **File → Import** → Upload tab
-4. Select `google_sheet_template/05-chapter-1.csv`
+4. Select `google_sheet_template/05-story-1.csv`
 5. Import location: **Replace current sheet**
 6. Click **Import data**
 
-### Step 3: Add More Chapters (Optional)
+### Step 3: Add More Stories (Optional)
 
-For each additional chapter:
+For each additional story:
 
-1. Right-click on "Chapter 1" tab → **Duplicate**
-2. Rename to: `Chapter 2`, `Chapter 3`, etc.
+1. Right-click on "Story 1" tab → **Duplicate**
+2. Rename to: `Story 2`, `Story 3`, etc.
 3. Replace the example data with your content
-4. Update the **Project Setup** tab to list your chapters
+4. Update the **Project Setup** tab to list your stories
 
 ### Step 4: Customize Content
 
@@ -91,7 +91,7 @@ The template includes placeholder data in the main columns and real-world exampl
 3. Update project settings in **Project Setup** tab (keep only the `key` and `value` columns)
 4. Add your objects to **Objects** tab
 5. Add your glossary terms to **Glossary** tab
-6. Fill in story steps for each chapter
+6. Fill in story steps for each story
 7. You can delete the "example" column once you're comfortable with the format
 
 ---
@@ -116,8 +116,8 @@ Use this method if you prefer to build the template yourself with full control.
    - primary_color, secondary_color
    - font_headings, font_body, logo
 4. Leave row 11 blank
-5. In row 12: `CHAPTERS` in column A, leave columns B and C blank, add "example" as column C header
-6. In rows 13+: Chapter numbers in column A, titles in column B, example titles from Colonial Landscapes in column C (optional)
+5. In row 12: `STORIES` in column A, leave columns B and C blank, add "example" as column C header
+6. In rows 13+: Story numbers in column A, titles in column B, example titles from Colonial Landscapes in column C (optional)
 
 **Example:**
 ```
@@ -126,9 +126,9 @@ project_title | Your Exhibition Title        |
 tagline       | Brief description            |
 ...           |                              |
               |                              |
-CHAPTERS      |                              | example
-1             | Chapter 1                    | A painting of the Savanna
-2             | Chapter 2                    | Villages for the "indios"
+STORIES      |                              | example
+1             | Story 1                    | A painting of the Savanna
+2             | Story 2                    | Villages for the "indios"
 ```
 
 **Note:** The `example` column shows real data from the Colonial Landscapes project for reference. You can delete this column when ready.
@@ -158,11 +158,11 @@ CHAPTERS      |                              | example
 **Required**: term_id, title, short_definition
 **Optional**: definition, image, related_terms, example column
 
-### Tab 5+: Chapter Tabs
+### Tab 5+: Story Tabs
 
-For each chapter:
+For each story:
 
-1. Add new sheet, name it `Chapter 1`, `Chapter 2`, etc.
+1. Add new sheet, name it `Story 1`, `Story 2`, etc.
 2. In Row 1, enter headers (columns A-N):
    - step, question, answer, object, x, y, zoom
    - layer1_title, layer1_text, layer1_media
@@ -219,7 +219,7 @@ Instructions tab:   #gid=0
 Project Setup tab:  #gid=123456789
 Objects tab:        #gid=234567890
 Glossary tab:       #gid=345678901
-Chapter 1 tab:      #gid=456789012
+Story 1 tab:      #gid=456789012
 ```
 
 ### Updating GitHub Actions:
@@ -238,8 +238,8 @@ curl -L "${GOOGLE_SHEETS_URL}&gid=234567890&output=csv" -o _data/objects.csv
 # Fetch Glossary (tab 4)
 curl -L "${GOOGLE_SHEETS_URL}&gid=345678901&output=csv" -o _data/glossary.csv
 
-# Fetch Chapter 1 (tab 5)
-curl -L "${GOOGLE_SHEETS_URL}&gid=456789012&output=csv" -o _data/chapter-1.csv
+# Fetch Story 1 (tab 5)
+curl -L "${GOOGLE_SHEETS_URL}&gid=456789012&output=csv" -o _data/story-1.csv
 ```
 
 4. Save and commit the changes
@@ -252,15 +252,15 @@ Before using your template, verify:
 
 ### Structure
 - [ ] Instructions tab exists and contains reference content
-- [ ] Project Setup tab has site settings AND chapters list
+- [ ] Project Setup tab has site settings AND stories list
 - [ ] Objects tab has all required columns
 - [ ] Glossary tab has all required columns
-- [ ] At least one Chapter tab exists
+- [ ] At least one Story tab exists
 
 ### Data Format
 - [ ] Column headers match exactly (case-sensitive)
 - [ ] No empty rows between data rows
-- [ ] Object IDs are consistent across Objects and Chapter tabs
+- [ ] Object IDs are consistent across Objects and Story tabs
 - [ ] Term IDs are consistent across Glossary and usage
 - [ ] Coordinates (x, y) are decimal numbers between 0 and 1
 - [ ] Zoom values are positive numbers (typically 1-4)
@@ -276,9 +276,9 @@ Before using your template, verify:
 
 ### Content
 - [ ] Project title and settings filled in
-- [ ] Chapters listed in Project Setup
+- [ ] Stories listed in Project Setup
 - [ ] At least one object defined
-- [ ] Object IDs referenced in chapters exist in Objects tab
+- [ ] Object IDs referenced in stories exist in Objects tab
 - [ ] All image paths are correct
 - [ ] Glossary terms are properly formatted
 
@@ -307,14 +307,14 @@ Before using your template, verify:
 
 ### Data Issues
 
-**Problem**: Objects not appearing in chapter viewer
-**Solution**: Check that object_id in Chapter tab exactly matches object_id in Objects tab (case-sensitive)
+**Problem**: Objects not appearing in story viewer
+**Solution**: Check that object_id in Story tab exactly matches object_id in Objects tab (case-sensitive)
 
 **Problem**: Coordinates not working
 **Solution**: Ensure x and y are decimal numbers (0.5) not percentages (50%) or integers (1)
 
 **Problem**: Glossary terms not linking
-**Solution**: Verify term_id format matches exactly between Glossary tab and usage in chapter text
+**Solution**: Verify term_id format matches exactly between Glossary tab and usage in story text
 
 ### GID Issues
 
@@ -351,7 +351,7 @@ After setting up your template:
 - **Full Documentation**: `/DOCS.md` in repository
 - **Template Specification**: `/GOOGLE_SHEETS_TEMPLATE.md`
 - **GitHub Issues**: https://github.com/UCSB-AMPLab/telar/issues
-- **Example Files**: See `_chapters/`, `_objects/`, `_glossary/` in repository
+- **Example Files**: See `_stories/`, `_objects/`, `_glossary/` in repository
 
 ---
 
