@@ -9,6 +9,8 @@ let scroller;
 let currentObject = null;
 let panelStack = [];
 let objectsIndex = {}; // Quick lookup for object data
+let isViewerReady = false; // Track if UV is fully initialized
+let pendingZoom = null; // Queue zoom operations if viewer isn't ready
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
@@ -76,7 +78,15 @@ function initializeViewer() {
     const extension = uvInstance.extension;
     if (extension && extension.centerPanel && extension.centerPanel.viewer) {
       osdViewer = extension.centerPanel.viewer;
-      console.log('OpenSeadragon viewer accessed:', osdViewer);
+      isViewerReady = true;
+      console.log('OpenSeadragon viewer accessed and ready:', osdViewer);
+
+      // Execute any pending zoom operation
+      if (pendingZoom) {
+        console.log('Executing pending zoom:', pendingZoom);
+        animateToPosition(pendingZoom.x, pendingZoom.y, pendingZoom.zoom);
+        pendingZoom = null;
+      }
     }
   });
 }
@@ -165,15 +175,22 @@ function handleStepEnter(response) {
     switchObject(objectId);
   }
 
-  // Animate to new position (wait a bit for viewer to be ready)
-  setTimeout(function() {
-    if (osdViewer && !isNaN(x) && !isNaN(y) && !isNaN(zoom)) {
-      animateToPosition(x, y, zoom);
-    } else if (region) {
-      // If region is specified instead of x/y/zoom
-      animateToRegion(region);
+  // Animate to new position
+  if (!isNaN(x) && !isNaN(y) && !isNaN(zoom)) {
+    if (isViewerReady) {
+      // Viewer is ready, animate immediately
+      setTimeout(() => animateToPosition(x, y, zoom), 300);
+    } else {
+      // Queue the zoom operation for when viewer is ready
+      console.log('Viewer not ready, queuing zoom operation');
+      pendingZoom = { x, y, zoom };
     }
-  }, 500);
+  } else if (region) {
+    // If region is specified instead of x/y/zoom
+    if (isViewerReady) {
+      setTimeout(() => animateToRegion(region), 300);
+    }
+  }
 
   // Update viewer info
   updateViewerInfo(stepNumber);
@@ -219,85 +236,53 @@ function switchObject(objectId) {
 }
 
 /**
- * Animate viewer to specific position using UV xywh parameter
+ * Animate viewer to specific position using OpenSeadragon directly
  */
 function animateToPosition(x, y, zoom) {
-  if (!uvInstance) {
-    console.warn('UniversalViewer not ready');
+  if (!osdViewer) {
+    console.warn('OpenSeadragon viewer not ready');
     return;
   }
 
-  // Get current canvas dimensions from the manifest
-  // We need to convert normalized coordinates (0-1) to pixel coordinates
-  const extension = uvInstance.extension;
-  if (!extension || !extension.helper || !extension.helper.getCurrentCanvas()) {
-    console.warn('Cannot get current canvas');
-    return;
-  }
+  console.log('Animating to position:', { x, y, zoom });
 
-  const canvas = extension.helper.getCurrentCanvas();
-  const imageWidth = canvas.getWidth();
-  const imageHeight = canvas.getHeight();
+  // OpenSeadragon viewport uses normalized coordinates (0-1)
+  // where (0,0) is top-left and (1,1) is bottom-right
+  const viewport = osdViewer.viewport;
 
-  console.log('Canvas dimensions:', imageWidth, 'x', imageHeight);
+  // Create a point at the center position
+  const center = new OpenSeadragon.Point(x, y);
 
-  // Convert normalized x, y, zoom to xywh region
-  // x, y are center point (0-1 range)
-  // zoom is zoom level where 1 = fit to screen, higher = more zoomed in
+  // Animate to the new position
+  // Use panTo to center on the point, then zoomTo for the zoom level
+  viewport.panTo(center, true);
+  viewport.zoomTo(zoom, center, true);
 
-  // Calculate visible region width/height based on zoom
-  // Lower zoom = larger visible region
-  const regionWidth = imageWidth / zoom;
-  const regionHeight = imageHeight / zoom;
-
-  // Convert center point to top-left corner
-  const regionX = (x * imageWidth) - (regionWidth / 2);
-  const regionY = (y * imageHeight) - (regionHeight / 2);
-
-  // Ensure region stays within image bounds
-  const boundedX = Math.max(0, Math.min(regionX, imageWidth - regionWidth));
-  const boundedY = Math.max(0, Math.min(regionY, imageHeight - regionHeight));
-
-  const xywh = `${Math.round(boundedX)},${Math.round(boundedY)},${Math.round(regionWidth)},${Math.round(regionHeight)}`;
-
-  console.log('Zooming to region:', xywh);
-
-  // Use UV's URL adaptor to navigate to the region
-  var urlAdaptor = new UV.IIIFURLAdaptor();
-  const currentData = uvInstance.getSettings();
-  const manifestUrl = getManifestUrl(currentObject);
-
-  const data = urlAdaptor.getInitialData({
-    manifest: manifestUrl,
-    embedded: true,
-    xywh: xywh
-  });
-
-  uvInstance.set(data);
+  console.log('Viewport updated to:', center, 'zoom:', zoom);
 }
 
 /**
- * Animate viewer to named region using xywh
- * Region format: "x,y,width,height" (can be normalized 0-1 or pixel coordinates)
+ * Animate viewer to named region using OpenSeadragon
+ * Region format: "x,y,width,height" (normalized 0-1 coordinates)
  */
 function animateToRegion(region) {
-  if (!uvInstance) {
-    console.warn('UniversalViewer not ready');
+  if (!osdViewer) {
+    console.warn('OpenSeadragon viewer not ready');
     return;
   }
 
   console.log('Animating to region:', region);
 
-  const manifestUrl = getManifestUrl(currentObject);
-  var urlAdaptor = new UV.IIIFURLAdaptor();
+  const parts = region.split(',').map(parseFloat);
+  if (parts.length !== 4) {
+    console.warn('Invalid region format, expected x,y,width,height');
+    return;
+  }
 
-  const data = urlAdaptor.getInitialData({
-    manifest: manifestUrl,
-    embedded: true,
-    xywh: region
-  });
+  const [x, y, width, height] = parts;
+  const rect = new OpenSeadragon.Rect(x, y, width, height);
 
-  uvInstance.set(data);
+  osdViewer.viewport.fitBounds(rect, true);
 }
 
 /**
