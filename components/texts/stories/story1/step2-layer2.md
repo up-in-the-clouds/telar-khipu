@@ -1,0 +1,1 @@
+Santafé was designated as an audiencia seat in 1549. Audiencias were administrative and judicial centers established in Spanish colonial territories, defined as 'courts of justice where motions are heard.' They provided the governance and legal framework that enabled land disputes like this one.
