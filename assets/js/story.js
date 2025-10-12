@@ -269,13 +269,27 @@ function animateToPosition(x, y, zoom) {
   // Our zoom values (1, 2.5, 3, etc.) are relative to home zoom
   const actualZoom = homeZoom * zoom;
 
-  // Smooth animation: zoom toward the point, then pan to center it
-  viewport.zoomTo(actualZoom, point, true);
+  // Configure OpenSeadragon viewer for smooth animations
+  // These settings control the physics of the animation
+  osdViewer.gestureSettingsMouse.clickToZoom = false;
+  osdViewer.gestureSettingsTouch.clickToZoom = false;
 
-  // Small delay to let zoom start, then ensure point is centered
+  // Set animation parameters directly on the viewer
+  const originalAnimationTime = osdViewer.animationTime;
+  const originalSpringStiffness = osdViewer.springStiffness;
+
+  osdViewer.animationTime = 12.0;  // Seconds for animation - very slow, cinematic
+  osdViewer.springStiffness = 0.8;  // Lower = smoother, less bouncy (very fluid)
+
+  // Use viewport methods with immediate flag set to false for smooth animation
+  viewport.panTo(point, false);  // false = don't snap immediately
+  viewport.zoomTo(actualZoom, point, false);  // false = animate smoothly
+
+  // Reset after animation
   setTimeout(() => {
-    viewport.panTo(point, true);
-  }, 150);
+    osdViewer.animationTime = originalAnimationTime;
+    osdViewer.springStiffness = originalSpringStiffness;
+  }, 12100);
 }
 
 /**
