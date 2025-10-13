@@ -10,7 +10,6 @@ Telar is developed by Adelaida Ávila, Juan Cobo Betancourt, Santiago Muñoz, an
 
 ## Key Features
 
-- **Zero-installation authoring**: Edit content via Google Sheets web interface
 - **IIIF integration**: Support for both local images (auto-generated tiles) and external IIIF resources
 - **Scrollytelling**: Fixed IIIF viewer with scrolling narrative that controls viewport
 - **Layered panels**: Progressive disclosure with three content layers plus glossary
@@ -19,29 +18,51 @@ Telar is developed by Adelaida Ávila, Juan Cobo Betancourt, Santiago Muñoz, an
 
 ## Quick Start
 
-### For Content Creators (Web-Only Workflow)
+### GitHub Pages Deployment (Automated Workflow)
+
+**Best for:** Content creators who want to publish online without local setup
 
 1. **Fork this repository** on GitHub
-2. **Enable GitHub Pages** in repository settings
-3. **Create your Google Sheet** (template link below)
-4. **Publish to web** and get CSV URLs
-5. **Add secret** GOOGLE_SHEETS_URL to repository
-6. **Commit to main branch** - site builds automatically
+2. **Enable GitHub Pages** in repository settings (Settings → Pages → Source: GitHub Actions)
+3. **Edit your content** directly on GitHub:
+   - CSV files in `components/structures/`
+   - Markdown files in `components/texts/`
+   - Images in `components/images/objects/`
+4. **Commit changes** to main branch
+5. **GitHub Actions automatically**:
+   - Converts CSVs to JSON
+   - Generates IIIF tiles
+   - Builds Jekyll site
+   - Deploys to GitHub Pages
 
 No local installation required!
 
-### For Developers (Local Development)
+### Local Development
+
+**Best for:** Developers who want to preview changes locally before publishing
 
 ```bash
 # Clone the repository
 git clone https://github.com/UCSB-AMPLab/telar.git
 cd telar
 
-# Install dependencies
+# Install Ruby dependencies
 bundle install
 
-# Serve locally
-bundle exec jekyll serve
+# Install Python dependencies (for IIIF generation)
+pip install -r requirements.txt
+
+# Edit content in components/ folder
+# Then run the build pipeline:
+
+# 1. Convert CSVs to JSON
+python3 scripts/csv_to_json.py
+
+# 2. Generate IIIF tiles (if images changed)
+python3 scripts/generate_iiif.py --source-dir components/images/objects --base-url http://localhost:4000
+
+# 3. Serve locally with live reload
+bundle exec jekyll serve --livereload
 
 # View at http://localhost:4000
 ```
@@ -79,17 +100,20 @@ bundle exec jekyll serve
 
 ## Content Structure
 
-Telar uses a **components-based architecture** that separates content from structure:
+Telar uses a **components-based architecture** that separates content from generated files:
 
-### Components Folder
+### Components Folder (Source of Truth)
 
-The `components/` folder is the **source of truth** for all content:
+The `components/` folder contains all **editable source content**:
 
 ```
 components/
+├── structures/           # CSV files with organizational data
+│   ├── project.csv       # Site settings and story list
+│   ├── objects.csv       # Object catalog metadata
+│   └── story-1.csv       # Story structure with step coordinates
 ├── images/
-│   ├── objects/          # Source images for IIIF processing
-│   └── additional/       # Layer images, supplementary media
+│   └── objects/          # Source images for IIIF processing
 └── texts/
     ├── stories/          # Story layer content (markdown)
     │   └── story1/
@@ -97,28 +121,44 @@ components/
     │       ├── step1-layer2.md
     │       └── ...
     └── glossary/         # Glossary definitions (markdown)
-        ├── colonial-period.md
+        ├── term1.md
         └── ...
 ```
 
-**Key principle:** Long-form content lives in markdown files, not in spreadsheets.
+**Key principles:**
+- CSV files contain structural data (coordinates, file references)
+- Markdown files contain long-form narrative content
+- Images are processed into IIIF tiles automatically
 
-### Google Sheets Data Source
+### CSV Data Files
 
-Google Sheets provides **structural data** that references component files:
+CSV files in `components/structures/` define your site's structure and reference content files.
 
-1. **Instructions** (Tab 1): Read-only guidance
-2. **Project Setup** (Tab 2): Site settings + stories list
-3. **Objects** (Tab 3): Object metadata
-4. **Story [N]** (Tab 4+): Story structure with file references
+#### Story CSV Structure
 
-**Example story CSV:**
+Each story CSV (e.g., `story-1.csv`) contains step-by-step navigation data:
+
 ```csv
-step,question,answer,object,x,y,zoom,layer1_file,layer2_file
-1,"Question","Answer","obj-001",0.5,0.5,1.0,"story1/step1-layer1.md","story1/step1-layer2.md"
+step,question,answer,object,x,y,zoom,layer1_button,layer1_file,layer2_button,layer2_file
+1,"Question text","Brief answer","obj-001",0.5,0.5,1.0,"","story1/step1-layer1.md","","story1/step1-layer2.md"
 ```
 
-**Note:** No CSV/spreadsheet needed for glossary terms. Create markdown files directly in `components/texts/glossary/` with minimal frontmatter:
+**Columns:**
+- `step`: Step number
+- `question`: Heading displayed in story
+- `answer`: Brief answer text
+- `object`: Object ID from objects.csv
+- `x, y, zoom`: IIIF viewer coordinates (0-1 normalized)
+- `layer1_button`: Custom button text (empty = "Learn more")
+- `layer1_file`: Path to markdown file in `components/texts/stories/`
+- `layer2_button`: Custom button text (empty = "Go deeper")
+- `layer2_file`: Path to markdown file in `components/texts/stories/`
+
+**Button behavior:** If button columns are empty, default text appears. If you provide text, it will be used instead.
+
+#### Glossary Terms
+
+No CSV needed! Create markdown files directly in `components/texts/glossary/`:
 
 ```markdown
 ---
@@ -129,8 +169,6 @@ related_terms: encomienda,viceroyalty
 
 The Colonial Period in the Americas began with...
 ```
-
-[Link to Google Sheets template - TBD]
 
 ### Jekyll Collections
 
@@ -179,27 +217,38 @@ telar:
   font_headings: "Playfair Display, serif"
 ```
 
-### Google Sheets Integration
-
-1. Publish your Google Sheet to web (File → Share → Publish to web)
-2. Get the shareable link
-3. Add as repository secret: `GOOGLE_SHEETS_URL`
-4. Update GID values in `.github/workflows/build.yml` for each tab
-
 ## GitHub Actions Workflow
 
-The automated build process:
+When you deploy via GitHub Pages, the build process is **fully automated**. Here's what happens:
 
-1. **Fetch**: Download CSVs from published Google Sheets
-2. **Convert**: Transform CSV to JSON for Jekyll
-3. **Generate**: Create IIIF tiles from source images
-4. **Build**: Compile Jekyll site
-5. **Deploy**: Publish to GitHub Pages
+### What YOU Do (User Actions)
 
-Triggers:
+Edit content directly on GitHub or push from local:
+
+1. **Edit CSVs** in `components/structures/` (story structure, object metadata)
+2. **Edit markdown** in `components/texts/` (narrative content)
+3. **Add images** to `components/images/objects/` (IIIF source images)
+4. **Commit and push** to main branch
+
+### What GitHub Actions Does (Automated)
+
+The workflow (`.github/workflows/build.yml`) automatically:
+
+1. **Convert CSVs to JSON**: Runs `scripts/csv_to_json.py`
+   - Reads CSVs from `components/structures/`
+   - Embeds markdown content from `components/texts/`
+   - Generates JSON files in `_data/` for Jekyll
+2. **Generate IIIF tiles**: Runs `scripts/generate_iiif.py`
+   - Processes images from `components/images/objects/`
+   - Creates tiled image pyramids in `iiif/objects/`
+3. **Build Jekyll site**: Runs `bundle exec jekyll build`
+   - Compiles site from templates and data
+   - Outputs to `_site/` directory
+4. **Deploy to GitHub Pages**: Publishes `_site/` directory
+
+**Triggers:**
 - Push to main branch
-- Manual workflow dispatch
-- Daily schedule (optional, for auto-updates)
+- Manual workflow dispatch (Actions tab)
 
 ## Customization
 
@@ -227,10 +276,23 @@ Core functionality in `assets/js/`:
 
 ## Development
 
-### Local Testing
+### Local Development Workflow
+
+When developing locally, you need to manually run the build pipeline:
 
 ```bash
-# Serve with live reload
+# 1. Edit content
+# - CSVs in components/structures/
+# - Markdown in components/texts/
+# - Images in components/images/objects/
+
+# 2. Convert CSVs to JSON (run after editing CSVs)
+python3 scripts/csv_to_json.py
+
+# 3. Generate IIIF tiles (run after adding/updating images)
+python3 scripts/generate_iiif.py --source-dir components/images/objects --base-url http://localhost:4000
+
+# 4. Serve with live reload
 bundle exec jekyll serve --livereload
 
 # Build only (output to _site/)
@@ -242,38 +304,35 @@ bundle exec jekyll clean
 
 ### Adding a Story
 
-1. Create markdown file in `_stories/`
-2. Add front matter with story metadata
-3. Include story steps with data attributes
-4. Reference object IDs and coordinates
-
-See `_stories/README.md` for complete documentation.
+1. **Create CSV file** in `components/structures/` (e.g., `story-2.csv`)
+2. **Add columns**: `step,question,answer,object,x,y,zoom,layer1_button,layer1_file,layer2_button,layer2_file`
+3. **Create markdown files** in `components/texts/stories/story2/` for layer content
+4. **Run conversion**: `python3 scripts/csv_to_json.py`
+5. **Add to project.csv**: List story in project setup
+6. **Build and test**: `bundle exec jekyll serve`
 
 ### Adding Objects
 
-1. Create markdown file in `_objects/`
-2. Add front matter with object metadata
-3. Add source image to `source_images/` (if using local IIIF)
-4. OR specify external `iiif_manifest` URL
+1. **Add to CSV**: Create entry in `components/structures/objects.csv` with `object_id`
+2. **Add image**: Place high-res image in `components/images/objects/` (named `{object_id}.jpg`)
+3. **Generate IIIF**: `python3 scripts/generate_iiif.py --source-dir components/images/objects --base-url http://localhost:4000`
+4. **OR use external IIIF**: Specify `iiif_manifest` URL in objects.csv
 
 ### Adding Glossary Terms
 
-1. Create markdown file in `components/texts/glossary/`
-2. Add minimal frontmatter with `term_id`, `title`, and optional `related_terms`
-3. Write full definition in markdown content
-4. Run `python scripts/generate_collections.py` to create Jekyll collection file
-5. Reference `term_id` in stories
+1. **Create markdown file** in `components/texts/glossary/` (e.g., `encomienda.md`)
+2. **Add frontmatter**:
+   ```markdown
+   ---
+   term_id: encomienda
+   title: "Encomienda"
+   related_terms: colonial-period,tribute
+   ---
 
-**Example:**
-```markdown
----
-term_id: encomienda
-title: "Encomienda"
-related_terms: colonial-period,tribute
----
-
-The encomienda was a labor system instituted by the Spanish crown...
-```
+   The encomienda was a labor system instituted by the Spanish crown...
+   ```
+3. **Generate collection**: `python3 scripts/generate_collections.py`
+4. **Reference in stories**: Use `term_id` in your story content
 
 ## Browser Support
 
@@ -324,7 +383,7 @@ For issues, questions, or contributions:
 - Documentation: https://github.com/UCSB-AMPLab/telar
 
 ## Roadmap
-
+- [ ] **Zero-installation authoring**: Edit content via Google Sheets web interface
 - [ ] Visual story editor
 - [ ] Annotation support
 - [ ] Multi-language support
