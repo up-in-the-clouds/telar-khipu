@@ -10,11 +10,12 @@ This folder stores **visual media** that will be displayed in your stories, incl
 
 ```
 images/
-└── objects/            - Source images for IIIF objects - the high-res images that will be used in the main stories or displayed in the "Objects" page.
-    ├── object-id-1.jpg
-    ├── object-id-2.tif
-    └── ...
+├── objects/            - Source images for IIIF objects - the high-res images that will be used in the main stories or displayed in the "Objects" page.
+│   ├── object-id-1.jpg
+│   ├── object-id-2.tif
+│   └── ...
 └── additional/         - Other images used around the site, but not high-resolution images that will be served via IIIF. Think logos, team pictures, etc.
+    └── ...         
 ```
 
 After running the IIIF generation script, additional folders will be created in `/iiif/objects/` with tiled image pyramids.

@@ -113,7 +113,8 @@ components/
 │   ├── objects.csv       # Object catalog metadata
 │   └── story-1.csv       # Story structure with step coordinates
 ├── images/
-│   └── objects/          # Source images for IIIF processing
+│   ├── objects/          # Source images for IIIF processing
+│   └── additional/       # Other images used around the site
 └── texts/
     ├── stories/          # Story layer content (markdown)
     │   └── story1/
@@ -329,7 +330,7 @@ bundle exec jekyll clean
    related_terms: colonial-period,tribute
    ---
 
-   The encomienda was a labor system instituted by the Spanish crown...
+   The encomienda was a tribute system instituted by the Spanish crown...
    ```
 3. **Generate collection**: `python3 scripts/generate_collections.py`
 4. **Reference in stories**: Use `term_id` in your story content
