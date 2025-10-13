@@ -6,8 +6,9 @@ layout: default
   <div class="row">
     <div class="col-lg-10 mx-auto">
       <h1>{{ page.title }}</h1>
-      <p class="lead">Key terms and concepts used in these stories.</p>
-
+      <article class="page-content">
+        {{ content }}
+      </article>
       {% if site.glossary.size > 0 %}
       <div class="glossary-list">
         {% assign glossary_by_letter = site.glossary | group_by_exp: "item", "item.title | slice: 0 | upcase" | sort: "name" %}
