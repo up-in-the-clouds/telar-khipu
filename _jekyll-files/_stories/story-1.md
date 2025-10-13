@@ -2,6 +2,6 @@
 story_number: 1
 title: "Telar example story"
 layout: story
-data_file: story-1-new
+data_file: story-1
 ---
 

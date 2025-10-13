@@ -13,8 +13,25 @@ pip install -r scripts/requirements.txt
 Or install individually:
 
 ```bash
-pip install iiif Pillow
+pip install iiif Pillow pandas
 ```
+
+## Data Architecture
+
+Telar uses a **components-based architecture** where content is separated from structure:
+
+- **`components/`** - Source of truth for all content
+  - `components/images/` - Source images for IIIF processing
+  - `components/texts/` - Markdown files with long-form content
+- **CSV files** - Structural data that references component files
+  - Story structure (coordinates, objects, file references)
+  - Object metadata
+  - **Note:** No CSV for glossary - terms are sourced directly from markdown
+- **`_data/`** - Generated JSON (intermediate format)
+- **`_jekyll-files/`** - Auto-generated Jekyll collections
+  - `_jekyll-files/_objects/` - Object collection files
+  - `_jekyll-files/_stories/` - Story collection files
+  - `_jekyll-files/_glossary/` - Glossary collection files (generated from components)
 
 ## IIIF Tile Generation
 
@@ -104,22 +121,86 @@ python scripts/generate_iiif.py --base-url https://mysite.github.io/project
 - Large images may take several minutes to process
 - Default base URL is `http://localhost:4000/telar` (for local testing)
 
-## Other Scripts
+## Data Processing Scripts
+
+### csv_to_json.py
+
+Converts CSV data files to JSON format and embeds content from markdown files.
+
+```bash
+python scripts/csv_to_json.py
+```
+
+**How it works:**
+
+1. **Reads CSV files** from `_data/` directory
+2. **Detects file reference columns** (columns ending with `_file`)
+3. **Loads markdown files** from `components/texts/`
+4. **Parses frontmatter** to extract title
+5. **Embeds content** into JSON output
+
+**File Reference Format:**
+
+For story layers in CSV:
+```csv
+step,question,answer,layer1_file,layer2_file
+1,"Question text","Answer text","story1/step1-layer1.md","story1/step1-layer2.md"
+```
+
+The script will:
+- Look for `components/texts/stories/story1/step1-layer1.md`
+- Extract `title` from frontmatter
+- Extract body content
+- Create `layer1_title` and `layer1_text` columns in JSON
 
 ### generate_collections.py
 
-Generates Jekyll collection markdown files from JSON data.
+Generates Jekyll collection markdown files from JSON data and component markdown files.
 
 ```bash
 python scripts/generate_collections.py
 ```
 
-### csv_to_json.py
+**How it works:**
 
-Converts CSV data files to JSON format.
+- **Objects**: Reads `_data/objects.json` and generates files in `_jekyll-files/_objects/`
+- **Stories**: Reads `_data/project.csv` and generates files in `_jekyll-files/_stories/`
+- **Glossary**: Reads markdown files directly from `components/texts/glossary/` and generates files in `_jekyll-files/_glossary/`
+
+**Glossary metadata (in component files):**
+```markdown
+---
+term_id: colonial-period
+title: "Colonial Period"
+related_terms: encomienda,viceroyalty
+---
+
+The Colonial Period in the Americas began with...
+```
+
+**Required fields:**
+- `term_id` - Unique identifier for lookups
+- `title` - Term name
+- `related_terms` - Comma-separated list (optional)
+
+## Workflow
+
+Complete data processing workflow:
 
 ```bash
+# 1. Edit content in components/texts/
+# 2. Update structure in CSV files (_data/*.csv)
+# 3. Convert CSV to JSON (embeds markdown content)
 python scripts/csv_to_json.py
+
+# 4. Generate Jekyll collection files
+python scripts/generate_collections.py
+
+# 5. Generate IIIF tiles for any new images
+python scripts/generate_iiif.py
+
+# 6. Build Jekyll site
+bundle exec jekyll build
 ```
 
 ## GitHub Actions Integration

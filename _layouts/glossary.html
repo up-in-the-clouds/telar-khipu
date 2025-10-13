@@ -11,19 +11,9 @@ layout: default
 
       <h1>{{ page.title }}</h1>
 
-      {% if page.short_definition %}
-      <p class="lead">{{ page.short_definition }}</p>
-      {% endif %}
-
       <div class="glossary-content mt-4">
         {{ content }}
       </div>
-
-      {% if page.image %}
-      <div class="glossary-image mt-4">
-        <img src="{{ page.image | relative_url }}" alt="{{ page.title }}" class="img-fluid rounded">
-      </div>
-      {% endif %}
 
       <!-- Related Terms -->
       {% if page.related_terms %}

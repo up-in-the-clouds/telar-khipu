@@ -16,7 +16,6 @@ Telar is developed by Adelaida Ávila, Juan Cobo Betancourt, Santiago Muñoz, an
 - **Layered panels**: Progressive disclosure with three content layers plus glossary
 - **Objects gallery**: Browsable object grid with detail pages
 - **Minimal computing**: Plain text, static generation, GitHub Pages hosting
-- **Mobile responsive**: Optimized for all screen sizes
 
 ## Quick Start
 
@@ -80,35 +79,76 @@ bundle exec jekyll serve
 
 ## Content Structure
 
+Telar uses a **components-based architecture** that separates content from structure:
+
+### Components Folder
+
+The `components/` folder is the **source of truth** for all content:
+
+```
+components/
+├── images/
+│   ├── objects/          # Source images for IIIF processing
+│   └── additional/       # Layer images, supplementary media
+└── texts/
+    ├── stories/          # Story layer content (markdown)
+    │   └── story1/
+    │       ├── step1-layer1.md
+    │       ├── step1-layer2.md
+    │       └── ...
+    └── glossary/         # Glossary definitions (markdown)
+        ├── colonial-period.md
+        └── ...
+```
+
+**Key principle:** Long-form content lives in markdown files, not in spreadsheets.
+
 ### Google Sheets Data Source
 
-Telar uses a single Google Sheet with multiple tabs:
+Google Sheets provides **structural data** that references component files:
 
 1. **Instructions** (Tab 1): Read-only guidance
 2. **Project Setup** (Tab 2): Site settings + stories list
 3. **Objects** (Tab 3): Object metadata
-4. **Glossary** (Tab 4): Term definitions
-5. **Story [N]** (Tab 5+): Story steps for each story
+4. **Story [N]** (Tab 4+): Story structure with file references
+
+**Example story CSV:**
+```csv
+step,question,answer,object,x,y,zoom,layer1_file,layer2_file
+1,"Question","Answer","obj-001",0.5,0.5,1.0,"story1/step1-layer1.md","story1/step1-layer2.md"
+```
+
+**Note:** No CSV/spreadsheet needed for glossary terms. Create markdown files directly in `components/texts/glossary/` with minimal frontmatter:
+
+```markdown
+---
+term_id: colonial-period
+title: "Colonial Period"
+related_terms: encomienda,viceroyalty
+---
+
+The Colonial Period in the Americas began with...
+```
 
 [Link to Google Sheets template - TBD]
 
 ### Jekyll Collections
 
-Content is organized into three collections:
+Auto-generated in `_jekyll-files/` directory:
 
-- `_stories/`: Scrollytelling narratives
-- `_objects/`: Object metadata
-- `_glossary/`: Glossary term definitions
+- `_jekyll-files/_stories/`: Scrollytelling narratives (from project.csv + story CSVs)
+- `_jekyll-files/_objects/`: Object metadata (from objects.json)
+- `_jekyll-files/_glossary/`: Glossary terms (from components/texts/glossary/)
 
-See README files in each directory for detailed documentation.
+**Note:** Files in `_jekyll-files/` are auto-generated. Edit source files in `components/` or `_data/` instead.
 
 ## IIIF Integration
 
 ### Option 1: Local Images (Recommended)
 
-1. Add high-resolution images to `source_images/` directory
-2. Name files to match object IDs (e.g., `textile-001.jpg`)
-3. GitHub Actions automatically generates IIIF tiles on commit
+1. Add high-resolution images to `components/images/objects/` directory
+2. Name files to match object IDs (e.g., `example-bogota-1614.jpg`)
+3. Run `python scripts/generate_iiif.py` to generate IIIF tiles
 4. Tiles are saved to `iiif/objects/[object-id]/`
 
 **File Size Limits:**
@@ -218,10 +258,22 @@ See `_stories/README.md` for complete documentation.
 
 ### Adding Glossary Terms
 
-1. Create markdown file in `_glossary/`
-2. Add front matter with term metadata
+1. Create markdown file in `components/texts/glossary/`
+2. Add minimal frontmatter with `term_id`, `title`, and optional `related_terms`
 3. Write full definition in markdown content
-4. Reference `term_id` in stories
+4. Run `python scripts/generate_collections.py` to create Jekyll collection file
+5. Reference `term_id` in stories
+
+**Example:**
+```markdown
+---
+term_id: encomienda
+title: "Encomienda"
+related_terms: colonial-period,tribute
+---
+
+The encomienda was a labor system instituted by the Spanish crown...
+```
 
 ## Browser Support
 
@@ -254,7 +306,7 @@ See `_stories/README.md` for complete documentation.
 
 Telar is developed by Adelaida Ávila, Juan Cobo Betancourt, Santiago Muñoz, and students and scholars at the [UCSB Archives, Memory, and Preservation Lab](https://ampl.clair.ucsb.edu), the UT Archives, Mapping, and Preservation Lab, and [Neogranadina](https://neogranadina.org).
 
-Built with:
+Telar is built with:
 - [Jekyll](https://jekyllrb.com/) - Static site generator
 - [UniversalViewer](https://universalviewer.io/) - IIIF viewer
 - [Scrollama](https://github.com/russellgoldenberg/scrollama) - Scrollytelling library
@@ -275,7 +327,7 @@ For issues, questions, or contributions:
 
 - [ ] Visual story editor
 - [ ] Annotation support
-- [ ] Audio narration
 - [ ] Multi-language support
-- [ ] 3D object support via Sketchfab
+- [ ] 3D object support
 - [ ] Timeline visualizations
+- [ ] Mobile-friendly responsive design

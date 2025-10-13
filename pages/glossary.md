@@ -8,7 +8,7 @@ permalink: /glossary/
   <div class="row">
     <div class="col-lg-10 mx-auto">
       <h1>Glossary</h1>
-      <p class="lead">Key terms and concepts used throughout the exhibition.</p>
+      <p class="lead">Key terms and concepts used in these stories.</p>
 
       {% if site.glossary.size > 0 %}
       <div class="glossary-list">
@@ -23,9 +23,6 @@ permalink: /glossary/
           <h3>
             <a href="{{ term.url | relative_url }}">{{ term.title }}</a>
           </h3>
-          {% if term.short_definition %}
-          <p>{{ term.short_definition }}</p>
-          {% endif %}
         </div>
         {% endfor %}
         {% endfor %}

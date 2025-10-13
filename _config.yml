@@ -22,6 +22,9 @@ exclude:
   - docs/
   - scripts/
 
+# Collections Directory (all auto-generated collections in one place)
+collections_dir: _jekyll-files
+
 # Collections
 collections:
   stories:

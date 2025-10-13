@@ -6,7 +6,55 @@ Convert CSV files from Google Sheets to JSON for Jekyll
 import pandas as pd
 import json
 import os
+import re
 from pathlib import Path
+
+def read_markdown_file(file_path):
+    """
+    Read a markdown file and parse frontmatter
+
+    Args:
+        file_path: Path to markdown file relative to components/texts/
+
+    Returns:
+        dict with 'title' and 'content' keys, or None if file doesn't exist
+    """
+    full_path = Path('components/texts') / file_path
+
+    if not full_path.exists():
+        print(f"Warning: Markdown file not found: {full_path}")
+        return None
+
+    try:
+        with open(full_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        # Parse frontmatter
+        frontmatter_pattern = r'^---\s*\n(.*?)\n---\s*\n(.*)$'
+        match = re.match(frontmatter_pattern, content, re.DOTALL)
+
+        if match:
+            frontmatter_text = match.group(1)
+            body = match.group(2).strip()
+
+            # Extract title from frontmatter
+            title_match = re.search(r'title:\s*["\']?(.*?)["\']?\s*$', frontmatter_text, re.MULTILINE)
+            title = title_match.group(1) if title_match else ''
+
+            return {
+                'title': title,
+                'content': body
+            }
+        else:
+            # No frontmatter, just content
+            return {
+                'title': '',
+                'content': content.strip()
+            }
+
+    except Exception as e:
+        print(f"Error reading markdown file {full_path}: {e}")
+        return None
 
 def csv_to_json(csv_path, json_path, process_func=None):
     """
@@ -99,8 +147,8 @@ def process_objects(df):
 
 def process_glossary(df):
     """
-    Process glossary CSV
-    Expected columns: term_id, title, short_definition, etc.
+    Process glossary CSV with file references
+    Expected columns: term_id, title, short_definition, definition_file, etc.
     """
     # Drop example column if it exists
     if 'example' in df.columns:
@@ -112,12 +160,26 @@ def process_glossary(df):
     # Remove rows where term_id is empty
     df = df[df['term_id'].astype(str).str.strip() != '']
 
+    # Process definition_file column
+    if 'definition_file' in df.columns:
+        for idx, row in df.iterrows():
+            file_ref = row['definition_file']
+            if file_ref and file_ref.strip():
+                # For glossary, files are directly in glossary/ folder
+                file_path = f"glossary/{file_ref.strip()}"
+                markdown_data = read_markdown_file(file_path)
+                if markdown_data:
+                    # Store the full definition text
+                    df.at[idx, 'definition'] = markdown_data['content']
+                else:
+                    df.at[idx, 'definition'] = ''
+
     return df
 
 def process_story(df):
     """
-    Process story CSV
-    Expected columns: step, question, answer, object, x, y, zoom, layer1_title, etc.
+    Process story CSV with file references
+    Expected columns: step, question, answer, object, x, y, zoom, layer1_file, layer2_file, etc.
     """
     # Drop example column if it exists
     if 'example' in df.columns:
@@ -128,6 +190,39 @@ def process_story(df):
 
     # Remove completely empty rows
     df = df[df.astype(str).apply(lambda x: x.str.strip()).ne('').any(axis=1)]
+
+    # Process file reference columns
+    for col in df.columns:
+        if col.endswith('_file'):
+            # Determine the base name (e.g., 'layer1' from 'layer1_file')
+            base_name = col.replace('_file', '')
+
+            # Create new columns for title and text
+            title_col = f'{base_name}_title'
+            text_col = f'{base_name}_text'
+
+            # Initialize new columns with empty strings
+            if title_col not in df.columns:
+                df[title_col] = ''
+            if text_col not in df.columns:
+                df[text_col] = ''
+
+            # Read markdown files and populate columns
+            for idx, row in df.iterrows():
+                file_ref = row[col]
+                if file_ref and file_ref.strip():
+                    # Prepend 'stories/' to the path for story files
+                    file_path = f"stories/{file_ref.strip()}"
+                    markdown_data = read_markdown_file(file_path)
+                    if markdown_data:
+                        df.at[idx, title_col] = markdown_data['title']
+                        df.at[idx, text_col] = markdown_data['content']
+                    else:
+                        df.at[idx, title_col] = ''
+                        df.at[idx, text_col] = ''
+
+            # Drop the _file column as it's no longer needed in JSON
+            df = df.drop(columns=[col])
 
     return df
 
@@ -153,12 +248,8 @@ def main():
         process_objects
     )
 
-    # Convert glossary
-    csv_to_json(
-        '_data/glossary.csv',
-        '_data/glossary.json',
-        process_glossary
-    )
+    # Note: Glossary is now sourced directly from components/texts/glossary/
+    # and processed by generate_collections.py
 
     # Convert story files
     # Look for any CSV files that start with "story-"

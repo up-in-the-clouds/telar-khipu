@@ -11,8 +11,8 @@ def generate_objects():
     with open('_data/objects.json', 'r') as f:
         objects = json.load(f)
 
-    objects_dir = Path('_objects')
-    objects_dir.mkdir(exist_ok=True)
+    objects_dir = Path('_jekyll-files/_objects')
+    objects_dir.mkdir(parents=True, exist_ok=True)
 
     for obj in objects:
         object_id = obj.get('object_id', '')
@@ -44,37 +44,53 @@ layout: object
         print(f"✓ Generated {filepath}")
 
 def generate_glossary():
-    """Generate glossary markdown files from glossary.json"""
-    with open('_data/glossary.json', 'r') as f:
-        terms = json.load(f)
+    """Generate glossary markdown files from components/texts/glossary/"""
+    import re
 
-    glossary_dir = Path('_glossary')
-    glossary_dir.mkdir(exist_ok=True)
+    source_dir = Path('components/texts/glossary')
+    if not source_dir.exists():
+        print("Warning: components/texts/glossary/ directory not found")
+        return
 
-    for term in terms:
-        term_id = term.get('term_id', '')
-        if not term_id:
+    glossary_dir = Path('_jekyll-files/_glossary')
+    glossary_dir.mkdir(parents=True, exist_ok=True)
+
+    for source_file in source_dir.glob('*.md'):
+        # Read the source markdown file
+        with open(source_file, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        # Parse frontmatter and body
+        frontmatter_pattern = r'^---\s*\n(.*?)\n---\s*\n(.*)$'
+        match = re.match(frontmatter_pattern, content, re.DOTALL)
+
+        if not match:
+            print(f"Warning: No frontmatter found in {source_file}")
             continue
 
+        frontmatter_text = match.group(1)
+        body = match.group(2).strip()
+
+        # Extract term_id to determine output filename
+        term_id_match = re.search(r'term_id:\s*(\S+)', frontmatter_text)
+        if not term_id_match:
+            print(f"Warning: No term_id found in {source_file}")
+            continue
+
+        term_id = term_id_match.group(1)
         filepath = glossary_dir / f"{term_id}.md"
 
-        # Parse related terms
-        related = term.get('related_terms', '')
-
-        content = f"""---
-term_id: {term.get('term_id', '')}
-title: "{term.get('title', '')}"
-short_definition: "{term.get('short_definition', '')}"
-image: {term.get('image', '')}
-related_terms: {related}
+        # Write to collection with layout added
+        output_content = f"""---
+{frontmatter_text}
 layout: glossary
 ---
 
-{term.get('definition', '')}
+{body}
 """
 
-        with open(filepath, 'w') as f:
-            f.write(content)
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write(output_content)
 
         print(f"✓ Generated {filepath}")
 
@@ -99,8 +115,8 @@ def generate_stories():
                         'title': story_title
                     })
 
-    stories_dir = Path('_stories')
-    stories_dir.mkdir(exist_ok=True)
+    stories_dir = Path('_jekyll-files/_stories')
+    stories_dir.mkdir(parents=True, exist_ok=True)
 
     for story in stories:
         story_num = story['number']
