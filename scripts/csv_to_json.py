@@ -231,19 +231,21 @@ def main():
     data_dir = Path('_data')
     data_dir.mkdir(exist_ok=True)
 
+    structures_dir = Path('components/structures')
+
     print("Converting CSV files to JSON...")
     print("-" * 50)
 
     # Convert project setup
     csv_to_json(
-        '_data/project.csv',
+        'components/structures/project.csv',
         '_data/project.json',
         process_project_setup
     )
 
     # Convert objects
     csv_to_json(
-        '_data/objects.csv',
+        'components/structures/objects.csv',
         '_data/objects.json',
         process_objects
     )
@@ -252,9 +254,19 @@ def main():
     # and processed by generate_collections.py
 
     # Convert story files
-    # Look for any CSV files that start with "story-"
-    for csv_file in data_dir.glob('story-*.csv'):
-        json_file = csv_file.with_suffix('.json')
+    # Look for any CSV files that start with "story-" or "chapter-"
+    for csv_file in structures_dir.glob('story-*.csv'):
+        json_filename = csv_file.stem + '.json'
+        json_file = data_dir / json_filename
+        csv_to_json(
+            str(csv_file),
+            str(json_file),
+            process_story
+        )
+
+    for csv_file in structures_dir.glob('chapter-*.csv'):
+        json_filename = csv_file.stem + '.json'
+        json_file = data_dir / json_filename
         csv_to_json(
             str(csv_file),
             str(json_file),

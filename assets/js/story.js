@@ -459,9 +459,10 @@ function getPanelContent(panelType, contentId) {
       media: step.layer1_media
     });
 
-    // Add layer2 button if layer2 exists (use button label, not title)
-    if (step.layer2_button && step.layer2_button.trim() !== '') {
-      html += `<p><button class="panel-trigger" data-panel="layer2" data-step="${contentId}">${step.layer2_button} →</button></p>`;
+    // Add layer2 button if layer2 has content
+    if ((step.layer2_title && step.layer2_title.trim() !== '') || (step.layer2_text && step.layer2_text.trim() !== '')) {
+      const buttonLabel = (step.layer2_button && step.layer2_button.trim() !== '') ? step.layer2_button : 'Go deeper';
+      html += `<p><button class="panel-trigger" data-panel="layer2" data-step="${contentId}">${buttonLabel} →</button></p>`;
     }
 
     return {

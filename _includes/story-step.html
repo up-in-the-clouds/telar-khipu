@@ -31,17 +31,6 @@
     </p>
     {% endif %}
 
-    <!-- Layer 2 Panel Trigger -->
-    {% if (include.layer2_title and include.layer2_title != "") or (include.layer2_text and include.layer2_text != "") %}
-    <p>
-      <button class="panel-trigger" data-panel="layer2" data-step="{{ include.step_number }}">
-        {% if include.layer2button and include.layer2button != "" %}
-          {{ include.layer2button }}
-        {% else %}
-          Go deeper
-        {% endif %} →
-      </button>
-    </p>
-    {% endif %}
+    <!-- Layer 2 Panel Trigger: Dynamically added by JavaScript inside layer1 panel -->
   </div>
 </div>
