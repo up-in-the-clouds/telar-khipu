@@ -5,7 +5,7 @@ title: Home
 
 <div class="container my-5">
   <div class="row">
-    <div class="col-lg-8 mx-auto text-center">
+    <div class="col-lg-11 mx-auto">
       {% assign logo_path = site.telar.logo | strip %}
       {% if logo_path != "" %}
       <img src="{{ logo_path | relative_url }}" alt="{{ site.title }}" class="mb-4" style="max-width: 200px;">
@@ -19,22 +19,55 @@ title: Home
     </div>
   </div>
 
+  {% if site.description %}
+  <div class="row">
+    <div class="col-lg-11 mx-auto">
+      <p class="lead mb-5">{{ site.description }}</p>
+    </div>
+  </div>
+  {% endif %}
+
   <!-- Stories List -->
   <div class="row">
-    <div class="col-lg-10 mx-auto">
-      <h2 class="mb-4">Stories</h2>
+    <div class="col-lg-11 mx-auto">
+      <h2 class="mb-4">Explore the stories</h2>
 
       {% if site.stories.size > 0 %}
-      <div class="list-group">
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-5">
         {% for story in site.stories %}
-        <a href="{{ story.url | relative_url }}" class="list-group-item list-group-item-action">
-          <div class="d-flex w-100 justify-content-between">
-            <h3 class="h5 mb-1">{{ story.story_number }}. {{ story.title }}</h3>
-          </div>
-          {% if story.description %}
-          <p class="mb-1">{{ story.description }}</p>
-          {% endif %}
-        </a>
+        <div class="col">
+          <a href="{{ story.url | relative_url }}" class="story-card text-decoration-none">
+            <div class="card h-100 border-0 shadow-sm">
+              {%- comment -%}Load story data file and extract first object{%- endcomment -%}
+              {% assign story_data = site.data[story.data_file] %}
+              {% if story_data and story_data.size > 0 %}
+                {% assign first_step = story_data[0] %}
+                {% if first_step.object %}
+                  {%- comment -%}Load thumbnail via info.json (same as objects gallery){%- endcomment -%}
+                  <div class="local-iiif-thumbnail card-img-top" data-info-json="{{ '/iiif/objects/' | append: first_step.object | append: '/info.json' | relative_url }}" style="aspect-ratio: 1; overflow: hidden;">
+                    <div class="manifest-thumbnail-placeholder bg-light d-flex align-items-center justify-content-center h-100">
+                      <span class="text-muted">Loading...</span>
+                    </div>
+                  </div>
+                {% else %}
+                  {%- comment -%}Fallback placeholder if no object{%- endcomment -%}
+                  <div class="story-thumbnail-placeholder bg-secondary d-flex align-items-center justify-content-center" style="aspect-ratio: 1;">
+                    <span class="text-white">{{ story.story_number }}</span>
+                  </div>
+                {% endif %}
+              {% else %}
+                {%- comment -%}Fallback placeholder if no data file{%- endcomment -%}
+                <div class="story-thumbnail-placeholder bg-secondary d-flex align-items-center justify-content-center" style="aspect-ratio: 1;">
+                  <span class="text-white">{{ story.story_number }}</span>
+                </div>
+              {% endif %}
+
+              <div class="card-body">
+                <h3>{{ story.title }}</h3>
+              </div>
+            </div>
+          </a>
+        </div>
         {% endfor %}
       </div>
       {% else %}
@@ -48,11 +81,58 @@ title: Home
   <!-- Objects Teaser -->
   {% if site.objects.size > 0 %}
   <div class="row mt-5">
-    <div class="col-lg-10 mx-auto">
-      <h2 class="mb-4">Explore the objects behind the stories</h2>
+    <div class="col-lg-11 mx-auto">
+      <h3 class="mb-4">See the objects behind the stories</h3>
       <p class="lead">Browse {{ site.objects.size }} objects featured in the stories.</p>
-      <a href="{{ '/objects/' | relative_url }}" class="btn btn-primary">View Objects</a>
+      <a href="{{ '/objects/' | relative_url }}" class="btn panel-trigger">View Objects</a>
     </div>
   </div>
   {% endif %}
 </div>
+
+<script>
+/**
+ * Load story thumbnails from IIIF info.json
+ */
+document.addEventListener('DOMContentLoaded', function() {
+  const storyThumbnails = document.querySelectorAll('.local-iiif-thumbnail[data-info-json]');
+
+  storyThumbnails.forEach(function(item) {
+    const infoUrl = item.getAttribute('data-info-json');
+
+    fetch(infoUrl)
+      .then(response => response.json())
+      .then(info => {
+        // Get the largest available size from sizes array
+        const sizes = info.sizes || [];
+        let thumbnailSize = sizes[0]; // First element is largest
+
+        if (thumbnailSize) {
+          let baseUrl = info.id || info['@id'];
+          // Remove the image identifier from the end if present
+          baseUrl = baseUrl.replace(/\/[^\/]+$/, '');
+          const thumbnailUrl = `${baseUrl}/full/${thumbnailSize.width},/0/default.jpg`;
+
+          const img = document.createElement('img');
+          img.src = thumbnailUrl;
+          img.alt = item.closest('.story-card').querySelector('h3').textContent;
+          img.style.width = '100%';
+          img.style.height = '100%';
+          img.style.objectFit = 'cover';
+
+          const placeholder = item.querySelector('.manifest-thumbnail-placeholder');
+          if (placeholder) {
+            placeholder.replaceWith(img);
+          }
+        }
+      })
+      .catch(error => {
+        console.error('Error loading IIIF info.json:', infoUrl, error);
+        const placeholder = item.querySelector('.manifest-thumbnail-placeholder');
+        if (placeholder) {
+          placeholder.innerHTML = '<span class="text-danger">Failed to load</span>';
+        }
+      });
+  });
+});
+</script>

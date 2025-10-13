@@ -6,6 +6,8 @@ A minimal computing framework for creating digital storytelling exhibitions with
 
 Telar (Spanish for "loom") is a static site generator built on Jekyll that weaves together IIIF images, narrative text, and layered contextual information into interactive digital exhibitions. It follows minimal computing principles: plain text authoring, static generation, and sustainable hosting.
 
+Telar is developed by Adelaida Ávila, Juan Cobo Betancourt, Santiago Muñoz, and students and scholars at the [UCSB Archives, Memory, and Preservation Lab](https://ampl.clair.ucsb.edu), the UT Archives, Mapping, and Preservation Lab, and [Neogranadina](https://neogranadina.org).
+
 ## Key Features
 
 - **Zero-installation authoring**: Edit content via Google Sheets web interface
@@ -250,17 +252,18 @@ See `_stories/README.md` for complete documentation.
 
 ## Credits
 
+Telar is developed by Adelaida Ávila, Juan Cobo Betancourt, Santiago Muñoz, and students and scholars at the [UCSB Archives, Memory, and Preservation Lab](https://ampl.clair.ucsb.edu), the UT Archives, Mapping, and Preservation Lab, and [Neogranadina](https://neogranadina.org).
+
 Built with:
 - [Jekyll](https://jekyllrb.com/) - Static site generator
-- [OpenSeadragon](https://openseadragon.github.io/) - IIIF image viewer
+- [UniversalViewer](https://universalviewer.io/) - IIIF viewer
 - [Scrollama](https://github.com/russellgoldenberg/scrollama) - Scrollytelling library
 - [Bootstrap 5](https://getbootstrap.com/) - CSS framework
 - [iiif-static](https://github.com/bodleian/iiif-static-choices) - IIIF tile generator
 
-Inspired by:
+It is based on [Paisajes Coloniales](https://paisajescoloniales.com/), and inspired by:
 - [Wax](https://minicomp.github.io/wax/) - Minimal computing for digital exhibitions
 - [CollectionBuilder](https://collectionbuilder.github.io/) - Static digital collections
-- [Paisajes Coloniales](https://paisajescoloniales.com/) - Layered narrative design
 
 ## Support
 

@@ -3,7 +3,7 @@
 
 # Site Settings
 title: Telar
-description: A minimal computing framework for digital storytelling exhibitions with IIIF
+description: "Telar (Spanish for 'loom') is a static site generator built on Jekyll that weaves together IIIF images, text, and layered contextual information into interactive digital narrative exhibitions. Telar is developed by Adelaida Ávila, Juan Cobo Betancourt, Santiago Muñoz, and students and scholars at the UCSB and UT Archives, Memory, and Preservation Labs."
 baseurl: "/telar"
 url: "https://ampl.clair.ucsb.edu"
 author: ""
@@ -19,8 +19,8 @@ exclude:
   - vendor
   - .github
   - README.md
-  - PLAN.md
-  - RESEARCH.md
+  - docs/
+  - scripts/
 
 # Collections
 collections:
@@ -62,8 +62,8 @@ telar:
   tagline: ""
   primary_color: "#2c3e50" # Paisajes Colonial default
   secondary_color: "#8b4513"
-  font_headings: "Playfair Display, serif"
-  font_body: "Source Sans Pro, sans-serif"
+  font_headings: "Playfair Display"
+  font_body: "Source Sans Pro"
   logo: "" # Path to logo image
 
 # OpenSeadragon Settings

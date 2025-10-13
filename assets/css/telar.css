@@ -10,26 +10,73 @@
 
 /* Typography */
 body {
-  font-family: var(--font-body);
+  font-family: 'Source Sans Pro', sans-serif;
   color: #333;
   line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-headings);
-  color: var(--color-primary);
+  font-family: 'Playfair Display', serif;
+  color: #2c3e50;
 }
 
 /* Navigation */
 .site-header .navbar-brand {
-  font-family: var(--font-headings);
+  font-family: 'Playfair Display', serif;
   font-size: 1.5rem;
-  color: var(--color-primary);
+  color: #2c3e50;
 }
 
 /* Footer */
 .site-footer {
   border-top: 1px solid #dee2e6;
+}
+
+.footer-link {
+  color: #6c757d;
+  text-decoration: none;
+}
+
+.footer-link:hover {
+  color: #2c3e50;
+  text-decoration: underline;
+}
+
+/* Page Content */
+.page-content {
+  font-size: 1.25rem;
+  font-weight: 300;
+}
+
+.page-content h1 {
+  margin-bottom: 1.5rem;
+  font-weight: 400;
+}
+
+.page-content h2 {
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  font-weight: 400;
+}
+
+.page-content p {
+  margin-bottom: 1.5rem;
+}
+
+.page-content a {
+  color: #2c3e50;
+  text-decoration: underline;
+}
+
+.page-content a:hover {
+  color: #8b4513;
 }
 
 /* Story Layout - Split Screen */
@@ -64,7 +111,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .story-step.is-active {
-  border-left-color: var(--color-primary);
+  border-left-color: #2c3e50;
 }
 
 .story-step h2 {
@@ -124,7 +171,7 @@ h1, h2, h3, h4, h5, h6 {
 
 #panel-layer1 .offcanvas-title {
   color: #ffffff;
-  font-family: var(--font-headings);
+  font-family: 'Playfair Display', serif;
   font-size: 2rem;
   font-weight: 400;
 }
@@ -152,7 +199,7 @@ h1, h2, h3, h4, h5, h6 {
 
 #panel-layer2 .offcanvas-title {
   color: #ffffff;
-  font-family: var(--font-headings);
+  font-family: 'Playfair Display', serif;
   font-size: 2rem;
   font-weight: 400;
 }
@@ -207,7 +254,7 @@ h1, h2, h3, h4, h5, h6 {
 
 #panel-glossary .offcanvas-title {
   color: #8b4513;
-  font-family: var(--font-headings);
+  font-family: 'Playfair Display', serif;
   font-size: 2rem;
   font-weight: 400;
 }
@@ -329,6 +376,49 @@ h1, h2, h3, h4, h5, h6 {
   display: none !important;
 }
 
+/* Story Cards - Paisajes Colonial Style */
+.story-card {
+  display: block;
+  color: inherit;
+  transition: transform 0.3s ease;
+}
+
+.story-card:hover {
+  transform: translateY(-5px);
+}
+
+.story-card .card {
+  transition: box-shadow 0.3s ease;
+}
+
+.story-card:hover .card {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15) !important;
+}
+
+.story-card .card-body {
+  text-align: left;
+}
+
+.story-card h3 {
+  font-family: 'Playfair Display', serif;
+  color: #2c3e50;
+  font-size: 1.2rem;
+  margin-top: 1rem;
+  font-weight: 400;
+}
+
+.story-thumbnail {
+  width: 100%;
+  border-radius: 0.25rem 0.25rem 0 0;
+}
+
+.story-thumbnail-placeholder {
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem;
+  font-weight: 700;
+  border-radius: 0.25rem 0.25rem 0 0;
+}
+
 /* Collection Gallery */
 .collection-grid {
   display: grid;
@@ -368,15 +458,15 @@ h1, h2, h3, h4, h5, h6 {
   margin-top: 3rem;
   margin-bottom: 1.5rem;
   font-size: 2rem;
-  color: var(--color-primary);
-  border-bottom: 2px solid var(--color-primary);
+  color: #2c3e50;
+  border-bottom: 2px solid #2c3e50;
   padding-bottom: 0.5rem;
 }
 
 .glossary-term {
   margin-bottom: 1rem;
   padding: 1rem;
-  border-left: 3px solid var(--color-secondary);
+  border-left: 3px solid #8b4513;
   background: #f8f9fa;
 }
 
