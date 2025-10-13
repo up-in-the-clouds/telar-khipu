@@ -19,10 +19,27 @@
     {{ include.answer | markdownify }}
 
     <!-- Layer 1 Panel Trigger -->
-    {% if include.layer1button and include.layer1button != "" %}
+    {% if (include.layer1_title and include.layer1_title != "") or (include.layer1_text and include.layer1_text != "") %}
     <p>
       <button class="panel-trigger" data-panel="layer1" data-step="{{ include.step_number }}">
-        {{ include.layer1button }} →
+        {% if include.layer1button and include.layer1button != "" %}
+          {{ include.layer1button }}
+        {% else %}
+          Learn more
+        {% endif %} →
+      </button>
+    </p>
+    {% endif %}
+
+    <!-- Layer 2 Panel Trigger -->
+    {% if (include.layer2_title and include.layer2_title != "") or (include.layer2_text and include.layer2_text != "") %}
+    <p>
+      <button class="panel-trigger" data-panel="layer2" data-step="{{ include.step_number }}">
+        {% if include.layer2button and include.layer2button != "" %}
+          {{ include.layer2button }}
+        {% else %}
+          Go deeper
+        {% endif %} →
       </button>
     </p>
     {% endif %}
