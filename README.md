@@ -360,7 +360,9 @@ bundle exec jekyll clean
 
 ## License
 
-[Specify your license - e.g., MIT, GPL, CC BY]
+MIT License - see [LICENSE](LICENSE) file for details.
+
+**Note:** This license covers the Telar framework code and documentation. It does NOT cover user-created content (stories, images, object metadata, narrative text) which remains the property of content creators and may have separate licenses.
 
 ## Credits
 
