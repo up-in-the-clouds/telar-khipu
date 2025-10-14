@@ -21,30 +21,185 @@ Telar is developed by Adelaida Ávila, Juan Cobo Betancourt, Santiago Muñoz, an
 - **Objects gallery**: Browsable object grid with detail pages
 - **Minimal computing**: Plain text, static generation, GitHub Pages hosting
 
+---
+
 ## Quick Start
 
-### GitHub Pages Deployment (Automated Workflow)
+### Before You Begin: Plan Your Exhibition
 
-**Best for:** Content creators who want to publish online with minimal setup
+Telar exhibitions are built around a layered storytelling structure. Understanding this model will help you plan your content effectively.
 
-1. **Use this template** - Click "Use this template" button above to create your repository
-2. **Enable GitHub Pages** in repository settings (Settings → Pages → Source: GitHub Actions)
-3. **Edit your content** directly on GitHub:
-   - Edit CSV files in `components/structures/` (project setup, objects, stories)
-   - Edit markdown files in `components/texts/` (story layers, glossary)
-   - Upload images to `components/images/objects/`
-4. **Commit changes** to main branch
-5. **GitHub Actions automatically**:
-   - Converts CSVs to JSON
-   - Generates IIIF tiles from images
-   - Builds Jekyll site
-   - Deploys to GitHub Pages
+Each page in your Telar site contains one or more stories, which can be independent narratives or chapters of a longer one. Stories unfold through successive steps that show an image (or a detail of an image) alongside brief text. Each step follows a question/answer/invitation pattern: a question draws viewers in, a brief answer (1-2 sentences) responds, and an invitation to "learn more" opens a layer panel with extended information. You can provide up to two of these layer panels in each step, allowing viewers who want to go deeper to obtain even more detail.
 
-No local installation required for basic editing!
+Layer panels are where you can really expand on your narrative. They are written in [markdown format](https://www.markdownguide.org/getting-started/), allowing you to include headings, bold and italic text, links, lists, and other formatting. You can also insert additional images, and embed videos, 3D renderings, or other resources.
 
-### Local Development
+Before you start gathering materials or building your site, take time to sketch out your story's structure. Ask yourself: What stories do you want to tell? What are the key moments in each story? What images or details will anchor each step? What information belongs in the brief answer and what in the deeper layers? Planning this out on paper or in a digital tool of your choice will make the implementation much easier.
 
-**Best for:** Developers who want to preview changes locally before publishing
+For inspiration, browse the [example site](https://ampl.clair.ucsb.edu/telar) to see this structure in action. More sites built with Telar will be available soon in our directory.
+
+Once you're ready, choose one of the two workflows below based on your needs and technical knowledge.
+
+### Track 1: GitHub Web Interface Only (Recommended for Storytellers)
+
+**No installation required!** Edit everything directly on GitHub.
+
+#### Initial Setup
+
+1. **Use this template** - Click the green "Use this template" button above to create your own copy
+2. **Enable GitHub Pages**:
+   - Go to your new repository
+   - Click **Settings** tab
+   - Click **Pages** in left sidebar
+   - Under "Source", select **GitHub Actions**
+   - Click **Save**
+3. **Wait 2-5 minutes** for the initial build to complete
+4. **View your site** at `https://[your-username].github.io/[repository-name]/`
+
+#### Step 1: Gather Your Images
+
+You have two options for adding images to your exhibition:
+
+**Option A: Upload Your Own Images**
+
+If you have your own high-resolution images:
+
+1. **Navigate to** `components/images/objects/`
+2. **Click "Add file"** → **"Upload files"**
+3. **Drag your images** into the upload area
+4. **Name files** with simple IDs (e.g., `textile-001.jpg`, `ceramic-002.jpg`)
+5. **Commit changes**
+6. **Remember these filenames** - you'll use them as `object_id` values in Step 3
+
+**Option B: Use External IIIF Manifests**
+
+If you want to use images from institutional collections (museums, libraries, archives):
+
+1. **Find IIIF resources** - Many institutions publish their collections with IIIF support. See the [IIIF Guide to Finding Resources](https://iiif.io/guides/finding_resources/) for help locating collections
+2. **Copy the info.json URL** - Look for the IIIF Image API info.json URL (e.g., `https://example.org/iiif/image/abc123/info.json`)
+3. **Create an object_id** - Choose a simple ID for this object (e.g., `museum-textile-001`)
+4. **Save for next step** - You'll add this URL to the `iiif_manifest` column in objects.csv in Step 3
+
+**Note:** Both options work equally well. You can even mix both approaches in the same exhibition.
+
+#### Step 2: Write Your Narrative Text
+
+Create markdown files for your story layers:
+
+1. **Navigate to** `components/texts/stories/story1/`
+2. **Click "Add file"** → **"Create new file"**
+3. **Name the file** (e.g., `step1-layer1.md`)
+4. **Add frontmatter and content**:
+   ```markdown
+   ---
+   title: "Weaving Techniques"
+   ---
+
+   The interlocking warp pattern visible here indicates...
+   ```
+5. **Commit the file**
+6. **Repeat** for each layer of content you want to add
+
+#### Step 3: Catalog Your Objects
+
+Add metadata about your images in the objects catalog:
+
+1. **Navigate to** `components/structures/`
+2. **Click on** `objects.csv`
+3. **Click the ✏️ pencil icon** (top right) to edit
+4. **Add a new row** for each object:
+
+   **For Option A (uploaded images):**
+   ```
+   textile-001,Colonial Textile Fragment,"A woven textile from...",Unknown Artist,circa 1650-1700,Wool,45 x 60 cm,,,
+   ```
+   The `object_id` (first column) must match your uploaded image filename.
+
+   **For Option B (external IIIF):**
+   ```
+   museum-textile-001,Colonial Textile Fragment,"A woven textile from...",Unknown Artist,circa 1650-1700,Wool,45 x 60 cm,,https://example.org/iiif/image/abc123/info.json,
+   ```
+   Add the info.json URL in the second-to-last column (`iiif_manifest`).
+
+5. **Commit changes**
+6. **Wait 2-5 minutes** for GitHub Actions to rebuild your site
+
+#### Step 4: Preview Your Objects
+
+Once the build completes:
+
+1. **Visit your site** at `https://[username].github.io/[repository]/`
+2. **Click "Objects"** in the navigation
+3. **Verify** all your images appear with their metadata
+4. **Click on any object** to see it in the IIIF viewer
+
+#### Step 5: Find Coordinates for Story Moments
+
+Use the built-in coordinate tool to identify specific areas of your images:
+
+1. **Navigate to an object page** (click any object from the gallery)
+2. **Click "Identify coordinates"** button below the viewer
+3. **Pan and zoom** to the area you want to feature in your story
+4. **Watch coordinates update** in real-time (x, y, zoom)
+5. **Click "Copy entire row"** to copy a CSV template with the coordinates
+6. **Save these coordinates** - you'll paste them into your story CSV
+
+**Coordinate system:**
+- `x, y`: 0-1 normalized coordinates (0,0 = top-left)
+- `zoom`: 1 = full view, 2 = 2x zoom, etc.
+
+**Tip:** Keep the object page open in one tab while editing your story CSV in another.
+
+#### Step 6: Build Your Story
+
+Now connect your narrative to your objects with coordinates:
+
+1. **Navigate to** `components/structures/`
+2. **Click "Add file"** → **"Create new file"**
+3. **Name it** `story-1.csv` (or `story-2.csv`, etc.)
+4. **Add the header row**:
+   ```
+   step,question,answer,object,x,y,zoom,layer1_button,layer1_file,layer2_button,layer2_file
+   ```
+5. **Add story steps**, one row per step:
+   ```
+   1,"What is this textile?","This fragment shows...","textile-001",0.5,0.5,1.0,"","story1/step1-layer1.md","",""
+   2,"Notice the pattern","The geometric motifs...","textile-001",0.3,0.4,2.5,"","story1/step2-layer1.md","",""
+   ```
+6. **Commit the file**
+7. **Add story to project**:
+   - Edit `components/structures/project.csv`
+   - Scroll to the `STORIES` section
+   - Add a new row: `1,Your Story Title`
+8. **Commit** and wait for rebuild
+
+#### Step 7: Add Glossary Terms (Optional)
+
+Enhance your exhibition with term definitions:
+
+1. **Navigate to** `components/texts/glossary/`
+2. **Click "Add file"** → **"Create new file"**
+3. **Name it** `term-name.md`
+4. **Add frontmatter and definition**:
+   ```markdown
+   ---
+   term_id: colonial-period
+   title: "Colonial Period"
+   related_terms: encomienda,viceroyalty
+   ---
+
+   The Colonial Period in the Americas began with...
+   ```
+5. **Commit the file**
+
+**Note:** In v0.1.0-beta, glossary terms appear as standalone pages at `/glossary/{term_id}/`. In v0.2, we plan for automatic linking within narrative text.
+
+---
+
+### Track 2: Local Development (For Developers)
+
+**Best for:** Developers and people with more experience with running Jekyll locally and who want to preview changes locally before publishing
+
+#### Setup
 
 ```bash
 # Clone the repository
@@ -56,33 +211,165 @@ bundle install
 
 # Install Python dependencies (for IIIF generation)
 pip install -r requirements.txt
+```
 
-# Edit content in components/ folder
-# Then run the build pipeline:
+#### Core Commands
 
-# 1. Convert CSVs to JSON
+After setup, you'll use these commands throughout your workflow:
+
+```bash
+# Convert CSVs to JSON (run after editing CSVs)
 python3 scripts/csv_to_json.py
 
-# 2. Generate IIIF tiles (if images changed)
+# Generate IIIF tiles (run after adding/updating images)
 python3 scripts/generate_iiif.py --source-dir components/images/objects --base-url http://localhost:4000
 
-# 3. Serve locally with live reload
+# Serve with live reload
 bundle exec jekyll serve --livereload
 
 # View at http://localhost:4000
 ```
 
-## Installation
+#### Step 1: Gather Your Images
+
+You have two options for adding images:
+
+**Option A: Upload Your Own Images**
+
+1. **Add high-res images** to `components/images/objects/` directory
+2. **Name files** to match object IDs (e.g., `textile-001.jpg`)
+3. **Generate IIIF tiles**:
+   ```bash
+   python3 scripts/generate_iiif.py --source-dir components/images/objects --base-url http://localhost:4000
+   ```
+
+**Option B: Use External IIIF Manifests**
+
+1. **Find IIIF resources** - See the [IIIF Guide to Finding Resources](https://iiif.io/guides/finding_resources/)
+2. **Copy the info.json URL** (e.g., `https://example.org/iiif/image/abc123/info.json`)
+3. **Create an object_id** - Choose a simple ID (e.g., `museum-textile-001`)
+4. **Save for next step** - You'll add this URL to objects.csv in Step 3
+
+#### Step 2: Write Your Narrative Text
+
+Create markdown files for your story layers:
+
+1. **Create directory** for your story: `mkdir -p components/texts/stories/story1`
+2. **Create markdown files** for each layer (e.g., `step1-layer1.md`, `step1-layer2.md`)
+3. **Add frontmatter and content**:
+   ```markdown
+   ---
+   title: "Weaving Techniques"
+   ---
+
+   The interlocking warp pattern visible here indicates...
+   ```
+
+#### Step 3: Catalog Your Objects
+
+Add metadata to the objects catalog:
+
+1. **Edit** `components/structures/objects.csv`
+2. **Add a row** for each object with columns: `object_id,title,description,creator,date,medium,dimensions,location,credit,thumbnail,iiif_manifest`
+
+   **For Option A (uploaded images):**
+   ```
+   textile-001,Colonial Textile Fragment,"A woven textile from...",Unknown Artist,circa 1650-1700,Wool,45 x 60 cm,,,
+   ```
+
+   **For Option B (external IIIF):**
+   ```
+   museum-textile-001,Colonial Textile Fragment,"A woven textile from...",Unknown Artist,circa 1650-1700,Wool,45 x 60 cm,,https://example.org/iiif/image/abc123/info.json,
+   ```
+
+3. **Convert to JSON**:
+   ```bash
+   python3 scripts/csv_to_json.py
+   ```
+
+#### Step 4: Preview Your Objects
+
+Build and view your site locally:
+
+```bash
+bundle exec jekyll serve --livereload
+```
+
+Then:
+1. **Visit** `http://localhost:4000`
+2. **Click "Objects"** in the navigation
+3. **Verify** all your images appear with their metadata
+
+#### Step 5: Find Coordinates for Story Moments
+
+Use the coordinate identification tool:
+
+1. **Navigate to an object page**: `http://localhost:4000/objects/{object_id}`
+2. **Click "Identify coordinates"** button below the IIIF viewer
+3. **Pan and zoom** to the area you want to feature
+4. **Copy values**: Click "Copy entire row" for a CSV template with coordinates
+
+#### Step 6: Build Your Story
+
+Connect your narrative to your objects:
+
+1. **Create CSV file** in `components/structures/` (e.g., `story-1.csv`)
+2. **Add header row**:
+   ```
+   step,question,answer,object,x,y,zoom,layer1_button,layer1_file,layer2_button,layer2_file
+   ```
+3. **Add story steps**:
+   ```
+   1,"What is this textile?","This fragment shows...","textile-001",0.5,0.5,1.0,"","story1/step1-layer1.md","",""
+   2,"Notice the pattern","The geometric motifs...","textile-001",0.3,0.4,2.5,"","story1/step2-layer1.md","",""
+   ```
+4. **Add to project setup**: Edit `components/structures/project.csv`, scroll to `STORIES` section, add row: `1,Your Story Title`
+5. **Convert to JSON**:
+   ```bash
+   python3 scripts/csv_to_json.py
+   ```
+6. **Rebuild and test**:
+   ```bash
+   bundle exec jekyll serve
+   ```
+
+#### Step 7: Add Glossary Terms (Optional)
+
+Enhance your exhibition with term definitions:
+
+1. **Create markdown file** in `components/texts/glossary/` (e.g., `colonial-period.md`)
+2. **Add frontmatter and definition**:
+   ```markdown
+   ---
+   term_id: colonial-period
+   title: "Colonial Period"
+   related_terms: encomienda,viceroyalty
+   ---
+
+   The Colonial Period in the Americas began with...
+   ```
+3. **Generate collection**:
+   ```bash
+   python3 scripts/generate_collections.py
+   ```
+4. **Build and test**:
+   ```bash
+   bundle exec jekyll serve
+   ```
+
+---
+
+## Installation (For Local Development)
 
 ### Prerequisites
 
 - Ruby 3.0+ (for Jekyll)
 - Bundler
-- Python 3.9+ (for IIIF generation, GitHub Actions only)
+- Python 3.9+ (for IIIF generation)
 
-### Local Setup
+### Setup Steps
 
-1. Install Ruby and Bundler:
+1. **Install Ruby and Bundler**:
    ```bash
    # macOS (using Homebrew)
    brew install ruby
@@ -93,15 +380,17 @@ bundle exec jekyll serve --livereload
    gem install bundler
    ```
 
-2. Install Jekyll dependencies:
+2. **Install Jekyll dependencies**:
    ```bash
    bundle install
    ```
 
-3. Optional - Install Python dependencies (for IIIF generation):
+3. **Install Python dependencies** (for IIIF generation):
    ```bash
    pip install -r requirements.txt
    ```
+
+See Track 2 above for the complete local development workflow.
 
 ## Content Structure
 
@@ -188,7 +477,7 @@ Auto-generated in `_jekyll-files/` directory:
 
 ## IIIF Integration
 
-### Option 1: Local Images (Recommended)
+### Option 1: Local Images
 
 1. Add high-resolution images to `components/images/objects/` directory
 2. Name files to match object IDs (e.g., `example-bogota-1614.jpg`)
@@ -308,54 +597,7 @@ bundle exec jekyll build
 bundle exec jekyll clean
 ```
 
-### Adding a Story
-
-1. **Create CSV file** in `components/structures/` (e.g., `story-2.csv`)
-2. **Add columns**: `step,question,answer,object,x,y,zoom,layer1_button,layer1_file,layer2_button,layer2_file`
-3. **Create markdown files** in `components/texts/stories/story2/` for layer content
-4. **Run conversion**: `python3 scripts/csv_to_json.py`
-5. **Add to project.csv**: List story in project setup
-6. **Build and test**: `bundle exec jekyll serve`
-
-### Adding Objects
-
-1. **Add to CSV**: Create entry in `components/structures/objects.csv` with `object_id`
-2. **Add image**: Place high-res image in `components/images/objects/` (named `{object_id}.jpg`)
-3. **Generate IIIF**: `python3 scripts/generate_iiif.py --source-dir components/images/objects --base-url http://localhost:4000`
-4. **OR use external IIIF**: Specify `iiif_manifest` URL in objects.csv
-
-### Finding Coordinates for Stories
-
-Each object detail page includes a built-in **coordinate identification tool** that helps you find precise x, y, zoom values for story steps:
-
-1. **Navigate to object page**: Visit `/objects/{object_id}` while running Jekyll locally
-2. **Click "Identify coordinates"**: Button appears below the IIIF viewer
-3. **Pan and zoom**: Click and drag the image, scroll to zoom
-4. **Watch coordinates update**: X, Y, and Zoom values update in real-time
-5. **Copy values**: Use copy buttons to grab coordinates or entire CSV row
-
-**Coordinate system:**
-- `x, y`: Normalized 0-1 coordinates where (0,0) is top-left corner
-- `zoom`: Relative zoom where 1 = full image, >1 zooms in
-
-**Workflow tip:** Keep the object page open in one browser tab while editing your story CSV in another. As you identify important details in the image, copy the coordinates directly into your story steps.
-
-### Adding Glossary Terms
-
-1. **Create markdown file** in `components/texts/glossary/` (e.g., `encomienda.md`)
-2. **Add frontmatter**:
-   ```markdown
-   ---
-   term_id: encomienda
-   title: "Encomienda"
-   related_terms: colonial-period,tribute
-   ---
-
-   The encomienda was a tribute system instituted by the Spanish crown...
-   ```
-3. **Generate collection**: `python3 scripts/generate_collections.py`
-
-**Access glossary terms:** In v0.1.0-beta, glossary terms are standalone pages at `/glossary/{term_id}/`. Automatic linking within narrative text is planned for v0.2.
+---
 
 ## Browser Support
 
@@ -379,6 +621,8 @@ Each object detail page includes a built-in **coordinate identification tool** t
 - Keyboard navigation support
 - Alt text for all images
 - Sufficient color contrast
+
+---
 
 ## License
 
@@ -411,10 +655,10 @@ For issues, questions, or contributions:
 
 ### Planned for v0.2
 - [ ] **Google Sheets integration**: Edit content via web interface without CSV files
-- [ ] **Visual story editor**: Point-and-click coordinate selection
 - [ ] **Improved documentation**: Video tutorials and examples
 
 ### Future Features
+- [ ] **Visual story editor**: Point-and-click coordinate selection
 - [ ] **Annotation support**: Clickable markers on IIIF images that open panels with additional information (IIIF annotations)
 - [ ] **Glossary auto-linking**: Automatic detection and linking of terms within narrative text
 - [ ] **Multi-language support**: Internationalization and localization
