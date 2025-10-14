@@ -108,9 +108,8 @@ document.addEventListener('DOMContentLoaded', function() {
         let thumbnailSize = sizes[0]; // First element is largest
 
         if (thumbnailSize) {
-          let baseUrl = info.id || info['@id'];
-          // Remove the image identifier from the end if present
-          baseUrl = baseUrl.replace(/\/[^\/]+$/, '');
+          const baseUrl = info.id || info['@id'];
+          // Use base URL directly - it already points to the image service
           const thumbnailUrl = `${baseUrl}/full/${thumbnailSize.width},/0/default.jpg`;
 
           const img = document.createElement('img');
