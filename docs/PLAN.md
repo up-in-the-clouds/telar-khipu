@@ -1,4 +1,4 @@
-# Telar - Comprehensive Implementation Plan
+# Telar - Implementation Plan and Roadmap
 
 ## Project Overview
 
@@ -25,16 +25,44 @@ Telar is developed by Adelaida Ávila, Juan Cobo Betancourt, Santiago Muñoz, an
 
 ---
 
+## Version History
+
+### v0.1.0-beta (October 14, 2025)
+
+**Status:** Released
+
+**Current Features:**
+- IIIF integration (local images with auto-generated tiles)
+- External IIIF support (remote IIIF Image API)
+- Scrollytelling with coordinate-based navigation using UniversalViewer
+- Layered panels (two content layers for progressive disclosure)
+- Glossary pages (standalone term definition pages at `/glossary/{term_id}/`)
+- Object gallery (browsable grid with detail pages)
+- Coordinate identification tool (interactive tool to find x,y,zoom values on object pages)
+- Components architecture (CSV files + markdown content separation)
+- CSV to JSON workflow (Python scripts for data processing)
+- IIIF tile generation (automated image pyramid creation with iiif-static)
+- GitHub Actions ready (automated builds and deployment pipeline)
+
+**Known Limitations:**
+- Content must be edited as CSV files and markdown (no web interface yet)
+- Local development requires Python 3.9+ and Ruby 3.0+ setup
+- Coordinate identification tool requires running Jekyll locally or on published site
+- Story coordinates must be manually entered in CSV files
+- Glossary terms are standalone pages only (no auto-linking in narrative text)
+
+---
+
 ## Technical Stack
 
 ### Core Technologies
 
 - **Static Site Generator**: Jekyll 4.3+
-- **IIIF Tile Generation**: Bodleian iiif-static-choices (Python)
-- **Image Viewer**: UniversalViewer (with OpenSeadragon for scrollytelling)
-- **Scrollytelling**: Scrollama
+- **IIIF Tile Generation**: Bodleian iiif-static (Python)
+- **Image Viewer**: UniversalViewer 4.0 (with OpenSeadragon)
+- **Scrollytelling**: Scrollama library
 - **CSS Framework**: Bootstrap 5
-- **Data Source**: Google Sheets (published as CSV)
+- **Data Source**: CSV files (v0.1.0-beta), Google Sheets planned for v0.2
 - **Automation**: GitHub Actions
 - **Hosting**: GitHub Pages
 
@@ -44,10 +72,10 @@ Telar is developed by Adelaida Ávila, Juan Cobo Betancourt, Santiago Muñoz, an
 - jekyll (~> 4.3.4)
 - minima (~> 2.5)
 - jekyll-feed (~> 0.12)
+- jekyll-seo-tag
 
 **Python:**
-- iiif-static-choices (for tile generation)
-- Poetry (dependency management)
+- iiif-static (for tile generation)
 
 **JavaScript Libraries (CDN):**
 - Bootstrap 5.3
@@ -59,11 +87,11 @@ Telar is developed by Adelaida Ávila, Juan Cobo Betancourt, Santiago Muñoz, an
 UniversalViewer was chosen after careful evaluation, inspired by Exhibit.so's successful implementation:
 
 1. **Universal IIIF Support**: Native support for both IIIF Presentation manifests AND Image API info.json:
-   - Handles external IIIF manifests from any institution (Huntington, Harvard Art Museums, etc.)
+   - Handles external IIIF manifests from any institution
    - Works with locally-generated IIIF tiles
    - No hardcoded URL transformations needed
 
-2. **Scrollytelling Compatibility**: UniversalViewer is built on OpenSeadragon, providing programmatic control:
+2. **Scrollytelling Compatibility**: Built on OpenSeadragon, providing programmatic control:
    ```javascript
    // Access underlying OpenSeadragon viewer
    uvInstance.on('openseadragonExtension.opened', function() {
@@ -73,15 +101,15 @@ UniversalViewer was chosen after careful evaluation, inspired by Exhibit.so's su
    });
    ```
 
-3. **Proven for Storytelling**: Exhibit.so demonstrates UV successfully supports scrollytelling narratives.
+3. **Proven for Storytelling**: Exhibit.so demonstrates UV successfully supports scrollytelling narratives
 
-4. **Future-Ready**: Built-in support for multi-media (video, 3D) if Telar expands scope in future versions.
+4. **Future-Ready**: Built-in support for multi-media (video, 3D) if Telar expands scope in future versions
 
-5. **Single Viewer Architecture**: Same viewer for both object pages (user exploration) and chapter pages (programmatic control).
+5. **Single Viewer Architecture**: Same viewer for both object pages (user exploration) and story pages (programmatic control)
 
-6. **GLAM Standard**: Wide adoption by major cultural heritage institutions ensures longevity and support.
+6. **GLAM Standard**: Wide adoption by major cultural heritage institutions ensures longevity and support
 
-**Trade-off**: Slightly larger footprint than OpenSeadragon alone (~500KB vs 60KB), but eliminates custom manifest parsing and provides universal compatibility.
+**Trade-off**: Slightly larger footprint than OpenSeadragon alone (~500KB vs 60KB), but eliminates custom manifest parsing and provides universal compatibility
 
 ---
 
@@ -91,10 +119,10 @@ UniversalViewer was chosen after careful evaluation, inspired by Exhibit.so's su
 
 **Telar supports four content types:**
 
-1. **Objects/Collection** - Browsable gallery of all items with metadata
-2. **Chapters** - Scrollytelling narratives referencing objects
+1. **Objects** - Browsable gallery of all items with metadata
+2. **Stories** - Scrollytelling narratives referencing objects
 3. **Story Steps** - Scrollable sections with question/answer format
-4. **Glossary** - Shared reusable term definitions
+4. **Glossary** - Standalone term definition pages
 
 ### Information Depth
 
@@ -103,18 +131,18 @@ UniversalViewer was chosen after careful evaluation, inspired by Exhibit.so's su
 1. **Main narrative** (left column) - Question + brief answer
 2. **Layer 1** (offcanvas panel) - Detailed context
 3. **Layer 2** (stacked overlay) - Deep scholarly content
-4. **Glossary panels** (popup overlay) - Term definitions with `[[term-id]]` syntax
+4. **Glossary** (standalone pages) - Term definitions (auto-linking planned for v0.2)
 
 ### Jekyll Collections
 
 ```yaml
 collections:
+  stories:
+    output: true
+    permalink: /stories/:name/
   objects:
     output: true
-    permalink: /collection/:name/
-  chapters:
-    output: true
-    permalink: /chapters/:name/
+    permalink: /objects/:name/
   glossary:
     output: true
     permalink: /glossary/:name/
@@ -122,82 +150,87 @@ collections:
 
 ---
 
-## Data Structure
+## Current Data Structure (v0.1.0-beta)
 
-### Single Google Sheet with Multiple Tabs
+### Components Architecture
 
-**Tab 1: Instructions** (read-only template guide)
-- How to use the template
-- Column definitions
-- File size limits and best practices
-- Example entries
+Content is organized in the `components/` folder:
 
-**Tab 2: Project Setup**
-
-*Section 1: Project Info (key-value pairs)*
-```csv
-setting,value
-project_title,"Your Project Title"
-project_subtitle,"Subtitle"
-project_description,"Description of the project"
-project_author,"Author Name"
-institution,"Institution Name"
-hero_image,"home-hero.jpg"
-heading_font,"Crimson Text"
-body_font,"Open Sans"
-text_color,"#333333"
-background_color,"#ffffff"
-accent_color,"#8B4513"
-logo_image,"logo.png"
+```
+components/
+├── structures/           # CSV files with organizational data
+│   ├── project.csv       # Site settings and story list
+│   ├── objects.csv       # Object catalog metadata
+│   └── story-1.csv       # Story structure with step coordinates
+├── images/
+│   ├── objects/          # Source images for IIIF processing
+│   └── additional/       # Other images used around the site
+└── texts/
+    ├── stories/          # Story layer content (markdown)
+    │   └── story1/
+    │       ├── step1-layer1.md
+    │       ├── step1-layer2.md
+    │       └── ...
+    └── glossary/         # Glossary definitions (markdown)
+        ├── term1.md
+        └── ...
 ```
 
-*Section 2: Chapters (after blank row)*
+### CSV File Formats
+
+**project.csv** - Site settings and story list
 ```csv
-chapter_id,title,subtitle,hero_image,author,description
-ch_001,"Chapter Title","Subtitle","hero1.jpg","Author","Description text"
-ch_002,"Chapter 2","Subtitle 2","hero2.jpg","Author","Description text"
+key,value
+project_title,Your Exhibition Title
+tagline,A brief description
+author,Your Name
+email,contact@example.com
+primary_color,#2c3e50
+secondary_color,#8b4513
+font_headings,Playfair Display, serif
+font_body,Source Sans Pro, sans-serif
+logo,/assets/images/site/logo.png
+
+STORIES,
+1,Story Title One
+2,Story Title Two
 ```
 
-**Tab 3: Objects**
+**objects.csv** - Object metadata
 ```csv
-object_id,label,artist,type,location,current_location,date,description,source,image,iiif_manifest
-obj_001,"Object Title","Artist Name","Type","Location","Current Location","1500-1600","Description","Source URL","filename.jpg",
-obj_002,"External Object","Unknown","Type","","Museum","1600","Description","","","https://example.org/iiif/manifest.json"
+object_id,title,description,creator,date,medium,dimensions,location,credit,thumbnail,iiif_manifest
+textile-001,Colonial Textile Fragment,A woven textile from...,Unknown Artist,circa 1650-1700,Wool,45 x 60 cm,,,
+museum-001,External Object,Description,Artist,1720,Ceramic,,,https://example.org/iiif/image/abc/info.json,
 ```
 
-**Tab 4: Glossary**
+**story-1.csv** - Story step structure
 ```csv
-term_id,term,title,text,image
-colonial-landscape,"Paisaje Colonial","Colonial Landscape","Full definition text with multiple paragraphs...","glossary-image.jpg"
-indigenous-resistance,"Resistencia Indígena","Indigenous Resistance","Definition text...","resistance.jpg"
+step,question,answer,object,x,y,zoom,layer1_button,layer1_file,layer2_button,layer2_file
+1,What is this textile?,This fragment shows...,textile-001,0.5,0.5,1.0,,story1/step1-layer1.md,,story1/step1-layer2.md
+2,Notice the pattern,The geometric motifs...,textile-001,0.3,0.4,2.5,,story1/step2-layer1.md,,
 ```
 
-**Tab 5+: Chapter [N] - Story Steps**
-```csv
-step_id,question,answer,object_id,image_behavior,x_coordinate,y_coordinate,zoom_level,layer1_title,layer1_text,layer1_image,layer2_title,layer2_text,layer2_image,chapter_break
-1,"What is this?","Brief answer text","obj_001","zoom","1024","682","1","Layer 1 Title","Layer 1 text with [[term-id]] references","layer1.jpg","Layer 2 Title","Layer 2 text","layer2.jpg",
-2,"Why does it matter?","Another answer","obj_001","zoom","1500","800","2","Title","Text","img.jpg","Title 2","Text 2","img2.jpg",
-3,"","","","","","","","Chapter 2","","chapter2-hero.jpg","","","","yes"
+**Markdown files** - Layer and glossary content
+
+Layer file example (`components/texts/stories/story1/step1-layer1.md`):
+```markdown
+---
+title: "Weaving Techniques"
+---
+
+The interlocking warp pattern visible here indicates...
 ```
 
-### Column Definitions
+Glossary file example (`components/texts/glossary/colonial-period.md`):
+```markdown
+---
+term_id: colonial-period
+title: "Colonial Period"
+related_terms: encomienda,viceroyalty
+---
 
-**Story Steps:**
-- `step_id` - Unique sequential number
-- `question` - Main question/heading
-- `answer` - Brief introductory text
-- `object_id` - Reference to object in Objects tab
-- `image_behavior` - "zoom" (same image, new coordinates) or "new" (different image)
-- `x_coordinate`, `y_coordinate` - Camera position for IIIF viewer
-- `zoom_level` - Zoom level (negative = out, positive = in)
-- `layer1_title`, `layer1_text`, `layer1_image` - First depth panel
-- `layer2_title`, `layer2_text`, `layer2_image` - Second depth panel
-- `chapter_break` - "yes" for full-screen chapter intro cards
-
-**Image Sources:**
-- `image` - Local filename (generates IIIF tiles)
-- `iiif_manifest` - External IIIF URL (no processing)
-- One or the other required, not both
+The Colonial Period in the Americas began with...
+```
 
 ---
 
@@ -207,150 +240,139 @@ step_id,question,answer,object_id,image_behavior,x_coordinate,y_coordinate,zoom_
 telar/
 ├── .github/
 │   └── workflows/
-│       └── build-deploy.yml          # GitHub Actions workflow
-├── _config.yml                       # Jekyll configuration
-├── _data/                            # Auto-populated from Google Sheets
-│   ├── project_info.json
-│   ├── chapters.json
+│       └── build.yml                  # GitHub Actions workflow
+├── _config.yml                        # Jekyll configuration
+├── _data/                             # Auto-generated JSON from CSVs
+│   ├── project.json
 │   ├── objects.json
-│   └── glossary.json
+│   ├── story-1.json
+│   └── ...
 ├── _includes/
 │   ├── head.html
 │   ├── header.html
 │   ├── footer.html
 │   └── story/
-│       ├── step.html                 # Story step template
-│       ├── panel-layer1.html         # Offcanvas panel
-│       ├── panel-layer2.html         # Stacked overlay
-│       ├── panel-glossary.html       # Glossary popup
-│       └── viewer.html               # UniversalViewer container
+│       ├── step.html                  # Story step template
+│       ├── adapter.html               # Data processing adapter
+│       ├── panel-primary.html         # Layer 1 offcanvas panel
+│       └── panel-secondary.html       # Layer 2 stacked panel
 ├── _layouts/
-│   ├── default.html                  # Base layout
-│   ├── home.html                     # Homepage
-│   ├── chapter.html                  # Chapter scrollytelling page
-│   ├── collection.html               # Collection gallery
-│   ├── object.html                   # Object detail page
-│   └── glossary-index.html           # Glossary list
-├── _objects/                         # Auto-generated from data
-│   └── [generated .md files]
-├── _chapters/                        # Auto-generated from data
-│   └── [generated .md files]
-├── _glossary/                        # Auto-generated from data
-│   └── [generated .md files]
+│   ├── default.html                   # Base layout
+│   ├── page.html                      # Simple page layout
+│   ├── story.html                     # Story scrollytelling page
+│   ├── objects-index.html             # Object gallery
+│   ├── object.html                    # Object detail page
+│   ├── glossary-index.html            # Glossary list
+│   └── glossary.html                  # Glossary term page
+├── _jekyll-files/                     # Auto-generated collection files
+│   ├── _stories/
+│   │   └── [generated .md files]
+│   ├── _objects/
+│   │   └── [generated .md files]
+│   └── _glossary/
+│       └── [generated .md files]
 ├── assets/
 │   ├── css/
-│   │   └── telar.css                 # Custom styles (Paisajes aesthetic)
+│   │   └── telar.css                  # Custom styles
 │   ├── js/
-│   │   ├── chapter.js                # Scrollytelling runtime with UV/OSD
-│   │   ├── telar.js                  # Core utilities
-│   │   └── scrollama.min.js          # Scrollama library
-│   └── images/                       # Placeholder images
-├── images/
-│   └── objects/                      # User uploads images here
-│       ├── khipu.jpg
-│       └── map.tif
+│   │   ├── story.js                   # Scrollytelling runtime with UV
+│   │   └── telar.js                   # Core utilities
+│   └── images/                        # Site assets
+├── components/                        # Source content (editable)
+│   ├── structures/                    # CSV data files
+│   ├── images/                        # Source images
+│   └── texts/                         # Markdown content
 ├── iiif/
-│   └── objects/                      # Auto-generated IIIF tiles
-│       ├── obj_001/
+│   └── objects/                       # Auto-generated IIIF tiles
+│       ├── object-id/
 │       │   ├── info.json
 │       │   ├── manifest.json
 │       │   └── [tile directories]
-│       └── obj_002/
-│           └── manifest.json         # External reference only
+│       └── ...
 ├── pages/
-│   ├── index.md                      # Homepage
-│   ├── collection.md                 # Collection gallery page
-│   └── glossary.md                   # Glossary index page
+│   ├── index.md                       # Homepage
+│   ├── about.md                       # About page
+│   ├── objects.md                     # Objects gallery page
+│   └── glossary.md                    # Glossary index page
 ├── scripts/
-│   ├── fetch_sheets.py               # Fetch CSVs from Google Sheets
-│   ├── process_data.py               # Transform CSVs to Jekyll data
-│   └── generate_collections.py      # Create collection markdown files
+│   ├── csv_to_json.py                 # Transform CSVs to JSON
+│   ├── generate_collections.py        # Create Jekyll collection files
+│   └── generate_iiif.py               # Generate IIIF tiles
 ├── .gitignore
 ├── Gemfile
 ├── Gemfile.lock
-├── README.md                         # User documentation
-└── PLAN.md                           # This file
+├── LICENSE
+├── README.md                          # User documentation
+├── CHANGELOG.md                       # Version history
+└── PLAN.md                            # This file
 ```
 
 ---
 
-## User Workflow
+## User Workflows
 
-### For End Users (Zero Local Setup)
+### Track 1: GitHub Web Interface Only (For Storytellers)
 
-1. **Fork** the Telar template repository on GitHub
-2. **Copy** the Google Sheet template
-3. **Fill in** project info, chapters, objects, glossary
-4. **Publish** Google Sheet to web as CSV
-5. **Add** CSV URLs to `_config.yml` via GitHub web editor
-6. **Upload** images to `images/objects/` via GitHub web interface
-7. **Commit** changes
-8. **Wait** for GitHub Actions to process (5-10 minutes)
-9. **Visit** GitHub Pages URL - site is live
+**No installation required!** Edit everything directly on GitHub.
 
-### For Developers (Optional Local Testing)
+1. **Use template** - Click "Use this template" button on GitHub
+2. **Enable GitHub Pages** - Settings → Pages → Source: GitHub Actions
+3. **Gather images** - Upload to `components/images/objects/` OR use external IIIF manifests
+4. **Write narrative text** - Create markdown files in `components/texts/stories/`
+5. **Catalog objects** - Edit `components/structures/objects.csv` on GitHub
+6. **Preview objects** - Wait for build, view on GitHub Pages
+7. **Find coordinates** - Use coordinate tool on object pages
+8. **Build story** - Create `story-1.csv` with coordinates
+9. **Add glossary** (optional) - Create markdown files in `components/texts/glossary/`
+10. **Commit changes** - GitHub Actions rebuilds automatically
+
+**Total time:** 2-4 hours for a complete exhibition
+
+### Track 2: Local Development (For Developers)
+
+**Best for:** Testing changes locally before publishing
 
 1. Clone repository
-2. Install Ruby and Jekyll
-3. `bundle install`
-4. `bundle exec jekyll serve`
-5. View at `localhost:4000`
+2. Install Ruby 3.0+ and Bundler
+3. Install Python 3.9+ and dependencies
+4. `bundle install`
+5. Edit content in `components/` folder
+6. Run conversion: `python3 scripts/csv_to_json.py`
+7. Generate IIIF: `python3 scripts/generate_iiif.py`
+8. Serve locally: `bundle exec jekyll serve`
+9. View at `http://localhost:4000`
+10. Commit and push to deploy
 
 ---
 
 ## GitHub Actions Workflow
 
 ### Trigger
-- On push to `main` branch
-- Only when changes detected in:
-  - `_config.yml`
-  - `images/objects/`
-  - Manual workflow dispatch
+- Push to `main` branch
+- Manual workflow dispatch
 
 ### Steps
 
 1. **Checkout repository**
-
 2. **Setup Python environment**
-   - Python 3.9+
-   - Install Poetry
-   - Install iiif-static-choices
-
-3. **Fetch Google Sheets data**
-   - Read CSV URLs from `_config.yml`
-   - Download published CSVs
-   - Save to `_data/raw/`
-
-4. **Process data**
-   - Parse CSVs
-   - Transform to JSON
-   - Generate Jekyll collection files
-   - Save to `_data/` and `_objects/`, `_chapters/`, `_glossary/`
-
+   - Install iiif-static
+3. **Convert CSVs to JSON**
+   - Run `scripts/csv_to_json.py`
+   - Generates `_data/*.json` files
+4. **Generate Jekyll collection files**
+   - Run `scripts/generate_collections.py`
+   - Creates `_jekyll-files/_stories/`, `_objects/`, `_glossary/`
 5. **Generate IIIF tiles**
-   - Detect new/changed images in `images/objects/`
-   - Run Bodleian iiif-static-choices
-   - Generate tiles in `iiif/objects/[object-id]/`
-   - Generate manifests
-   - Skip for objects with external IIIF URLs
-
+   - Run `scripts/generate_iiif.py`
+   - Creates tiles in `iiif/objects/`
+   - Skips objects with external IIIF URLs
 6. **Setup Ruby environment**
-   - Ruby 3.2+
-   - Bundler
-   - Install gems
-
+   - Install Jekyll and dependencies
 7. **Build Jekyll site**
    - `bundle exec jekyll build`
    - Output to `_site/`
-
 8. **Deploy to GitHub Pages**
-   - Push `_site/` to `gh-pages` branch
-   - Or use GitHub Pages deployment action
-
-### Caching Strategy
-- Cache Ruby gems
-- Cache Python dependencies
-- Cache generated IIIF tiles (only regenerate on image changes)
+   - Publish `_site/` directory
 
 ---
 
@@ -358,57 +380,45 @@ telar/
 
 ### 1. Homepage (`pages/index.md`)
 
-**Layout:** `home.html`
+**Layout:** `default.html`
 
 **Content:**
-- Hero section with project title, subtitle, hero image
-- Project description
-- Chapter list (cards with title, subtitle, hero image)
-- Links to:
-  - Collection gallery
-  - Glossary index
-  - About page (optional)
+- Project title, tagline, logo
+- Story list (links to story pages)
+- Links to Objects gallery and Glossary index
+- Optional about page
 
 **Data sources:**
-- `site.data.project_info`
-- `site.data.chapters`
+- `site.data.project`
+- `site.stories` collection
 
-### 2. Chapter Page (`_layouts/chapter.html`)
+### 2. Story Page (`_layouts/story.html`)
 
 **Layout:** Fixed viewer (right) + scrolling narrative (left)
 
 **Components:**
 - **Fixed right column:**
-  - UniversalViewer initialized with first object's IIIF manifest
-  - Updates smoothly on scroll via underlying OpenSeadragon API (zoom/pan or switch objects)
-  - Handles both local IIIF tiles and external manifests
+  - UniversalViewer with IIIF manifest
+  - Updates on scroll (zoom/pan via OpenSeadragon)
+  - Handles local and external IIIF sources
 
 - **Scrolling left column:**
   - Story steps with question/answer
-  - "More info" buttons trigger layer panels
-  - Glossary term links (detected via `[[term-id]]`)
-  - Scrollspy dots navigation
-
-- **End-of-chapter navigation:**
-  - Previous chapter (if not first)
-  - Return to home
-  - Next chapter (if not last)
+  - Buttons to open layer panels
+  - Scrollama integration for step detection
 
 **Interactions:**
 - Scrollama detects scroll position
-- JavaScript accesses OpenSeadragon viewer through UniversalViewer extension
-- Updates viewer coordinates (pan/zoom) or switches manifests
-- Opens/closes panels
-- Manages glossary popups
+- JavaScript updates viewer coordinates (pan/zoom)
+- Opens/closes layer panels
 
-### 3. Collection Gallery (`pages/collection.md`)
+### 3. Objects Gallery (`pages/objects.md`)
 
-**Layout:** `collection.html` (Wax-style grid)
+**Layout:** `objects-index.html`
 
 **Content:**
-- Filterable/searchable grid of objects
-- Thumbnail images
-- Basic metadata (title, artist, date)
+- Grid of object thumbnails
+- Basic metadata (title, creator, date)
 - Click to object detail page
 
 **Data source:**
@@ -417,14 +427,10 @@ telar/
 ### 4. Object Detail Page (`_layouts/object.html`)
 
 **Content:**
-- UniversalViewer displaying IIIF manifest or info.json
-- Complete metadata display:
-  - Label, artist, type, location, date
-  - Description
-  - Source link
-  - IIIF manifest link
-- "View in story" links (which chapters reference this object)
-- User can freely explore, zoom, pan (viewer in exploration mode)
+- UniversalViewer displaying IIIF manifest
+- Complete metadata display
+- Coordinate identification tool (collapsible panel)
+- "Appears in Stories" section (links to stories using this object)
 
 ### 5. Glossary Index (`pages/glossary.md`)
 
@@ -432,47 +438,48 @@ telar/
 
 **Content:**
 - Alphabetical list of all terms
-- Click to open glossary panel
-- Or dedicated glossary detail pages
+- Short definitions
+- Links to full glossary pages
+
+### 6. Glossary Term Page (`_layouts/glossary.html`)
+
+**Content:**
+- Term title
+- Full definition (markdown)
+- Optional image
+- Related terms (links to other glossary pages)
 
 ---
 
 ## Styling
 
-### Default Aesthetic (Paisajes Coloniales)
+### Default Aesthetic (Inspired by Paisajes Coloniales)
 
 **Typography:**
-- Headings: Serif font (e.g., Crimson Text)
-- Body: Sans-serif (e.g., Open Sans)
+- Headings: Playfair Display (serif)
+- Body: Source Sans Pro (sans-serif)
 - Clean, academic feel
 
 **Colors:**
-- Neutral backgrounds (off-white, light gray)
-- Earth-tone accents (browns, ochres)
-- High contrast for accessibility
+- Primary: #2c3e50 (dark blue-gray)
+- Secondary: #8b4513 (saddle brown)
+- Layer 1 panel: #A8C5D4 (light blue)
+- Layer 2 panel: #3d2645 (dark purple)
+- Glossary panel: #F5EDE1 (cream)
 
 **Layout:**
 - Generous whitespace
 - Clear hierarchy
-- Responsive breakpoints
+- Bootstrap 5 responsive grid
 
 ### Customization
 
-Users can override defaults in Project Setup:
-- `heading_font`, `body_font` (Google Fonts)
-- `text_color`, `background_color`, `accent_color` (hex codes)
-- `logo_image` (institution branding)
+Users can override defaults in `components/structures/project.csv`:
+- `primary_color`, `secondary_color` (hex codes)
+- `font_headings`, `font_body` (Google Fonts)
+- `logo` (path to logo image)
 
-CSS custom properties make this simple:
-```css
-:root {
-  --heading-font: var(--user-heading-font, 'Crimson Text', serif);
-  --body-font: var(--user-body-font, 'Open Sans', sans-serif);
-  --text-color: var(--user-text-color, #333);
-  --bg-color: var(--user-bg-color, #fafafa);
-  --accent-color: var(--user-accent-color, #8B4513);
-}
-```
+CSS variables make customization straightforward.
 
 ---
 
@@ -481,118 +488,123 @@ CSS custom properties make this simple:
 ### Local Images
 
 **Workflow:**
-1. User uploads image to `images/objects/filename.jpg`
-2. References in Objects tab: `image` column = "filename.jpg"
+1. User uploads image to `components/images/objects/filename.jpg`
+2. References in objects.csv: `object_id` = filename without extension
 3. GitHub Actions detects new file
-4. Bodleian tool generates:
-   - Tiles in `iiif/objects/obj_id/tiles/`
+4. Python script generates:
+   - Tiles in `iiif/objects/object-id/tiles/`
    - `info.json` (IIIF Image API)
    - `manifest.json` (IIIF Presentation API)
-5. Jekyll references manifest URL
+5. UniversalViewer references manifest URL
 
-**File size limits (documented in Instructions tab):**
-- Individual images: < 100MB (preferably < 50MB)
-- Total project: < 1GB (GitHub recommendation)
-- 20-50 objects optimal for performance
+**File size limits:**
+- Individual images: Up to 100MB
+- Total repository: Keep under 1GB
+- For larger collections, use external IIIF or Git LFS
 
 ### External IIIF Resources
 
 **Workflow:**
-1. User has existing IIIF manifest URL
-2. References in Objects tab: `iiif_manifest` column = "https://example.org/iiif/manifest.json"
+1. User has existing IIIF info.json URL
+2. References in objects.csv: `iiif_manifest` column = URL
 3. GitHub Actions skips tile generation
-4. Jekyll references external URL directly
+4. UniversalViewer references external URL directly
+
+**Finding IIIF resources:**
+- See [IIIF Guide to Finding Resources](https://iiif.io/guides/finding_resources/)
+- Many museums, libraries, and archives publish IIIF-compatible collections
 
 ### Mixed Projects
 
 - Some objects local (generate tiles)
 - Some objects external (reference only)
-- OpenSeadragon handles both local and external IIIF sources seamlessly
+- UniversalViewer handles both seamlessly
 
 ---
 
-## Glossary System
+## Implementation Status
 
-### Authoring
+### ✓ Completed (v0.1.0-beta)
 
-In any text field (story steps, layers), use `[[term-id]]` syntax:
+**Foundation:**
+- [x] Folder structure
+- [x] Jekyll configuration
+- [x] CSV data structure
+- [x] Documentation (README, CHANGELOG, DOCS)
 
-```csv
-layer1_text,"The [[colonial-landscape]] transformed indigenous territories through [[encomienda]] systems."
-```
+**Core Features:**
+- [x] Homepage layout
+- [x] Story page layout with scrollytelling
+- [x] UniversalViewer integration
+- [x] Scrollama integration with OpenSeadragon API
+- [x] Layer panel system (2 layers)
+- [x] Object gallery page
+- [x] Object detail pages
+- [x] Glossary index page
+- [x] Glossary term pages (standalone)
 
-### Processing
+**Automation:**
+- [x] CSV to JSON conversion script
+- [x] Collection generation script
+- [x] IIIF tile generation script
+- [x] GitHub Actions workflow
+- [x] Automated deployment
 
-1. Python script detects `[[...]]` patterns
-2. Converts to HTML links with data attributes:
-```html
-<a href="#" class="glossary-term" data-term-id="colonial-landscape">colonial landscape</a>
-```
+**Polish:**
+- [x] Paisajes-inspired aesthetic
+- [x] Bootstrap 5 responsive design
+- [x] Coordinate identification tool
+- [x] Template repository setup
 
-3. JavaScript handler opens glossary panel on click
+### Planned for v0.2
 
-### Panel Behavior
+**Google Sheets Integration:**
+- [ ] Google Sheet template with 5+ tabs
+- [ ] GitHub Actions fetch from published sheets
+- [ ] Instructions tab with usage guide
+- [ ] Automatic CSV export and processing
 
-- Opens as Bootstrap offcanvas overlay
-- Shows full glossary content (title, text, image)
-- Can open from any layer (main, layer1, layer2)
-- Closes independently or stacks with other panels
+**Enhanced Features:**
+- [ ] Glossary auto-linking (detect `[[term-id]]` in text)
+- [ ] Visual story editor (point-and-click coordinate selection)
+- [ ] Improved documentation (video tutorials, examples)
 
----
+### Future Features
 
-## Implementation Phases
+**User Experience:**
+- [ ] Mobile-optimized responsive design
+- [ ] Image lazy loading for galleries
+- [ ] Advanced search and filtering for objects
 
-### Phase 1: Foundation (Week 1)
-- [x] Finalize technical decisions
-- [ ] Create folder structure
-- [ ] Setup Jekyll configuration
-- [ ] Create Google Sheet template
-- [ ] Write documentation
+**Accessibility:**
+- [ ] Comprehensive ARIA labels
+- [ ] Keyboard navigation improvements
+- [ ] Color contrast verification
+- [ ] Screen reader testing
 
-### Phase 2: Core Features (Week 2)
-- [x] Build homepage layout
-- [x] Build chapter page layout
-- [x] Integrate UniversalViewer
-- [x] Implement Scrollama scrollytelling with OpenSeadragon API (via UV)
-- [x] Create layer panel system
+**Advanced Features:**
+- [ ] Annotation support (IIIF annotations)
+- [ ] Multi-language support (i18n)
+- [ ] 3D object support
+- [ ] Timeline visualizations
+- [ ] Video embedding
+- [ ] Advanced theming options
 
-### Phase 3: Collections (Week 3)
-- [ ] Build collection gallery page
-- [ ] Build object detail pages
-- [ ] Implement search/filter
-
-### Phase 4: Glossary (Week 3)
-- [ ] Build glossary index
-- [ ] Implement `[[term]]` parser
-- [ ] Create glossary panel component
-
-### Phase 5: Automation (Week 4)
-- [ ] Create Google Sheets fetch script
-- [ ] Create data processing scripts
-- [ ] Setup GitHub Actions workflow
-- [ ] Integrate Bodleian IIIF tool
-
-### Phase 6: Polish (Week 4)
-- [ ] Style with Paisajes aesthetic
-- [ ] Responsive design
-- [ ] Accessibility improvements
-- [ ] Performance optimization
-
-### Phase 7: Documentation & Testing (Week 5)
-- [ ] Complete user documentation
-- [ ] Create video tutorials
-- [ ] Test with sample data
-- [ ] Deploy demo site
+**Community:**
+- [ ] Template gallery
+- [ ] Example projects directory
+- [ ] Plugin system
+- [ ] Community contributions
 
 ---
 
 ## Success Criteria
 
-**For End Users:**
+**For Storytellers:**
 - Can create a complete exhibition without touching code
-- Total time from fork to published: < 2 hours
-- Clear error messages and guidance
-- Works on mobile and desktop
+- Total time from template to published: 2-4 hours
+- Clear documentation and guidance
+- Works on GitHub Pages free tier
 
 **For Developers:**
 - Clean, documented codebase
@@ -604,33 +616,46 @@ layer1_text,"The [[colonial-landscape]] transformed indigenous territories throu
 - Static site = low hosting costs
 - No server dependencies
 - Works on GitHub Pages free tier
-- Portable to other hosts
+- Portable to other static hosts
 
 **For Accessibility:**
-- WCAG 2.1 AA compliance
-- Keyboard navigation
-- Screen reader support
-- High contrast ratios
+- Semantic HTML structure
+- Alt text for images
+- Keyboard accessible (future enhancement)
+- High contrast design
 
 ---
 
-## Future Enhancements (v2+)
+## Roadmap
 
-### Phase 2 Features
-- Visual editor for composing stories (drag-and-drop)
-- Text highlighting tool for adding glossary links
-- Multi-language support (i18n)
-- Video and 3D model support
+### v0.2 (Next Release)
+
+**Focus:** Web-based authoring with Google Sheets
+
+**Timeline:** TBD
+
+**Goals:**
+1. Google Sheets integration for easier content editing
+2. Glossary auto-linking in narrative text
+3. Visual coordinate selection tool
+4. Video tutorials and improved onboarding
+
+### v0.3 and Beyond
+
+**Focus:** Enhanced accessibility and advanced features
+
+**Potential Features:**
+- Full mobile optimization
+- Accessibility audit and improvements
+- IIIF annotations support
+- Multi-language support
 - Timeline view option
-- Advanced search and filtering
-- Export to static HTML package
-- Migration to Eleventy (if needed for flexibility)
+- 3D model support
 
-### Community Features
-- Template gallery
-- Example projects
-- Plugin system
-- Theming system
+**Community-Driven:**
+- Feature requests via GitHub Issues
+- Community contributions welcome
+- Template and example gallery
 
 ---
 
@@ -642,4 +667,16 @@ layer1_text,"The [[colonial-landscape]] transformed indigenous territories throu
 - Test with real humanities scholars
 - Keep dependencies minimal
 - Plan for long-term sustainability
+- Version control all content
+- Maintain backward compatibility when possible
 
+---
+
+## Resources
+
+- **Documentation**: [README.md](../README.md)
+- **Changelog**: [CHANGELOG.md](../CHANGELOG.md)
+- **Technical Docs**: [DOCS.md](DOCS.md)
+- **Example Site**: https://ampl.clair.ucsb.edu/telar
+- **GitHub Repository**: https://github.com/UCSB-AMPLab/telar
+- **Issues/Feedback**: https://github.com/UCSB-AMPLab/telar/issues
