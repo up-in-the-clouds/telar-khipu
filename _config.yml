@@ -59,8 +59,10 @@ defaults:
     values:
       layout: "glossary"
 
-# Telar Settings (from Google Sheets Project Setup)
+# Telar Settings
 telar:
+  version: "0.1.0-beta"
+  release_date: "2025-10-14"
   project_title: "" # Overridden by _data/project.json
   tagline: ""
   primary_color: "#2c3e50" # Paisajes Colonial default

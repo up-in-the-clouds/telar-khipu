@@ -1,6 +1,12 @@
 # Telar Google Sheets Template Setup Guide
 
-This guide explains how to set up the Google Sheets template for your Telar exhibition. You have two options: **import CSV files** (faster) or **manually create** the template (more control).
+> **🚧 FUTURE FEATURE - NOT YET IMPLEMENTED**
+> This documentation is preserved for the **v0.2 release** when Google Sheets integration will be available.
+> **For v0.1.0-beta:** Use CSV files in `components/structures/` instead. See [DOCS.md](DOCS.md) for current workflow.
+
+---
+
+This guide explains how to set up the Google Sheets template for your Telar exhibition in v0.2. You will have two options: **import CSV files** (faster) or **manually create** the template (more control).
 
 ## Contents
 

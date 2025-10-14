@@ -48,6 +48,21 @@ Story markdown files are referenced in story CSV files via `layer1_file` and `la
 
 Glossary markdown files are processed by `scripts/generate_collections.py` which creates Jekyll collection files in `_jekyll-files/_glossary/` (this happens automatically on GitHub).
 
+### Glossary Functionality in v0.1.0-beta
+
+**What works:**
+- Glossary term pages at `/glossary/{term_id}/`
+- Each term page displays the full definition
+- Related terms are linked automatically
+- Browsable glossary index page
+
+**What's planned for v0.2:**
+- Automatic detection and linking of glossary terms within story narrative text
+- Terms mentioned in layer content would automatically become clickable
+- Hovering or clicking would open glossary panel overlay
+
+For now, glossary terms function as standalone reference pages that readers can navigate to from the glossary index.
+
 ## Why Texts?
 
 This folder is called "texts" because it contains the textual narrative content - the words that tell your story and explain your objects.

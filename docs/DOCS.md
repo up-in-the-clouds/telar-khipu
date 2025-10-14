@@ -1,12 +1,16 @@
 # Telar User Documentation
 
+**Version:** 0.1.0-beta | **Release Date:** October 14, 2025
+
 Complete guide to creating digital storytelling exhibitions with Telar.
+
+> **⚠️ Beta Release Note**
+> This documentation covers v0.1.0-beta which uses CSV files for content management. Google Sheets integration is planned for v0.2.
 
 ## Table of Contents
 
 1. [Getting Started](#getting-started)
-2. [Google Sheets Setup](#google-sheets-setup)
-3. [Project Configuration](#project-configuration)
+2. [Project Configuration](#project-configuration)
 4. [Adding Objects](#adding-objects)
 5. [Creating Glossary Terms](#creating-glossary-terms)
 6. [Building Stories](#building-stories)
@@ -18,79 +22,47 @@ Complete guide to creating digital storytelling exhibitions with Telar.
 
 ## Getting Started
 
-Telar allows you to create digital exhibitions entirely through a web browser, with no local software installation required.
+Telar allows you to create digital exhibitions using CSV files and markdown for content management.
 
 ### Workflow Overview
 
-1. Fork the Telar repository on GitHub
-2. Set up your Google Sheet with exhibition content
-3. Configure GitHub integration
-4. Add images to your repository
-5. Commit changes - site builds automatically
-6. View your published exhibition
+1. **Use the Telar template** on GitHub (click "Use this template" button)
+2. **Edit CSV files** in `components/structures/` directory
+   - `project.csv` - Site settings and stories list
+   - `objects.csv` - Object metadata
+   - `story-1.csv`, `story-2.csv`, etc. - Story steps with coordinates
+3. **Edit markdown files** in `components/texts/` directory
+   - `stories/` - Layer content for each story step
+   - `glossary/` - Term definitions
+4. **Add images** to `components/images/objects/` directory
+5. **Commit changes** - GitHub Actions builds automatically
+6. **View your published exhibition** at your GitHub Pages URL
 
 ### Prerequisites
 
 - GitHub account
-- Google account (for Google Sheets)
+- Text editor or GitHub's web interface
 - High-resolution images of your objects
 - Exhibition narrative content
 
-## Google Sheets Setup
+### Content Structure
 
-### Creating Your Sheet
+Telar uses a **components-based architecture**:
 
-1. **Copy the Telar template** (link: [template URL])
-2. **Rename** to your project name
-3. **Organize tabs** - do not delete or reorder the first 4 tabs
-
-### Tab Structure
-
-Your Google Sheet should have these tabs in order:
-
-#### Tab 1: Instructions
-- Read-only reference
-- Column definitions
-- Example entries
-- Keep this tab for reference
-
-#### Tab 2: Project Setup
-- Site configuration
-- Stories list
-- See [Project Configuration](#project-configuration) below
-
-#### Tab 3: Objects
-- Object metadata
-- One row per object
-- See [Adding Objects](#adding-objects) below
-
-#### Tab 4: Glossary
-- Term definitions
-- One row per term
-- See [Creating Glossary Terms](#creating-glossary-terms) below
-
-#### Tab 5+: Stories
-- One tab per story
-- Story steps with coordinates
-- See [Building Stories](#building-stories) below
-
-### Publishing Your Sheet
-
-Once your sheet is ready:
-
-1. **File → Share → Publish to web**
-2. **Choose**: "Entire document"
-3. **Format**: "Comma-separated values (.csv)"
-4. **Copy** the published URL
-5. **Add** as GitHub repository secret (see [Publishing](#publishing))
+```
+components/
+├── structures/        # CSV files (project, objects, stories)
+├── texts/            # Markdown files (layers, glossary)
+└── images/           # Source images for IIIF
+```
 
 ## Project Configuration
 
-The **Project Setup** tab has two sections:
+The `components/structures/project.csv` file has two sections:
 
 ### Section 1: Site Settings
 
-Key-value pairs for site configuration:
+Key-value pairs for site configuration in CSV format:
 
 | Key | Value | Description |
 |-----|-------|-------------|
@@ -116,7 +88,7 @@ After site settings, add a row with key `STORIES`, then list stories:
 
 ## Adding Objects
 
-Each row in the **Objects** tab represents one object in your collection.
+Each row in `components/structures/objects.csv` represents one object in your collection.
 
 ### Required Columns
 
@@ -143,7 +115,7 @@ Each row in the **Objects** tab represents one object in your collection.
 
 **Option A: Local Images** (recommended)
 - Leave `iiif_manifest` blank
-- Add high-res image to `source_images/` folder
+- Add high-res image to `components/images/objects/` folder
 - Name file as `object_id.jpg` (e.g., `textile-001.jpg`)
 - GitHub Actions generates IIIF tiles automatically
 
@@ -153,31 +125,47 @@ Each row in the **Objects** tab represents one object in your collection.
 
 ## Creating Glossary Terms
 
-Each row in the **Glossary** tab represents one term.
+Create markdown files in `components/texts/glossary/` for each term.
 
-### Required Columns
+### File Format
 
-| Column | Description | Example |
-|--------|-------------|---------|
+Each term is a markdown file with YAML frontmatter:
+
+```markdown
+---
+term_id: colonial-period
+title: "Colonial Period"
+related_terms: encomienda,viceroyalty
+---
+
+The Colonial Period in the Americas began with European colonization in 1492...
+```
+
+### Required Frontmatter Fields
+
+| Field | Description | Example |
+|-------|-------------|---------|
 | `term_id` | Unique identifier | `colonial-period` |
 | `title` | Term name | `Colonial Period` |
-| `short_definition` | One-sentence definition | `The era of Spanish colonial rule in the Americas (1492-1825).` |
 
-### Optional Columns
+### Optional Frontmatter Fields
 
-| Column | Description | Example |
-|--------|-------------|---------|
-| `definition` | Full definition (can be long) | `The Colonial Period refers to...` |
-| `image` | Image path | `/assets/images/glossary/colonial.jpg` |
-| `related_terms` | Related term IDs (comma-separated) | `encomienda, viceroyalty` |
+| Field | Description | Example |
+|-------|-------------|---------|
+| `related_terms` | Related term IDs (comma-separated) | `encomienda,viceroyalty` |
 
-### Using Glossary Terms in Stories
+### Accessing Glossary Terms
 
-Reference terms in your narrative text, and they'll automatically link to the glossary panel.
+In v0.1.0-beta, glossary terms are standalone pages accessible at `/glossary/{term_id}/`. Each term page shows:
+- Full term definition
+- Related terms (if specified)
+- Back link to glossary index
+
+**Note:** Automatic linking of terms within story narrative text is planned for v0.2.
 
 ## Building Stories
 
-Each **Story** tab contains story steps that make up your scrollytelling narrative.
+Each story CSV file in `components/structures/` (e.g., `story-1.csv`) contains story steps that make up your scrollytelling narrative.
 
 ### Required Columns
 
@@ -247,7 +235,7 @@ Each object detail page includes an interactive coordinate identification tool:
    - **"Copy x,y,zoom"**: Copies just the three coordinate values (e.g., `0.654,0.312,2.5`)
    - **"Copy entire row"**: Copies a complete CSV row template with the object_id and coordinates pre-filled
 
-**Workflow tip:** Keep the object page open in one browser tab while editing your Google Sheet in another. As you identify important details in the image, copy the coordinates directly into your story step rows.
+**Workflow tip:** Keep the object page open in one browser tab while editing your story CSV file in another. As you identify important details in the image, copy the coordinates directly into your story step rows.
 
 **Method 2: Visual Estimation**
 - Use a grid overlay to estimate positions
@@ -381,27 +369,22 @@ Glossary Panel
 
 ### Initial Setup
 
-1. **Fork repository** on GitHub
+1. **Use this template** - Click "Use this template" button on GitHub
 2. **Enable GitHub Pages**:
    - Settings → Pages
    - Source: "GitHub Actions"
-3. **Add repository secrets**:
-   - Settings → Secrets → Actions
-   - New secret: `GOOGLE_SHEETS_URL`
-   - Value: Your published Google Sheets URL
 
 ### Workflow Triggers
 
 The site rebuilds automatically when:
 - You push commits to main branch
-- You manually trigger "Build and Deploy" workflow
-- (Optional) Daily at midnight (for Google Sheets updates)
+- You manually trigger "Build and Deploy" workflow in Actions tab
 
 ### Deployment Process
 
-1. GitHub Actions fetches CSVs from Google Sheets
-2. Converts CSV to JSON
-3. Generates IIIF tiles (if needed)
+1. GitHub Actions processes CSV files from `components/structures/`
+2. Converts CSV to JSON for Jekyll
+3. Generates IIIF tiles from images in `components/images/objects/`
 4. Builds Jekyll site
 5. Deploys to GitHub Pages
 6. Site live at: `https://[username].github.io/[repository]/`
@@ -409,17 +392,17 @@ The site rebuilds automatically when:
 ### Update Workflow
 
 **To update content:**
-1. Edit Google Sheet
-2. Go to GitHub → Actions
-3. Run "Build and Deploy" workflow
-4. Wait 2-5 minutes
+1. Edit CSV files in `components/structures/` or markdown in `components/texts/`
+2. Commit and push changes to GitHub
+3. GitHub Actions runs automatically
+4. Wait 2-5 minutes for build
 5. Refresh your site
 
 **To add images:**
-1. Upload to `source_images/` via GitHub web interface
-2. Commit changes
-3. Workflow runs automatically
-4. IIIF tiles generated
+1. Upload images to `components/images/objects/` via GitHub web interface
+2. Name files as `{object_id}.jpg` to match your objects.csv entries
+3. Commit changes
+4. GitHub Actions generates IIIF tiles automatically
 
 ## Troubleshooting
 
@@ -431,15 +414,16 @@ The site rebuilds automatically when:
 - Click failed workflow to see error logs
 
 **Common issues:**
-- Google Sheets URL not set
-- Google Sheet not published
-- CSV format errors (check column names)
+- CSV format errors (check column names match exactly)
+- Missing required CSV files in `components/structures/`
+- Syntax errors in CSV files (unclosed quotes, extra commas)
+- Missing images referenced in objects.csv
 
 ### Images Not Displaying
 
 **Checklist:**
-- File name matches `object_id`
-- File in `source_images/` directory
+- File name matches `object_id` in objects.csv
+- File in `components/images/objects/` directory
 - File size under 100 MB
 - Image format supported (JPEG, PNG, TIFF)
 
@@ -466,14 +450,6 @@ The site rebuilds automatically when:
 - `layer1_title` and `layer1_text` both filled
 - Step has panel trigger button
 - JavaScript loaded without errors
-
-### Google Sheets Not Syncing
-
-**Verify:**
-- Sheet is published to web
-- URL in repository secrets is correct
-- Workflow has run since last sheet edit
-- No CSV parsing errors in Actions logs
 
 ## Advanced Topics
 

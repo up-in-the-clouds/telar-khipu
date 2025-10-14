@@ -1,6 +1,11 @@
 # Telar
 
+![Version](https://img.shields.io/badge/version-0.1.0--beta-orange) ![License](https://img.shields.io/badge/license-MIT-blue)
+
 A minimal computing framework for creating digital storytelling exhibitions with IIIF images and scrollytelling narratives.
+
+> **⚠️ Beta Release - v0.1.0**
+> This is a beta release for testing. The current workflow uses CSV files and markdown for content editing. Google Sheets integration is planned for v0.2.
 
 ## Overview
 
@@ -20,22 +25,22 @@ Telar is developed by Adelaida Ávila, Juan Cobo Betancourt, Santiago Muñoz, an
 
 ### GitHub Pages Deployment (Automated Workflow)
 
-**Best for:** Content creators who want to publish online without local setup
+**Best for:** Content creators who want to publish online with minimal setup
 
-1. **Fork this repository** on GitHub
+1. **Use this template** - Click "Use this template" button above to create your repository
 2. **Enable GitHub Pages** in repository settings (Settings → Pages → Source: GitHub Actions)
 3. **Edit your content** directly on GitHub:
-   - CSV files in `components/structures/`
-   - Markdown files in `components/texts/`
-   - Images in `components/images/objects/`
+   - Edit CSV files in `components/structures/` (project setup, objects, stories)
+   - Edit markdown files in `components/texts/` (story layers, glossary)
+   - Upload images to `components/images/objects/`
 4. **Commit changes** to main branch
 5. **GitHub Actions automatically**:
    - Converts CSVs to JSON
-   - Generates IIIF tiles
+   - Generates IIIF tiles from images
    - Builds Jekyll site
    - Deploys to GitHub Pages
 
-No local installation required!
+No local installation required for basic editing!
 
 ### Local Development
 
@@ -349,7 +354,8 @@ Each object detail page includes a built-in **coordinate identification tool** t
    The encomienda was a tribute system instituted by the Spanish crown...
    ```
 3. **Generate collection**: `python3 scripts/generate_collections.py`
-4. **Reference in stories**: Use `term_id` in your story content
+
+**Access glossary terms:** In v0.1.0-beta, glossary terms are standalone pages at `/glossary/{term_id}/`. Automatic linking within narrative text is planned for v0.2.
 
 ## Browser Support
 
@@ -402,10 +408,16 @@ For issues, questions, or contributions:
 - Documentation: https://github.com/UCSB-AMPLab/telar
 
 ## Roadmap
-- [ ] **Zero-installation authoring**: Edit content via Google Sheets web interface
-- [ ] Visual story editor
-- [ ] Annotation support
-- [ ] Multi-language support
-- [ ] 3D object support
-- [ ] Timeline visualizations
-- [ ] Mobile-friendly responsive design
+
+### Planned for v0.2
+- [ ] **Google Sheets integration**: Edit content via web interface without CSV files
+- [ ] **Visual story editor**: Point-and-click coordinate selection
+- [ ] **Improved documentation**: Video tutorials and examples
+
+### Future Features
+- [ ] **Annotation support**: Clickable markers on IIIF images that open panels with additional information (IIIF annotations)
+- [ ] **Glossary auto-linking**: Automatic detection and linking of terms within narrative text
+- [ ] **Multi-language support**: Internationalization and localization
+- [ ] **3D object support**: Integration with 3D viewers
+- [ ] **Timeline visualizations**: Temporal navigation for chronological narratives
+- [ ] **Advanced theming options**: Customizable design templates

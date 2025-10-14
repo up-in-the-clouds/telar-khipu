@@ -6,7 +6,10 @@ permalink: /about/
 
 # About Telar
 
-Use this space to provide more information about your site. 
+**Version:** 0.1.0-beta | **Release Date:** October 14, 2025
+
+> **⚠️ Beta Release**
+> This is a beta release for testing and feedback. The current workflow uses CSV files and markdown for content editing. Google Sheets integration is planned for v0.2.
 
 Telar (Spanish for 'loom') is a static site generator built on Jekyll that weaves together IIIF images, text, and layered contextual information into interactive digital narrative exhibitions. Telar uses the International Image Interoperability Framework (IIIF) to serve high-resolution images that can be zoomed, panned, and explored in detail. The framework combines these images with narrative text and layered contextual panels to create immersive storytelling experiences.
 
