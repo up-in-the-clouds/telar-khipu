@@ -19,6 +19,7 @@ def generate_objects():
         if not object_id:
             continue
 
+        # Generate main object page
         filepath = objects_dir / f"{object_id}.md"
 
         content = f"""---
@@ -99,7 +100,7 @@ def generate_stories():
 
     # Parse project.csv directly to get stories
     stories = []
-    with open('_data/project.csv', 'r') as f:
+    with open('components/structures/project.csv', 'r') as f:
         in_stories = False
         for line in f:
             if 'STORIES' in line:

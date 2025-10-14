@@ -2,6 +2,49 @@
 layout: default
 ---
 
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+<style>
+  /* Coordinator tools button styling */
+  .btn-developer {
+    background: #c8d8e8 !important;
+    color: #2c3e50 !important;
+    border: 1px solid #b0c8d8 !important;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+
+  .btn-developer:hover {
+    background: #2c3e50 !important;
+    color: #fff !important;
+    border-color: #2c3e50 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(44, 62, 80, 0.15);
+  }
+
+  .btn-developer i {
+    margin-right: 0.5rem;
+  }
+
+  /* Copy button styling */
+  .btn-copy {
+    background: #c8d8e8;
+    color: #2c3e50;
+    border: 1px solid #b0c8d8;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+
+  .btn-copy:hover {
+    background: #b0c8d8;
+    color: #2c3e50;
+    border-color: #98b8c8;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(44, 62, 80, 0.15);
+  }
+</style>
+
 <div class="container my-5">
   <div class="row">
     <div class="col-12">
@@ -15,6 +58,68 @@ layout: default
     <!-- Object Viewer -->
     <div class="col-lg-8">
       <div id="object-viewer" style="width: 100%; height: 600px; background: #000;"></div>
+
+      <!-- Coordinate Tools Button -->
+      {% if page.object_id %}
+      <div class="mt-3">
+        <div id="coordinateButton">
+          <button class="btn btn-developer btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#coordinatePanel" aria-expanded="false">
+            <i class="bi bi-search"></i> Identify coordinates
+          </button>
+        </div>
+
+        <!-- Collapsible Coordinate Panel -->
+        <div class="collapse" id="coordinatePanel">
+          <div class="card" style="background-color: #2c3e50; color: #c8d8e8; border-radius: 0; position: relative;">
+            <div class="card-body" style="padding-right: 3rem;">
+              <!-- Close Button -->
+              <button type="button" class="btn-close btn-close-white" data-bs-toggle="collapse" data-bs-target="#coordinatePanel" style="position: absolute; top: 0.5rem; right: 0.5rem;"></button>
+
+              <div class="row">
+                <!-- Instructions -->
+                <div class="col-md-7">
+                  <h6 style="color: #c8d8e8; font-weight: 600; margin-bottom: 1rem; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.875rem;">Instructions</h6>
+                  <p style="color: #c8d8e8; line-height: 1.6; margin-bottom: 0.5rem;">
+                    Use this panel to identify the coordinates of locations in an image for your story. Coordinates update as you pan/zoom the image above with your mouse by clicking, dragging, and scrolling. 
+                  </p>
+                  <p style="color: #c8d8e8; line-height: 1.6; margin-bottom: 0;">
+                    Once you identify a location make a note of the X, Y, and Zoom values, so you can include them in your structure spreadsheet. You can also press the buttons to the right to copy all three at once, or an entire row also including the image identifier.
+                  </p>
+                </div>
+
+                <!-- Current Coordinates Table and Buttons -->
+                <div class="col-md-5">
+                  <div style="padding-top: 2rem;">
+                    <div style="max-width: 280px; margin: 0 auto;">
+                      <dl class="row mb-4">
+                        <dt class="col-sm-6" style="color: #c8d8e8; text-align: right; display: flex; align-items: center; justify-content: flex-end; margin-bottom: 0.5rem;">X</dt>
+                        <dd class="col-sm-6" style="color: #c8d8e8; background-color: #1a252f; border: 1px solid #445566; padding: 0.25rem 0.5rem; border-radius: 4px; margin-bottom: 0.5rem; text-align: center;"><code id="coord-x" style="color: #c8d8e8;">0.500</code></dd>
+
+                        <dt class="col-sm-6" style="color: #c8d8e8; text-align: right; display: flex; align-items: center; justify-content: flex-end; margin-bottom: 0.5rem;">Y</dt>
+                        <dd class="col-sm-6" style="color: #c8d8e8; background-color: #1a252f; border: 1px solid #445566; padding: 0.25rem 0.5rem; border-radius: 4px; margin-bottom: 0.5rem; text-align: center;"><code id="coord-y" style="color: #c8d8e8;">0.500</code></dd>
+
+                        <dt class="col-sm-6" style="color: #c8d8e8; text-align: right; display: flex; align-items: center; justify-content: flex-end; margin-bottom: 0.5rem;">Zoom</dt>
+                        <dd class="col-sm-6" style="color: #c8d8e8; background-color: #1a252f; border: 1px solid #445566; padding: 0.25rem 0.5rem; border-radius: 4px; margin-bottom: 0.5rem; text-align: center;"><code id="coord-zoom" style="color: #c8d8e8;">1.0</code></dd>
+                      </dl>
+                    </div>
+
+                    <!-- Copy Buttons -->
+                    <div class="d-flex gap-2">
+                      <button class="btn btn-sm btn-copy" id="copy-coords" style="flex: 1;">
+                        <i class="bi bi-clipboard"></i> Copy x,y,zoom
+                      </button>
+                      <button class="btn btn-sm btn-copy" id="copy-csv" style="flex: 1;">
+                        <i class="bi bi-file-earmark-spreadsheet"></i> Copy entire row
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
     </div>
 
     <!-- Object Metadata -->
@@ -115,5 +220,128 @@ layout: default
 
     var uv = UV.init('object-viewer', data);
     urlAdaptor.bindTo(uv);
+
+    // Store UV instance globally for coordinate tracking
+    window.uvInstance = uv;
+
+    // Set up coordinate tracking when UV is ready
+    uv.on('created', function() {
+      setTimeout(function() {
+        setupCoordinateTracking();
+      }, 2000);
+    });
+  });
+
+  // Coordinate tracking functionality
+  let osdViewer = null;
+  let updateInterval = null;
+
+  function setupCoordinateTracking() {
+    // Try to access OpenSeadragon viewer from UniversalViewer
+    if (window.uvInstance && window.uvInstance._assignedContentHandler) {
+      if (window.uvInstance._assignedContentHandler.viewer) {
+        osdViewer = window.uvInstance._assignedContentHandler.viewer;
+      } else if (window.uvInstance._assignedContentHandler.extension) {
+        const ext = window.uvInstance._assignedContentHandler.extension;
+        if (ext.centerPanel && ext.centerPanel.viewer) {
+          osdViewer = ext.centerPanel.viewer;
+        }
+      }
+    }
+
+    if (!osdViewer) {
+      console.warn('Could not access OpenSeadragon viewer for coordinate tracking');
+      return;
+    }
+
+    console.log('Coordinate tracking ready');
+
+    // Add viewport change handlers
+    osdViewer.addHandler('animation', updateCoordinates);
+    osdViewer.addHandler('animation-finish', updateCoordinates);
+    osdViewer.addHandler('zoom', updateCoordinates);
+    osdViewer.addHandler('pan', updateCoordinates);
+
+    // Update periodically
+    updateInterval = setInterval(updateCoordinates, 500);
+
+    // Initial update
+    updateCoordinates();
+  }
+
+  function updateCoordinates() {
+    if (!osdViewer || !osdViewer.viewport) return;
+
+    try {
+      const viewport = osdViewer.viewport;
+      const center = viewport.getCenter();
+      const bounds = viewport.getHomeBounds();
+
+      // Convert to normalized 0-1 coordinates
+      const x = Math.max(0, Math.min(1, (center.x - bounds.x) / bounds.width));
+      const y = Math.max(0, Math.min(1, (center.y - bounds.y) / bounds.height));
+
+      // Get zoom relative to home zoom
+      const homeZoom = viewport.getHomeZoom();
+      const currentZoom = viewport.getZoom();
+      const zoom = Math.max(0.1, Math.min(10, currentZoom / homeZoom));
+
+      // Update display
+      document.getElementById('coord-x').textContent = x.toFixed(3);
+      document.getElementById('coord-y').textContent = y.toFixed(3);
+      document.getElementById('coord-zoom').textContent = zoom.toFixed(1);
+    } catch (error) {
+      console.error('Error updating coordinates:', error);
+    }
+  }
+
+  // Copy button functionality and panel visibility
+  document.addEventListener('DOMContentLoaded', function() {
+    // Hide/show button when panel opens/closes
+    const coordinatePanel = document.getElementById('coordinatePanel');
+    const coordinateButton = document.getElementById('coordinateButton');
+
+    if (coordinatePanel && coordinateButton) {
+      coordinatePanel.addEventListener('show.bs.collapse', function() {
+        coordinateButton.style.display = 'none';
+      });
+
+      coordinatePanel.addEventListener('hide.bs.collapse', function() {
+        coordinateButton.style.display = 'block';
+      });
+    }
+
+    document.getElementById('copy-coords').addEventListener('click', function() {
+      const x = document.getElementById('coord-x').textContent;
+      const y = document.getElementById('coord-y').textContent;
+      const zoom = document.getElementById('coord-zoom').textContent;
+      const text = `${x},${y},${zoom}`;
+
+      navigator.clipboard.writeText(text).then(function() {
+        const btn = document.getElementById('copy-coords');
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="bi bi-check-circle"></i> Copied!';
+        setTimeout(function() {
+          btn.innerHTML = originalHTML;
+        }, 2000);
+      });
+    });
+
+    document.getElementById('copy-csv').addEventListener('click', function() {
+      const objectId = '{{ page.object_id }}';
+      const x = document.getElementById('coord-x').textContent;
+      const y = document.getElementById('coord-y').textContent;
+      const zoom = document.getElementById('coord-zoom').textContent;
+      const text = `1,"Your question","Your answer","${objectId}",${x},${y},${zoom},"","","",""`;
+
+      navigator.clipboard.writeText(text).then(function() {
+        const btn = document.getElementById('copy-csv');
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="bi bi-check-circle"></i> Copied!';
+        setTimeout(function() {
+          btn.innerHTML = originalHTML;
+        }, 2000);
+      });
+    });
   });
 </script>

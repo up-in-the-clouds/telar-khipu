@@ -319,6 +319,22 @@ bundle exec jekyll clean
 3. **Generate IIIF**: `python3 scripts/generate_iiif.py --source-dir components/images/objects --base-url http://localhost:4000`
 4. **OR use external IIIF**: Specify `iiif_manifest` URL in objects.csv
 
+### Finding Coordinates for Stories
+
+Each object detail page includes a built-in **coordinate identification tool** that helps you find precise x, y, zoom values for story steps:
+
+1. **Navigate to object page**: Visit `/objects/{object_id}` while running Jekyll locally
+2. **Click "Identify coordinates"**: Button appears below the IIIF viewer
+3. **Pan and zoom**: Click and drag the image, scroll to zoom
+4. **Watch coordinates update**: X, Y, and Zoom values update in real-time
+5. **Copy values**: Use copy buttons to grab coordinates or entire CSV row
+
+**Coordinate system:**
+- `x, y`: Normalized 0-1 coordinates where (0,0) is top-left corner
+- `zoom`: Relative zoom where 1 = full image, >1 zooms in
+
+**Workflow tip:** Keep the object page open in one browser tab while editing your story CSV in another. As you identify important details in the image, copy the coordinates directly into your story steps.
+
 ### Adding Glossary Terms
 
 1. **Create markdown file** in `components/texts/glossary/` (e.g., `encomienda.md`)

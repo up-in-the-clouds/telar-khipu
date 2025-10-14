@@ -235,16 +235,27 @@ Understanding the coordinate system for positioning the viewer.
 
 ### Finding Coordinates
 
-**Method 1: Visual Estimation**
+**Method 1: Built-in Coordinate Tool** (recommended)
+
+Each object detail page includes an interactive coordinate identification tool:
+
+1. **Navigate to object page**: Visit `/objects/{object_id}` while running Jekyll locally (or on your published site)
+2. **Click "Identify coordinates"**: Button appears below the IIIF viewer
+3. **Pan and zoom**: Click and drag the image, scroll to zoom in/out
+4. **Watch coordinates update**: X, Y, and Zoom values update in real-time as you explore the image
+5. **Copy values**: Use the copy buttons to grab:
+   - **"Copy x,y,zoom"**: Copies just the three coordinate values (e.g., `0.654,0.312,2.5`)
+   - **"Copy entire row"**: Copies a complete CSV row template with the object_id and coordinates pre-filled
+
+**Workflow tip:** Keep the object page open in one browser tab while editing your Google Sheet in another. As you identify important details in the image, copy the coordinates directly into your story step rows.
+
+**Method 2: Visual Estimation**
 - Use a grid overlay to estimate positions
 - Top-left quadrant: `x: 0.25, y: 0.25`
 - Center: `x: 0.5, y: 0.5`
 - Bottom-right quadrant: `x: 0.75, y: 0.75`
 
-**Method 2: Interactive Preview** (future feature)
-- Visual story editor will allow point-and-click coordinate selection
-
-**Method 3: OpenSeadragon Inspector**
+**Method 3: OpenSeadragon Inspector** (for advanced users)
 1. Open your story in browser
 2. Open browser console (F12)
 3. Type: `TelarStory.viewer.viewport.getCenter()`

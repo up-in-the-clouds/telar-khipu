@@ -69,9 +69,10 @@ def generate_iiif_for_image(image_path, output_dir, object_id, base_url):
 
     try:
         # Create static generator
+        # Note: iiif library appends the identifier to the prefix, so we use objects/ not objects/object_id/
         sg = IIIFStatic(
             dst=str(parent_dir),
-            prefix=f"{base_url}/iiif/objects/{object_id}",  # No trailing slash - iiif library adds it
+            prefix=f"{base_url}/iiif/objects",  # iiif library will append /{identifier}
             tilesize=512,
             api_version='3.0'
         )
