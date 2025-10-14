@@ -168,45 +168,45 @@ One tab per story, containing story steps.
 | `x` | Yes | number | Pan X (0-1) | `0.5` |
 | `y` | Yes | number | Pan Y (0-1) | `0.5` |
 | `zoom` | Yes | number | Zoom level | `1.5` |
-| `layer1_title` | No | text | Layer 1 heading | `Weaving Techniques` |
-| `layer1_text` | No | text | Layer 1 content | `The interlocking warp pattern...` |
-| `layer1_media` | No | path | Layer 1 image | `/assets/images/stories/detail.jpg` |
-| `layer2_title` | No | text | Layer 2 heading | `Technical Analysis` |
-| `layer2_text` | No | text | Layer 2 content | `Microscopic analysis reveals...` |
-| `layer2_media` | No | path | Layer 2 image | `/assets/images/stories/microscope.jpg` |
+| `layer1_button` | No | text | Custom button text (empty = "Learn more") | `Read more` |
+| `layer1_file` | No | path | Markdown file path in components/texts/stories/ | `story1/step1-layer1.md` |
+| `layer2_button` | No | text | Custom button text (empty = "Go deeper") | `Explore further` |
+| `layer2_file` | No | path | Markdown file path in components/texts/stories/ | `story1/step1-layer2.md` |
 
 ### Row 1: Headers
 
 ```
-step | question | answer | object | x | y | zoom | layer1_title | layer1_text | layer1_media | layer2_title | layer2_text | layer2_media
+step | question | answer | object | x | y | zoom | layer1_button | layer1_file | layer2_button | layer2_file
 ```
 
 ### Example Rows
 
-**Step 1: Introduction**
+**Step 1: Introduction with both layers**
 ```
-1 | What is this textile? | This textile fragment shows patterns typical of colonial weaving traditions. | textile-001 | 0.5 | 0.5 | 1 | Weaving Techniques | The interlocking warp pattern... | /assets/weaving.jpg | Technical Analysis | Microscopic analysis... | /assets/micro.jpg
-```
-
-**Step 2: Zoom Detail**
-```
-2 | What do we see in this pattern? | Notice the repeating geometric motifs in red and blue. | textile-001 | 0.3 | 0.3 | 2.5 | Symbolic Meaning | These geometric patterns represent... | /assets/symbols.jpg | | |
+1 | What is this textile? | This textile fragment shows patterns typical of colonial weaving traditions. | textile-001 | 0.5 | 0.5 | 1 | | story1/step1-layer1.md | | story1/step1-layer2.md
 ```
 
-**Step 3: Switch Object**
+**Step 2: Zoom detail without layers**
 ```
-3 | How does this compare? | This later textile shows European influence. | textile-002 | 0.5 | 0.5 | 1 | European Contact | After 1650, Spanish motifs... | /assets/european.jpg | | |
+2 | What do we see in this pattern? | Notice the repeating geometric motifs in red and blue. | textile-001 | 0.3 | 0.3 | 2.5 | | | |
+```
+
+**Step 3: Custom button text with layer**
+```
+3 | How does this compare? | This later textile shows European influence. | textile-002 | 0.5 | 0.5 | 1 | Read more | story1/step3-layer1.md | |
 ```
 
 ### Notes
 
 - **Sequential steps**: Number steps 1, 2, 3, 4... (no gaps)
-- **Coordinates**: x and y must be decimal numbers between 0 and 1
+- **Coordinates**: x and y must be decimal numbers between 0 and 1. Use the coordinate identification tool on object pages to find precise values
 - **Zoom**: Typically 1 (full view) to 4 (extreme detail)
 - **Same object**: Steps can reuse same object ID with different x/y/zoom
 - **Switch objects**: Change object ID to load different image
-- **Optional layers**: Leave Layer 2 columns blank if not needed
-- **Markdown**: Use basic markdown in text fields: `**bold**`, `*italic*`, `[link](url)`
+- **Layer files**: Reference markdown files in `components/texts/stories/` directory (e.g., `story1/step1-layer1.md`)
+- **Button text**: Leave button columns empty for default text ("Learn more", "Go deeper"), or provide custom text
+- **Optional layers**: Leave layer columns blank if step doesn't need additional content panels
+- **Markdown in layer files**: Layer content files support full markdown: headings, lists, links, images, etc.
 
 ## Publishing Your Sheet
 

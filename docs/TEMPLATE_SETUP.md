@@ -84,15 +84,24 @@ For each additional story:
 
 ### Step 4: Customize Content
 
-The template includes placeholder data in the main columns and real-world examples from the [Colonial Landscapes](https://colonial-landscapes.com) exhibition in the "example" column for reference.
+The template includes placeholder data. Now you need to add your own content:
 
-1. Review the example data to understand the format and structure
-2. Delete or replace placeholder rows with your exhibition content
-3. Update project settings in **Project Setup** tab (keep only the `key` and `value` columns)
-4. Add your objects to **Objects** tab
-5. Add your glossary terms to **Glossary** tab
-6. Fill in story steps for each story
-7. You can delete the "example" column once you're comfortable with the format
+1. Update project settings in **Project Setup** tab
+   - Change project_title, tagline, author, etc.
+   - Update the stories list
+2. Add your objects to **Objects** tab
+   - One row per object with unique object_id
+   - Add high-res images to `components/images/objects/` with filename matching object_id
+3. Add your glossary terms to **Glossary** tab (optional)
+   - One row per term with unique term_id
+4. Fill in story steps for each story
+   - Reference object_id from Objects tab
+   - Use coordinate tool on object pages to find x, y, zoom values
+   - Reference layer markdown files (see next step)
+5. Create layer content files
+   - Add markdown files to `components/texts/stories/` directory
+   - Organize by story (e.g., `story1/step1-layer1.md`, `story1/step1-layer2.md`)
+   - Use full markdown formatting in these files
 
 ---
 
@@ -163,17 +172,20 @@ STORIES      |                              | example
 For each story:
 
 1. Add new sheet, name it `Story 1`, `Story 2`, etc.
-2. In Row 1, enter headers (columns A-N):
+2. In Row 1, enter headers (columns A-K):
    - step, question, answer, object, x, y, zoom
-   - layer1_title, layer1_text, layer1_media
-   - layer2_title, layer2_text, layer2_media, example
+   - layer1_button, layer1_file
+   - layer2_button, layer2_file
 3. Fill in one row per story step (starting row 2)
-4. The template includes placeholder story steps (rows 2-6) and example story steps from Colonial Landscapes (rows 7-11, marked with "example" in the last column)
+4. Create markdown files in `components/texts/stories/` for layer content (e.g., `story1/step1-layer1.md`)
 
 **Required**: step, question, answer, object, x, y, zoom
-**Optional**: layer1_*, layer2_*, example column
+**Optional**: layer1_button, layer1_file, layer2_button, layer2_file
 
-**Note:** The example rows show a complete narrative arc from the Colonial Landscapes project about the 1614 Bogotá painting. Study these to understand how to structure your own narrative.
+**Notes:**
+- Layer content is stored in separate markdown files, not directly in the CSV
+- Button columns can be left empty for default text ("Learn more", "Go deeper") or filled with custom text
+- Use the coordinate identification tool on object pages to find precise x, y, zoom values
 
 ---
 
