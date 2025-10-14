@@ -611,16 +611,6 @@ bundle exec jekyll clean
 - Static HTML generation
 - CDN delivery via GitHub Pages
 - Progressive IIIF tile loading
-- Lazy loading for object images
-- Mobile-optimized responsive design
-
-## Accessibility
-
-- Semantic HTML structure
-- ARIA labels on interactive elements
-- Keyboard navigation support
-- Alt text for all images
-- Sufficient color contrast
 
 ---
 
@@ -661,6 +651,9 @@ For issues, questions, or contributions:
 - [ ] **Visual story editor**: Point-and-click coordinate selection
 - [ ] **Annotation support**: Clickable markers on IIIF images that open panels with additional information (IIIF annotations)
 - [ ] **Glossary auto-linking**: Automatic detection and linking of terms within narrative text
+- [ ] **Mobile-optimized responsive design**: Improved mobile and tablet experience
+- [ ] **Accessibility improvements**: Comprehensive ARIA labels, keyboard navigation, and color contrast verification
+- [ ] **Image lazy loading**: Improved performance for object galleries
 - [ ] **Multi-language support**: Internationalization and localization
 - [ ] **3D object support**: Integration with 3D viewers
 - [ ] **Timeline visualizations**: Temporal navigation for chronological narratives
