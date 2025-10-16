@@ -58,13 +58,14 @@ jobs:
       #     # Fetch Chapter tabs (tab 5+)
       #     # Note: You'll need to add GIDs for each chapter tab
       #     # curl -L "${GOOGLE_SHEETS_URL}&gid=CHAPTER_1_GID&output=csv" -o _data/chapter-1.csv
-      #
-      # - name: Convert CSV to JSON
-      #   env:
-      #     GOOGLE_SHEETS_URL: ${{ secrets.GOOGLE_SHEETS_URL }}
-      #   if: ${{ env.GOOGLE_SHEETS_URL != '' }}
-      #   run: |
-      #     python scripts/csv_to_json.py
+
+      - name: Convert CSV to JSON
+        run: |
+          python scripts/csv_to_json.py
+
+      - name: Generate Jekyll collections
+        run: |
+          python scripts/generate_collections.py
 
       - name: Build Jekyll site
         run: |
