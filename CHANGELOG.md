@@ -2,6 +2,15 @@
 
 All notable changes to Telar will be documented in this file.
 
+## [0.1.1-beta] - 2025-10-16
+
+### Fixed
+
+- Fixed IIIF thumbnails loading at low resolution on home and objects pages by extracting 400px canvas images instead of tiny thumbnail properties
+- Fixed markdown syntax not rendering in panels by adding markdown-to-HTML conversion in csv_to_json.py script
+- Added comprehensive footnote styling for both panel layers with proper contrast and visual hierarchy
+- Added markdown module to requirements.txt for GitHub Actions CI/CD compatibility
+
 ## [0.1.0-beta] - 2025-10-14
 
 ### Current Features (Working)

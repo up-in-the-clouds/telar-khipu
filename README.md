@@ -1,10 +1,10 @@
 # Telar
 
-![Version](https://img.shields.io/badge/version-0.1.0--beta-orange) ![License](https://img.shields.io/badge/license-MIT-blue)
+![Version](https://img.shields.io/badge/version-0.1.1--beta-orange) ![License](https://img.shields.io/badge/license-MIT-blue)
 
 A minimal computing framework for creating digital storytelling exhibitions with IIIF images and scrollytelling narratives.
 
-> **⚠️ Beta Release - v0.1.0**
+> **⚠️ Beta Release - v0.1.1**
 > This is a beta release for testing. The current workflow uses CSV files and markdown for content editing. Google Sheets integration is planned for v0.2.
 
 ## Overview
