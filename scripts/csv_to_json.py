@@ -229,6 +229,20 @@ def process_story(df):
             # Drop the _file column as it's no longer needed in JSON
             df = df.drop(columns=[col])
 
+    # Set default coordinates for empty values
+    coordinate_columns = ['x', 'y', 'zoom']
+    for col in coordinate_columns:
+        if col in df.columns:
+            # Convert to string first to handle NaN values
+            df[col] = df[col].astype(str)
+            # Set defaults for empty or 'nan' values
+            if col == 'x':
+                df.loc[df[col].isin(['', 'nan']), col] = '0.5'
+            elif col == 'y':
+                df.loc[df[col].isin(['', 'nan']), col] = '0.5'
+            elif col == 'zoom':
+                df.loc[df[col].isin(['', 'nan']), col] = '1'
+
     return df
 
 def main():

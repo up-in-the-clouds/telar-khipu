@@ -110,7 +110,7 @@ jobs:
           git add iiif/ 2>/dev/null || true
           # Only commit and push if there are changes
           if ! git diff --quiet || ! git diff --staged --quiet; then
-            git commit -m "Update data and IIIF tiles from Google Sheets"
+            git commit -m "Update data and IIIF tiles"
             git push
           else
             echo "No changes to commit"
