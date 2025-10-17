@@ -496,16 +496,54 @@ function formatPanelContent(panelData) {
 
   let html = '';
 
+  // Get the base URL from the current path
+  const pathParts = window.location.pathname.split('/').filter(p => p);
+  let basePath = '';
+  
+  // Extract baseurl similar to buildLocalInfoJsonUrl logic
+  if (pathParts.length >= 2) {
+    basePath = '/' + pathParts.slice(0, -2).join('/');
+  }
+
   if (panelData.text) {
-    // Text is already HTML from markdown conversion, insert directly
-    html += panelData.text;
+    // Text is already HTML from markdown conversion
+    // Fix image URLs within the text content
+    html += fixImageUrls(panelData.text, basePath);
   }
 
   if (panelData.media && panelData.media.trim() !== '') {
-    html += `<img src="${panelData.media}" alt="Panel image" class="img-fluid">`;
+    // Check if the media URL starts with "/" (site-relative)
+    let mediaUrl = panelData.media;
+    if (mediaUrl.startsWith('/') && !mediaUrl.startsWith('//')) {
+      // Prepend the base path
+      mediaUrl = basePath + mediaUrl;
+    }
+    
+    html += `<img src="${mediaUrl}" alt="Panel image" class="img-fluid">`;
   }
 
   return html;
+}
+
+/**
+ * Fix image URLs in HTML content to include baseurl
+ */
+function fixImageUrls(htmlContent, basePath) {
+  // Create a temporary div to parse HTML
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = htmlContent;
+  
+  // Find all img tags
+  const images = tempDiv.querySelectorAll('img');
+  images.forEach(img => {
+    const src = img.getAttribute('src');
+    if (src && src.startsWith('/') && !src.startsWith('//')) {
+      // Prepend the base path to site-relative URLs
+      img.setAttribute('src', basePath + src);
+    }
+  });
+  
+  return tempDiv.innerHTML;
 }
 
 /**

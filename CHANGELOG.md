@@ -10,6 +10,7 @@ All notable changes to Telar will be documented in this file.
 - Fixed markdown syntax not rendering in panels by adding markdown-to-HTML conversion in csv_to_json.py script
 - Added comprehensive footnote styling for both panel layers with proper contrast and visual hierarchy
 - Added markdown module to requirements.txt for GitHub Actions CI/CD compatibility
+- Fixed image URLs in slide-over panels not working when site is deployed to subdirectories by automatically detecting and prepending the base URL
 
 ## [0.1.0-beta] - 2025-10-14
 
