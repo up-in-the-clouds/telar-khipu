@@ -111,69 +111,65 @@ document.addEventListener('DOMContentLoaded', function() {
   items.forEach(function(item) {
     const manifestUrl = item.getAttribute('data-iiif-manifest');
 
-    // Skip if not a manifest.json (Image API handled in template)
-    if (!manifestUrl.includes('manifest.json')) {
+    // Skip if it's an Image API info.json (handled in template)
+    if (manifestUrl.includes('info.json')) {
       return;
     }
 
-    // Fetch manifest to extract thumbnail
+    // Fetch manifest to extract larger canvas image
     fetch(manifestUrl)
       .then(response => response.json())
       .then(manifest => {
-        let thumbnailUrl = null;
+        let imageServiceUrl = null;
+        let fallbackImageUrl = null;
 
-        // Try different IIIF Presentation API versions
-        if (manifest.thumbnail) {
-          // IIIF Presentation 3.0
-          if (Array.isArray(manifest.thumbnail)) {
-            thumbnailUrl = manifest.thumbnail[0].id || manifest.thumbnail[0]['@id'];
-          } else if (typeof manifest.thumbnail === 'object') {
-            thumbnailUrl = manifest.thumbnail.id || manifest.thumbnail['@id'];
-          } else if (typeof manifest.thumbnail === 'string') {
-            thumbnailUrl = manifest.thumbnail;
-          }
-        } else if (manifest.sequences && manifest.sequences[0]) {
-          // IIIF Presentation 2.0 - check sequences
-          const firstCanvas = manifest.sequences[0].canvases && manifest.sequences[0].canvases[0];
-          if (firstCanvas && firstCanvas.thumbnail) {
-            if (typeof firstCanvas.thumbnail === 'object') {
-              thumbnailUrl = firstCanvas.thumbnail['@id'] || firstCanvas.thumbnail.id;
-            } else {
-              thumbnailUrl = firstCanvas.thumbnail;
+        // IIIF Presentation API 2.1
+        if (manifest.sequences && manifest.sequences[0] && manifest.sequences[0].canvases) {
+          const firstCanvas = manifest.sequences[0].canvases[0];
+          if (firstCanvas && firstCanvas.images && firstCanvas.images[0]) {
+            const resource = firstCanvas.images[0].resource;
+
+            // Try to get image service for resizing
+            if (resource.service) {
+              const service = Array.isArray(resource.service) ? resource.service[0] : resource.service;
+              imageServiceUrl = service['@id'] || service.id;
+            }
+
+            // Fallback to full image URL
+            if (!imageServiceUrl && resource['@id']) {
+              fallbackImageUrl = resource['@id'];
             }
           }
-        } else if (manifest.items && manifest.items[0]) {
-          // IIIF Presentation 3.0 - check items
+        }
+        // IIIF Presentation API 3.0
+        else if (manifest.items && manifest.items[0]) {
           const firstCanvas = manifest.items[0];
-          if (firstCanvas.thumbnail) {
-            if (Array.isArray(firstCanvas.thumbnail)) {
-              thumbnailUrl = firstCanvas.thumbnail[0].id;
-            } else {
-              thumbnailUrl = firstCanvas.thumbnail.id;
+          if (firstCanvas.items && firstCanvas.items[0] && firstCanvas.items[0].items) {
+            const annotationBody = firstCanvas.items[0].items[0].body;
+
+            // Try to get image service for resizing
+            if (annotationBody.service && annotationBody.service.length > 0) {
+              imageServiceUrl = annotationBody.service[0].id || annotationBody.service[0]['@id'];
+            }
+
+            // Fallback to full image URL
+            if (!imageServiceUrl && annotationBody.id) {
+              fallbackImageUrl = annotationBody.id;
             }
           }
         }
 
-        // If no thumbnail found, try to extract image URL from canvas and create thumbnail
-        if (!thumbnailUrl) {
-          // Try to get the image service URL from canvas resources
-          if (manifest.sequences && manifest.sequences[0]) {
-            const firstCanvas = manifest.sequences[0].canvases && manifest.sequences[0].canvases[0];
-            if (firstCanvas && firstCanvas.images && firstCanvas.images[0]) {
-              const resource = firstCanvas.images[0].resource;
-              if (resource && resource['@id']) {
-                // If it's a full image URL, try to convert to IIIF thumbnail
-                const imageUrl = resource['@id'];
-                if (imageUrl.includes('/full/full/')) {
-                  // Convert full image to thumbnail size
-                  thumbnailUrl = imageUrl.replace('/full/full/', '/full/!400,400/');
-                } else {
-                  // Use the image as-is (will be scaled by CSS)
-                  thumbnailUrl = imageUrl;
-                }
-              }
-            }
-          }
+        let thumbnailUrl = null;
+
+        // If we have an image service, request a 400px thumbnail
+        if (imageServiceUrl) {
+          // Remove trailing slash if present
+          imageServiceUrl = imageServiceUrl.replace(/\/$/, '');
+          thumbnailUrl = `${imageServiceUrl}/full/!400,400/0/default.jpg`;
+        }
+        // Otherwise use fallback image (will be scaled by CSS)
+        else if (fallbackImageUrl) {
+          thumbnailUrl = fallbackImageUrl;
         }
 
         // If we found a thumbnail, replace placeholder
@@ -189,7 +185,7 @@ document.addEventListener('DOMContentLoaded', function() {
             placeholder.replaceWith(img);
           }
         } else {
-          console.warn('No thumbnail found in manifest:', manifestUrl);
+          console.warn('No image found in manifest:', manifestUrl);
           // Show "no image" placeholder
           const placeholder = item.querySelector('.manifest-thumbnail-placeholder');
           if (placeholder) {

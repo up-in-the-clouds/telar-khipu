@@ -8,6 +8,7 @@ import json
 import os
 import re
 from pathlib import Path
+import markdown
 
 def read_markdown_file(file_path):
     """
@@ -41,15 +42,19 @@ def read_markdown_file(file_path):
             title_match = re.search(r'title:\s*["\']?(.*?)["\']?\s*$', frontmatter_text, re.MULTILINE)
             title = title_match.group(1) if title_match else ''
 
+            # Convert markdown to HTML
+            html_content = markdown.markdown(body, extensions=['extra', 'nl2br'])
+
             return {
                 'title': title,
-                'content': body
+                'content': html_content
             }
         else:
             # No frontmatter, just content
+            html_content = markdown.markdown(content.strip(), extensions=['extra', 'nl2br'])
             return {
                 'title': '',
-                'content': content.strip()
+                'content': html_content
             }
 
     except Exception as e:

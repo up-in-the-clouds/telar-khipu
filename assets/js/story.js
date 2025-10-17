@@ -497,7 +497,8 @@ function formatPanelContent(panelData) {
   let html = '';
 
   if (panelData.text) {
-    html += `<p>${panelData.text}</p>`;
+    // Text is already HTML from markdown conversion, insert directly
+    html += panelData.text;
   }
 
   if (panelData.media && panelData.media.trim() !== '') {

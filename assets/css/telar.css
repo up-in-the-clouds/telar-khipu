@@ -489,6 +489,85 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
+/* Footnotes Styling */
+/* Footnote reference links in text (superscript numbers) */
+.offcanvas-body a[href^="#_ftn"] {
+  font-size: 0.75em;
+  vertical-align: super;
+  line-height: 0;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0 0.15em;
+}
+
+/* Layer 1 (light blue) footnote references */
+#panel-layer1 .offcanvas-body a[href^="#_ftn"] {
+  color: #2c3e50;
+}
+
+#panel-layer1 .offcanvas-body a[href^="#_ftn"]:hover {
+  color: #1a252f;
+  text-decoration: underline;
+}
+
+/* Layer 2 (dark purple) footnote references */
+#panel-layer2 .offcanvas-body a[href^="#_ftn"] {
+  color: #A8C5D4;
+}
+
+#panel-layer2 .offcanvas-body a[href^="#_ftn"]:hover {
+  color: #C5DBE8;
+  text-decoration: underline;
+}
+
+/* Horizontal rule separator before footnotes */
+.offcanvas-body hr {
+  margin: 2.5rem 0 1.5rem 0;
+  border: 0;
+  border-top: 2px solid rgba(0,0,0,0.1);
+  opacity: 0.5;
+}
+
+#panel-layer2 .offcanvas-body hr {
+  border-top-color: rgba(255,255,255,0.2);
+}
+
+/* Footnote section styling */
+.offcanvas-body p:has(a[href^="#_ftnref"]) {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin-bottom: 0.75rem;
+  opacity: 0.9;
+}
+
+/* Footnote number at start of footnote */
+.offcanvas-body a[href^="#_ftnref"] {
+  font-size: 0.85em;
+  text-decoration: none;
+  font-weight: 600;
+  margin-right: 0.5em;
+}
+
+/* Layer 1 footnote numbers */
+#panel-layer1 .offcanvas-body a[href^="#_ftnref"] {
+  color: #5d4037;
+}
+
+#panel-layer1 .offcanvas-body a[href^="#_ftnref"]:hover {
+  color: #2c3e50;
+  text-decoration: underline;
+}
+
+/* Layer 2 footnote numbers */
+#panel-layer2 .offcanvas-body a[href^="#_ftnref"] {
+  color: #D4C5A8;
+}
+
+#panel-layer2 .offcanvas-body a[href^="#_ftnref"]:hover {
+  color: #E8DCC4;
+  text-decoration: underline;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .story-container {

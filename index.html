@@ -43,8 +43,8 @@ title: Home
               {% if story_data and story_data.size > 0 %}
                 {% assign first_step = story_data[0] %}
                 {% if first_step.object %}
-                  {%- comment -%}Load thumbnail via info.json (same as objects gallery){%- endcomment -%}
-                  <div class="local-iiif-thumbnail card-img-top" data-info-json="{{ '/iiif/objects/' | append: first_step.object | append: '/info.json' | relative_url }}" style="aspect-ratio: 1; overflow: hidden;">
+                  {%- comment -%}Load thumbnail with object ID for remote/local detection{%- endcomment -%}
+                  <div class="story-iiif-thumbnail card-img-top" data-object-id="{{ first_step.object }}" data-info-json="{{ '/iiif/objects/' | append: first_step.object | append: '/info.json' | relative_url }}" style="aspect-ratio: 1; overflow: hidden;">
                     <div class="manifest-thumbnail-placeholder bg-light d-flex align-items-center justify-content-center h-100">
                       <span class="text-muted">Loading...</span>
                     </div>
@@ -91,47 +91,136 @@ title: Home
 </div>
 
 <script>
+// Pass objects data for manifest lookup
+window.objectsData = {{ site.data.objects | jsonify }};
+
 /**
- * Load story thumbnails from IIIF info.json
+ * Load story thumbnails from IIIF (remote manifests or local info.json)
  */
 document.addEventListener('DOMContentLoaded', function() {
-  const storyThumbnails = document.querySelectorAll('.local-iiif-thumbnail[data-info-json]');
+  const storyThumbnails = document.querySelectorAll('.story-iiif-thumbnail[data-object-id]');
 
   storyThumbnails.forEach(function(item) {
-    const infoUrl = item.getAttribute('data-info-json');
+    const objectId = item.getAttribute('data-object-id');
+    const localInfoUrl = item.getAttribute('data-info-json');
 
-    fetch(infoUrl)
-      .then(response => response.json())
-      .then(info => {
-        // Get the largest available size from sizes array
-        const sizes = info.sizes || [];
-        let thumbnailSize = sizes[0]; // First element is largest
+    // Find object in objectsData
+    const objectData = window.objectsData.find(obj => obj.object_id === objectId);
 
-        if (thumbnailSize) {
-          const baseUrl = info.id || info['@id'];
-          // Use base URL directly - it already points to the image service
-          const thumbnailUrl = `${baseUrl}/full/${thumbnailSize.width},/0/default.jpg`;
+    // Check if object has remote IIIF manifest
+    if (objectData && objectData.iiif_manifest) {
+      // Remote manifest - fetch it and extract larger canvas image
+      fetch(objectData.iiif_manifest)
+        .then(response => response.json())
+        .then(manifest => {
+          let imageServiceUrl = null;
+          let fallbackImageUrl = null;
 
-          const img = document.createElement('img');
-          img.src = thumbnailUrl;
-          img.alt = item.closest('.story-card').querySelector('h3').textContent;
-          img.style.width = '100%';
-          img.style.height = '100%';
-          img.style.objectFit = 'cover';
+          // IIIF Presentation API 2.1
+          if (manifest.sequences && manifest.sequences[0] && manifest.sequences[0].canvases) {
+            const firstCanvas = manifest.sequences[0].canvases[0];
+            if (firstCanvas && firstCanvas.images && firstCanvas.images[0]) {
+              const resource = firstCanvas.images[0].resource;
 
+              // Try to get image service for resizing
+              if (resource.service) {
+                const service = Array.isArray(resource.service) ? resource.service[0] : resource.service;
+                imageServiceUrl = service['@id'] || service.id;
+              }
+
+              // Fallback to full image URL
+              if (!imageServiceUrl && resource['@id']) {
+                fallbackImageUrl = resource['@id'];
+              }
+            }
+          }
+          // IIIF Presentation API 3.0
+          else if (manifest.items && manifest.items[0]) {
+            const firstCanvas = manifest.items[0];
+            if (firstCanvas.items && firstCanvas.items[0] && firstCanvas.items[0].items) {
+              const annotationBody = firstCanvas.items[0].items[0].body;
+
+              // Try to get image service for resizing
+              if (annotationBody.service && annotationBody.service.length > 0) {
+                imageServiceUrl = annotationBody.service[0].id || annotationBody.service[0]['@id'];
+              }
+
+              // Fallback to full image URL
+              if (!imageServiceUrl && annotationBody.id) {
+                fallbackImageUrl = annotationBody.id;
+              }
+            }
+          }
+
+          let thumbnailUrl = null;
+
+          // If we have an image service, request a 400px thumbnail
+          if (imageServiceUrl) {
+            // Remove trailing slash if present
+            imageServiceUrl = imageServiceUrl.replace(/\/$/, '');
+            thumbnailUrl = `${imageServiceUrl}/full/!400,400/0/default.jpg`;
+          }
+          // Otherwise use fallback image (will be scaled by CSS)
+          else if (fallbackImageUrl) {
+            thumbnailUrl = fallbackImageUrl;
+          }
+
+          if (thumbnailUrl) {
+            const img = document.createElement('img');
+            img.src = thumbnailUrl;
+            img.alt = item.closest('.story-card').querySelector('h3').textContent;
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.objectFit = 'cover';
+
+            const placeholder = item.querySelector('.manifest-thumbnail-placeholder');
+            if (placeholder) {
+              placeholder.replaceWith(img);
+            }
+          } else {
+            throw new Error('No image found in manifest');
+          }
+        })
+        .catch(error => {
+          console.error('Error loading remote IIIF manifest:', objectData.iiif_manifest, error);
           const placeholder = item.querySelector('.manifest-thumbnail-placeholder');
           if (placeholder) {
-            placeholder.replaceWith(img);
+            placeholder.innerHTML = '<span class="text-danger">Failed to load</span>';
           }
-        }
-      })
-      .catch(error => {
-        console.error('Error loading IIIF info.json:', infoUrl, error);
-        const placeholder = item.querySelector('.manifest-thumbnail-placeholder');
-        if (placeholder) {
-          placeholder.innerHTML = '<span class="text-danger">Failed to load</span>';
-        }
-      });
+        });
+    } else {
+      // Local IIIF info.json
+      fetch(localInfoUrl)
+        .then(response => response.json())
+        .then(info => {
+          const sizes = info.sizes || [];
+          let thumbnailSize = sizes[0];
+
+          if (thumbnailSize) {
+            const baseUrl = info.id || info['@id'];
+            const thumbnailUrl = `${baseUrl}/full/${thumbnailSize.width},/0/default.jpg`;
+
+            const img = document.createElement('img');
+            img.src = thumbnailUrl;
+            img.alt = item.closest('.story-card').querySelector('h3').textContent;
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.objectFit = 'cover';
+
+            const placeholder = item.querySelector('.manifest-thumbnail-placeholder');
+            if (placeholder) {
+              placeholder.replaceWith(img);
+            }
+          }
+        })
+        .catch(error => {
+          console.error('Error loading local IIIF info.json:', localInfoUrl, error);
+          const placeholder = item.querySelector('.manifest-thumbnail-placeholder');
+          if (placeholder) {
+            placeholder.innerHTML = '<span class="text-danger">Failed to load</span>';
+          }
+        });
+    }
   });
 });
 </script>
