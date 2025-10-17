@@ -106,6 +106,7 @@ jobs:
           git config --local user.name "github-actions[bot]"
           # Only add files that exist
           git add _data/*.json 2>/dev/null || true
+          git add _jekyll-files/ 2>/dev/null || true
           git add iiif/ 2>/dev/null || true
           # Only commit and push if there are changes
           if ! git diff --quiet || ! git diff --staged --quiet; then
