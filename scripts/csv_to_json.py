@@ -75,8 +75,16 @@ def csv_to_json(csv_path, json_path, process_func=None):
         return
 
     try:
-        # Read CSV with lenient error handling for inconsistent column counts
-        df = pd.read_csv(csv_path, on_bad_lines='warn')
+        # Read CSV file and filter out comment lines (starting with #)
+        # We can't use pandas' comment parameter because it treats # anywhere as a comment,
+        # which breaks hex color codes like #2c3e50
+        with open(csv_path, 'r', encoding='utf-8') as f:
+            lines = [line for line in f if not line.strip().startswith('#')]
+
+        # Parse filtered CSV content
+        from io import StringIO
+        csv_content = ''.join(lines)
+        df = pd.read_csv(StringIO(csv_content), on_bad_lines='warn')
 
         # Apply processing function if provided
         if process_func:

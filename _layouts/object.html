@@ -211,22 +211,54 @@ layout: default
 
     console.log('Loading IIIF resource with UniversalViewer:', manifestUrl);
 
+    // Clear localStorage to prevent UV from restoring cached viewport state
+    try {
+      localStorage.removeItem('uv');
+      console.log('Cleared UV localStorage');
+    } catch (e) {
+      console.warn('Could not clear localStorage:', e);
+    }
+
+    // Clear URL hash to prevent UV from restoring previous viewport state
+    if (window.location.hash) {
+      console.log('Clearing URL hash to reset viewport');
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+
     // Initialize UniversalViewer with IIIF manifest
+    // Use embedded: true to disable UV's state persistence
     var urlAdaptor = new UV.IIIFURLAdaptor();
     const data = urlAdaptor.getInitialData({
       manifest: manifestUrl,
-      embedded: false  // false = show full controls (zoom, fullscreen, etc.)
+      embedded: true  // true = disable state persistence in URL
     });
 
     var uv = UV.init('object-viewer', data);
-    urlAdaptor.bindTo(uv);
+    // Don't bind urlAdaptor to prevent UV from updating URL with viewport state
+    // urlAdaptor.bindTo(uv);
 
     // Store UV instance globally for coordinate tracking
     window.uvInstance = uv;
 
-    // Set up coordinate tracking when UV is ready
+    // Set up coordinate tracking when UV is ready - use multiple attempts at different timings
     uv.on('created', function() {
+      console.log('UV created event fired');
+
+      // Try immediately
       setTimeout(function() {
+        console.log('First attempt to setup tracking (100ms)');
+        setupCoordinateTracking();
+      }, 100);
+
+      // Try again after 500ms
+      setTimeout(function() {
+        console.log('Second attempt to setup tracking (500ms)');
+        setupCoordinateTracking();
+      }, 500);
+
+      // And again after 2 seconds as fallback
+      setTimeout(function() {
+        console.log('Third attempt to setup tracking (2000ms)');
         setupCoordinateTracking();
       }, 2000);
     });
@@ -236,37 +268,78 @@ layout: default
   let osdViewer = null;
   let updateInterval = null;
 
+  let trackingSetup = false;
+
   function setupCoordinateTracking() {
     // Try to access OpenSeadragon viewer from UniversalViewer
+    let viewer = null;
     if (window.uvInstance && window.uvInstance._assignedContentHandler) {
       if (window.uvInstance._assignedContentHandler.viewer) {
-        osdViewer = window.uvInstance._assignedContentHandler.viewer;
+        viewer = window.uvInstance._assignedContentHandler.viewer;
       } else if (window.uvInstance._assignedContentHandler.extension) {
         const ext = window.uvInstance._assignedContentHandler.extension;
         if (ext.centerPanel && ext.centerPanel.viewer) {
-          osdViewer = ext.centerPanel.viewer;
+          viewer = ext.centerPanel.viewer;
         }
       }
     }
 
-    if (!osdViewer) {
-      console.warn('Could not access OpenSeadragon viewer for coordinate tracking');
+    if (!viewer) {
+      console.warn('Could not access OpenSeadragon viewer for coordinate tracking (viewer not ready yet)');
       return;
     }
 
-    console.log('Coordinate tracking ready');
+    // Store viewer reference globally
+    osdViewer = viewer;
+    console.log('Got OSD viewer reference, world items:', osdViewer.world.getItemCount());
 
-    // Add viewport change handlers
-    osdViewer.addHandler('animation', updateCoordinates);
-    osdViewer.addHandler('animation-finish', updateCoordinates);
-    osdViewer.addHandler('zoom', updateCoordinates);
-    osdViewer.addHandler('pan', updateCoordinates);
+    // If no items loaded yet, we can set constraints before tiles load
+    if (osdViewer.world.getItemCount() === 0) {
+      console.log('No items loaded yet - setting up viewport for when image loads');
 
-    // Update periodically
-    updateInterval = setInterval(updateCoordinates, 500);
+      // Reset immediately when image opens
+      osdViewer.addHandler('open', function() {
+        console.log('OSD open event - forcing goHome()');
+        setTimeout(function() {
+          osdViewer.viewport.goHome(true);
+        }, 100);
+      });
+    } else {
+      // Items already loaded, force viewport to home
+      console.log('Items already loaded, forcing goHome()');
+      osdViewer.viewport.goHome(true);
+    }
 
-    // Initial update
-    updateCoordinates();
+    // Set up event handlers only once
+    if (!trackingSetup) {
+      trackingSetup = true;
+      console.log('Setting up coordinate tracking event handlers');
+
+      // Listen for 'add-item' event to reset again after tiles load
+      osdViewer.world.addHandler('add-item', function() {
+        console.log('Image loaded (add-item event), resetting to home position');
+        setTimeout(function() {
+          osdViewer.viewport.goHome(true);
+        }, 50);
+      });
+
+      // Listen for 'open-failed' to catch any errors
+      osdViewer.addHandler('open-failed', function(event) {
+        console.error('OpenSeadragon open failed:', event);
+      });
+
+      // Add viewport change handlers
+      osdViewer.addHandler('animation', updateCoordinates);
+      osdViewer.addHandler('animation-finish', updateCoordinates);
+      osdViewer.addHandler('zoom', updateCoordinates);
+      osdViewer.addHandler('pan', updateCoordinates);
+
+      // Update periodically
+      updateInterval = setInterval(updateCoordinates, 500);
+
+      // Initial update
+      updateCoordinates();
+    }
   }
 
   function updateCoordinates() {

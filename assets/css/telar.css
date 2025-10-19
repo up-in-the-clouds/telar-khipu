@@ -568,6 +568,46 @@ h1, h2, h3, h4, h5, h6 {
   text-decoration: underline;
 }
 
+/* Blockquote Styling */
+.offcanvas-body blockquote {
+  margin: 1.5rem 0;
+  padding: 1rem 1.5rem;
+  border-left: 4px solid;
+  font-style: italic;
+  position: relative;
+}
+
+/* Layer 1 (light blue) blockquotes */
+#panel-layer1 .offcanvas-body blockquote {
+  border-left-color: #2c3e50;
+  background: rgba(44, 62, 80, 0.05);
+  color: #2c3e50;
+}
+
+/* Layer 2 (dark purple) blockquotes */
+#panel-layer2 .offcanvas-body blockquote {
+  border-left-color: #A8C5D4;
+  background: rgba(168, 197, 212, 0.1);
+  color: #C5DBE8;
+}
+
+/* Blockquote paragraph spacing */
+.offcanvas-body blockquote p {
+  margin-bottom: 0;
+}
+
+.offcanvas-body blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+/* Panel Images */
+.offcanvas-body img {
+  max-width: 300px;
+  height: auto;
+  display: block;
+  margin: 1rem 0;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .story-container {

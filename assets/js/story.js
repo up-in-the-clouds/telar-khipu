@@ -223,6 +223,9 @@ function switchObject(objectId) {
 
   console.log('Switching to object:', objectId, 'manifest:', manifestUrl);
 
+  // Mark viewer as not ready while switching
+  isViewerReady = false;
+
   // Update UV with new manifest
   var urlAdaptor = new UV.IIIFURLAdaptor();
   const data = urlAdaptor.getInitialData({
@@ -234,14 +237,35 @@ function switchObject(objectId) {
   uvInstance.set(data);
   currentObject = objectId;
 
-  // Wait for OSD to be ready again
-  setTimeout(function() {
+  // Set up a function to check for viewer readiness
+  const checkViewerReady = () => {
     const extension = uvInstance.extension;
     if (extension && extension.centerPanel && extension.centerPanel.viewer) {
-      osdViewer = extension.centerPanel.viewer;
-      console.log('OpenSeadragon viewer updated');
+      const newViewer = extension.centerPanel.viewer;
+
+      // Set up a one-time 'open' event listener for when the image is fully loaded
+      newViewer.world.addOnceHandler('add-item', function() {
+        // Wait a brief moment for the image to be fully rendered
+        setTimeout(() => {
+          osdViewer = newViewer;
+          isViewerReady = true;
+          console.log('OpenSeadragon viewer updated and image loaded');
+
+          // Execute any pending zoom operation
+          if (pendingZoom) {
+            animateToPosition(pendingZoom.x, pendingZoom.y, pendingZoom.zoom);
+            pendingZoom = null;
+          }
+        }, 100);
+      });
+    } else {
+      // Viewer not ready yet, check again
+      setTimeout(checkViewerReady, 100);
     }
-  }, 1000);
+  };
+
+  // Start checking for viewer readiness
+  checkViewerReady();
 }
 
 /**
