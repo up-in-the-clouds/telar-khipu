@@ -648,6 +648,7 @@ For issues, questions, or contributions:
 - [ ] **Improved documentation**: Video tutorials and examples
 
 ### Future Features
+- [ ] **Theme system**: Customizable color schemes, typography, and layout options via project.csv configuration
 - [ ] **Visual story editor**: Point-and-click coordinate selection
 - [ ] **Annotation support**: Clickable markers on IIIF images that open panels with additional information (IIIF annotations)
 - [ ] **Glossary auto-linking**: Automatic detection and linking of terms within narrative text

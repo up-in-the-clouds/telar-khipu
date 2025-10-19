@@ -583,12 +583,12 @@ CSS variables make customization straightforward.
 - [ ] Screen reader testing
 
 **Advanced Features:**
+- [ ] Theme system (implement dynamic theming using project.csv configuration: colors, fonts, logos)
 - [ ] Annotation support (IIIF annotations)
 - [ ] Multi-language support (i18n)
 - [ ] 3D object support
 - [ ] Timeline visualizations
 - [ ] Video embedding
-- [ ] Advanced theming options
 
 **Community:**
 - [ ] Template gallery
