@@ -1,9 +1,13 @@
 /**
- * Telar Story - UniversalViewer + Scrollama Integration
- * Handles scrollytelling interactions for story pages
+ * Telar Story - UniversalViewer + Step-Based Navigation
+ * Handles card-stacking interactions for story pages
  */
 
-let scroller;
+// Step navigation
+let allSteps = [];
+let currentStepIndex = -1;
+let scrollAccumulator = 0;
+const SCROLL_THRESHOLD = window.innerHeight * 0.5; // 50vh
 let currentObject = null;
 let currentViewerCard = null; // Currently active viewer card
 let currentStepNumber = null; // Track current step to prevent duplicate processing
@@ -15,13 +19,13 @@ let scrollLockActive = false; // Track if scroll-lock is active
 // Viewer card management
 let viewerCards = []; // Array of { objectId, element, uvInstance, osdViewer, isReady, pendingZoom }
 let viewerCardCounter = 0;
-const MAX_VIEWER_CARDS = 3;
+const MAX_VIEWER_CARDS = 5;
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
   buildObjectsIndex();
   initializeFirstViewer();
-  initializeScrollama();
+  initializeStepController();
   initializePanels();
   initializeScrollLock();
 });
@@ -269,96 +273,205 @@ function buildLocalInfoJsonUrl(objectId) {
 }
 
 /**
- * Initialize Scrollama for step detection
+ * Initialize Step-Based Navigation Controller
  */
-function initializeScrollama() {
-  scroller = scrollama();
+function initializeStepController() {
+  // Get all steps and assign z-index for stacking
+  allSteps = Array.from(document.querySelectorAll('.story-step'));
 
-  scroller
-    .setup({
-      step: '.story-step',
-      offset: 0.5,
-      debug: false
-    })
-    .onStepEnter(handleStepEnter)
-    .onStepExit(handleStepExit);
+  allSteps.forEach((step, index) => {
+    step.style.zIndex = index + 1; // Higher index = on top
+    step.dataset.stepIndex = index;
+  });
 
-  // Handle window resize
-  window.addEventListener('resize', scroller.resize);
+  // Start with first step if it exists
+  if (allSteps.length > 0) {
+    goToStep(0, 'forward');
+  }
+
+  // Keyboard navigation
+  document.addEventListener('keydown', handleKeyboard);
+
+  // Scroll accumulator
+  window.addEventListener('wheel', handleScroll, { passive: false });
+
+  console.log(`Step controller initialized with ${allSteps.length} steps`);
 }
 
 /**
- * Handle step enter event
+ * Navigate to a specific step
  */
-function handleStepEnter(response) {
-  const step = response.element;
-  const stepNumber = parseInt(step.dataset.step);
+function goToStep(newIndex, direction = 'forward') {
+  // Bounds check
+  if (newIndex < 0 || newIndex >= allSteps.length) {
+    console.log(`Step ${newIndex} out of bounds`);
+    return;
+  }
 
-  // Add active class for border highlight
-  step.classList.add('is-active');
+  const oldIndex = currentStepIndex;
+  const newStep = allSteps[newIndex];
+
+  console.log(`goToStep: ${oldIndex} → ${newIndex} (${direction})`);
+
+  // DON'T deactivate old step - it should stay visible underneath
+  // The new card will layer over it via z-index
+
+  // Update index
+  currentStepIndex = newIndex;
 
   // Get step data
-  const objectId = step.dataset.object;
-  const x = parseFloat(step.dataset.x);
-  const y = parseFloat(step.dataset.y);
-  const zoom = parseFloat(step.dataset.zoom);
-  const region = step.dataset.region;
+  const objectId = newStep.dataset.object;
+  const x = parseFloat(newStep.dataset.x);
+  const y = parseFloat(newStep.dataset.y);
+  const zoom = parseFloat(newStep.dataset.zoom);
 
   // Check if we need to switch objects or just pan/zoom current object
   if (objectId && objectId !== currentObject) {
-    // Switching to different object - pass target position for off-screen snap
-    switchToObject(objectId, stepNumber, x, y, zoom);
+    // Switching to different object - wait for both to be ready
+    console.log(`Switching to new object: ${objectId}`);
+    switchToObject(objectId, newIndex, x, y, zoom, newStep);
     currentObject = objectId;
   } else {
-    // Same object - smooth animate to new position
+    // Same object - activate text immediately, animate viewer
+    console.log(`Same object, activating text and animating viewer`);
+    newStep.classList.add('is-active');
+
     if (currentViewerCard && !isNaN(x) && !isNaN(y) && !isNaN(zoom)) {
-      console.log(`Same object animation: x=${x}, y=${y}, zoom=${zoom}, isReady=${currentViewerCard.isReady}`);
       if (currentViewerCard.isReady) {
         animateViewerToPosition(currentViewerCard, x, y, zoom);
       } else {
         console.warn('Viewer not ready, queueing zoom');
-        // Queue the zoom operation for when viewer is ready
         currentViewerCard.pendingZoom = { x, y, zoom, snap: false };
-        // Set up a watcher to process when ready
-        const checkReady = setInterval(() => {
-          if (currentViewerCard.isReady) {
-            clearInterval(checkReady);
-            if (currentViewerCard.pendingZoom && !currentViewerCard.pendingZoom.snap) {
-              animateViewerToPosition(currentViewerCard, currentViewerCard.pendingZoom.x, currentViewerCard.pendingZoom.y, currentViewerCard.pendingZoom.zoom);
-              currentViewerCard.pendingZoom = null;
-            }
-          }
-        }, 100);
-      }
-    } else if (currentViewerCard && region) {
-      if (currentViewerCard.isReady) {
-        setTimeout(() => animateViewerToRegion(currentViewerCard, region), 300);
       }
     }
   }
 
-  // Update viewer info
-  updateViewerInfo(stepNumber);
+  updateViewerInfo(newIndex);
+
+  // Preload upcoming viewers for smooth transitions
+  preloadUpcomingViewers(newIndex);
 }
 
 /**
- * Handle step exit event
+ * Navigate to next step
  */
-function handleStepExit(response) {
-  const step = response.element;
-  step.classList.remove('is-active');
+function nextStep() {
+  goToStep(currentStepIndex + 1, 'forward');
+}
+
+/**
+ * Navigate to previous step
+ */
+function prevStep() {
+  goToStep(currentStepIndex - 1, 'backward');
+}
+
+/**
+ * Handle keyboard navigation
+ */
+function handleKeyboard(e) {
+  switch(e.key) {
+    case 'ArrowDown':
+    case 'ArrowRight':
+    case 'PageDown':
+      e.preventDefault();
+      nextStep();
+      break;
+    case 'ArrowUp':
+    case 'ArrowLeft':
+    case 'PageUp':
+      e.preventDefault();
+      prevStep();
+      break;
+    case ' ': // Space
+      e.preventDefault();
+      if (e.shiftKey) {
+        prevStep();
+      } else {
+        nextStep();
+      }
+      break;
+  }
+}
+
+/**
+ * Handle scroll accumulation
+ */
+function handleScroll(e) {
+  scrollAccumulator += e.deltaY;
+
+  if (scrollAccumulator >= SCROLL_THRESHOLD) {
+    nextStep();
+    scrollAccumulator = 0;
+  } else if (scrollAccumulator <= -SCROLL_THRESHOLD) {
+    prevStep();
+    scrollAccumulator = 0;
+  }
+}
+
+/**
+ * Preload viewers for upcoming steps
+ */
+function preloadUpcomingViewers(currentIndex) {
+  const PRELOAD_AHEAD = 2; // Preload 2 steps forward
+  const PRELOAD_BEHIND = 1; // Preload 1 step backward
+
+  // Preload forward
+  for (let i = 1; i <= PRELOAD_AHEAD; i++) {
+    const nextIndex = currentIndex + i;
+    if (nextIndex >= allSteps.length) break;
+
+    const nextStep = allSteps[nextIndex];
+    const objectId = nextStep.dataset.object;
+
+    // Skip if no object or already loaded
+    if (!objectId) continue;
+    const exists = viewerCards.find(vc => vc.objectId === objectId);
+    if (exists) {
+      console.log(`Viewer for ${objectId} already loaded`);
+      continue;
+    }
+
+    // Preload this viewer off-screen
+    const x = parseFloat(nextStep.dataset.x);
+    const y = parseFloat(nextStep.dataset.y);
+    const zoom = parseFloat(nextStep.dataset.zoom);
+
+    console.log(`⏳ Preloading viewer for step ${nextIndex}: ${objectId}`);
+    getOrCreateViewerCard(objectId, nextIndex, x, y, zoom);
+  }
+
+  // Preload backward (for going back)
+  for (let i = 1; i <= PRELOAD_BEHIND; i++) {
+    const prevIndex = currentIndex - i;
+    if (prevIndex < 0) break;
+
+    const prevStep = allSteps[prevIndex];
+    const objectId = prevStep.dataset.object;
+
+    if (!objectId) continue;
+    const exists = viewerCards.find(vc => vc.objectId === objectId);
+    if (exists) continue;
+
+    const x = parseFloat(prevStep.dataset.x);
+    const y = parseFloat(prevStep.dataset.y);
+    const zoom = parseFloat(prevStep.dataset.zoom);
+
+    console.log(`⏳ Preloading previous viewer for step ${prevIndex}: ${objectId}`);
+    getOrCreateViewerCard(objectId, prevIndex, x, y, zoom);
+  }
 }
 
 /**
  * Switch to a different IIIF object using viewer cards
  */
-function switchToObject(objectId, stepNumber, x, y, zoom) {
+function switchToObject(objectId, stepNumber, x, y, zoom, stepElement) {
   console.log(`Switching to object: ${objectId} at step ${stepNumber} with position x=${x}, y=${y}, zoom=${zoom}`);
 
   // Get or create viewer card for this object
   const newViewerCard = getOrCreateViewerCard(objectId, stepNumber, x, y, zoom);
 
-  // Wait for viewer to be ready and positioned before sliding up
+  // Wait for viewer to be ready and positioned before sliding up BOTH cards together
   const startTime = Date.now();
   const MAX_WAIT_TIME = 5000; // 5 seconds max
 
@@ -366,8 +479,14 @@ function switchToObject(objectId, stepNumber, x, y, zoom) {
     const elapsed = Date.now() - startTime;
 
     if (newViewerCard.isReady) {
-      console.log(`Viewer ready, sliding up card for ${objectId}`);
-      // Slide up the new viewer card
+      console.log(`Viewer ready, sliding up both text and viewer cards for ${objectId}`);
+
+      // Activate text step and slide up viewer card simultaneously
+      if (stepElement) {
+        stepElement.classList.add('is-active');
+      }
+
+      // Slide up the viewer card
       newViewerCard.element.classList.remove('card-below');
       newViewerCard.element.classList.add('card-active');
 
@@ -384,6 +503,12 @@ function switchToObject(objectId, stepNumber, x, y, zoom) {
       setTimeout(slideUpWhenReady, 100);
     } else {
       console.warn(`Viewer for ${objectId} failed to load after 5 seconds, sliding up anyway`);
+
+      // Activate text step and slide up viewer card anyway
+      if (stepElement) {
+        stepElement.classList.add('is-active');
+      }
+
       // Slide up anyway to prevent black screen
       newViewerCard.element.classList.remove('card-below');
       newViewerCard.element.classList.add('card-active');

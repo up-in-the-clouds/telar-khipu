@@ -20,21 +20,27 @@
 </head>
 <body class="story-page">
   <div class="story-container">
-    <!-- Left Column: Scrolling Narrative -->
+    <!-- Left Column: Card Stacking Narrative -->
     <div class="narrative-column">
-      <!-- Story Header -->
-      <div class="story-header mb-4">
-        <a href="{{ '/' | relative_url }}" class="btn btn-sm btn-outline-secondary mb-3">
-          ← Back to Home
-        </a>
-        <h1 class="story-title">{{ page.story_number }}. {{ page.title }}</h1>
-        {% if page.description %}
-        <p class="lead">{{ page.description }}</p>
-        {% endif %}
-      </div>
-
-      <!-- Story Steps -->
+      <!-- Story Steps (including intro as step 0) -->
       <div class="story-steps">
+        <!-- Intro Step - Full screen title card -->
+        <div class="story-step story-intro" data-step="0" data-step-index="0">
+          <div class="intro-content">
+            <h1 class="intro-title">{{ page.story_number }}. {{ page.title }}</h1>
+            {% if page.description %}
+            <p class="intro-description">{{ page.description }}</p>
+            {% endif %}
+            <div class="intro-hint">
+              <p class="text-muted">
+                <small>Press ↓ or scroll to begin</small>
+              </p>
+            </div>
+          </div>
+          <a href="{{ '/' | relative_url }}" class="btn-home">
+            ← Back to Home
+          </a>
+        </div>
         {% if page.data_file %}
           {% assign data_file_name = page.data_file %}
           {% assign steps = site.data[data_file_name] %}
