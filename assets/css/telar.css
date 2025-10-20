@@ -154,6 +154,12 @@ h1, h2, h3, h4, h5, h6 {
     border-color 0.3s ease,
     opacity 0.4s ease-out,
     transform 0.4s ease-out;
+
+  /* Center content vertically */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
 }
 
 /* Active state - slides up to visible position */
@@ -163,14 +169,22 @@ h1, h2, h3, h4, h5, h6 {
   transform: translateY(0);
 }
 
-/* Intro Step - Full screen title card */
+/* Intro Step - Full screen title card spanning both columns */
 .story-intro {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10000;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   border-left: none !important;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: #f5f7fa;
+  transform: translateY(0) !important;
+  opacity: 1 !important;
 }
 
 .intro-content {
@@ -216,6 +230,35 @@ h1, h2, h3, h4, h5, h6 {
   background: white;
   color: #2c3e50;
   border-color: #2c3e50;
+}
+
+/* Outro Step - End card in narrative column only */
+.story-outro {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-left: none !important;
+  background: #f5f7fa;
+}
+
+.outro-content {
+  text-align: center;
+  max-width: 600px;
+  padding: 2rem;
+}
+
+.outro-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+}
+
+.outro-text {
+  font-size: 1.25rem;
+  margin-bottom: 2rem;
+  color: #5a6c7d;
 }
 
 .story-step h2 {

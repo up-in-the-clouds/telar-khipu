@@ -9,6 +9,11 @@ let currentStepIndex = -1;
 let scrollAccumulator = 0;
 const SCROLL_THRESHOLD = window.innerHeight * 0.5; // 50vh
 let currentObject = null;
+
+// Scroll acceleration prevention
+let lastStepChangeTime = 0;
+const STEP_COOLDOWN = 600; // ms - prevent rapid step changes (400ms animation + 200ms buffer)
+const MAX_SCROLL_DELTA = 200; // Cap scroll contribution per event
 let currentViewerCard = null; // Currently active viewer card
 let currentStepNumber = null; // Track current step to prevent duplicate processing
 let panelStack = [];
@@ -310,11 +315,34 @@ function goToStep(newIndex, direction = 'forward') {
 
   const oldIndex = currentStepIndex;
   const newStep = allSteps[newIndex];
+  const oldStep = oldIndex >= 0 ? allSteps[oldIndex] : null;
 
   console.log(`goToStep: ${oldIndex} → ${newIndex} (${direction})`);
 
-  // DON'T deactivate old step - it should stay visible underneath
-  // The new card will layer over it via z-index
+  // Track step change time for cooldown
+  lastStepChangeTime = Date.now();
+
+  // Handle intro slide transitions
+  if (oldIndex === 0 && newIndex > 0) {
+    // Leaving intro - slide it up out of view and lower z-index
+    const intro = allSteps[0];
+    if (intro.classList.contains('story-intro')) {
+      intro.style.transform = 'translateY(-100%)';
+      intro.style.zIndex = '0'; // Lower z-index so it doesn't block viewers
+    }
+  } else if (newIndex === 0 && oldIndex > 0) {
+    // Returning to intro - slide it back down and restore z-index
+    const intro = allSteps[0];
+    if (intro.classList.contains('story-intro')) {
+      intro.style.zIndex = '10000'; // Restore high z-index
+      intro.style.transform = 'translateY(0)';
+    }
+  }
+
+  // When going backward, deactivate the old step (slide it down)
+  if (direction === 'backward' && oldStep && oldIndex !== 0) {
+    oldStep.classList.remove('is-active');
+  }
 
   // Update index
   currentStepIndex = newIndex;
@@ -329,12 +357,21 @@ function goToStep(newIndex, direction = 'forward') {
   if (objectId && objectId !== currentObject) {
     // Switching to different object - wait for both to be ready
     console.log(`Switching to new object: ${objectId}`);
-    switchToObject(objectId, newIndex, x, y, zoom, newStep);
+    switchToObject(objectId, newIndex, x, y, zoom, newStep, direction);
     currentObject = objectId;
   } else {
     // Same object - activate text immediately, animate viewer
     console.log(`Same object, activating text and animating viewer`);
-    newStep.classList.add('is-active');
+
+    // When going backward, don't add is-active (step is already visible underneath)
+    // When going forward, force reflow before animating
+    if (direction === 'forward') {
+      newStep.offsetHeight;
+      requestAnimationFrame(() => {
+        newStep.classList.add('is-active');
+      });
+    }
+    // If going backward, the step should already be active underneath
 
     if (currentViewerCard && !isNaN(x) && !isNaN(y) && !isNaN(zoom)) {
       if (currentViewerCard.isReady) {
@@ -395,10 +432,22 @@ function handleKeyboard(e) {
 }
 
 /**
- * Handle scroll accumulation
+ * Handle scroll accumulation with acceleration prevention
  */
 function handleScroll(e) {
-  scrollAccumulator += e.deltaY;
+  const now = Date.now();
+  const timeSinceLastChange = now - lastStepChangeTime;
+
+  // If we're in cooldown period, decay the accumulator instead of adding to it
+  if (timeSinceLastChange < STEP_COOLDOWN) {
+    // Decay accumulator during cooldown to prevent momentum buildup
+    scrollAccumulator *= 0.5;
+    return;
+  }
+
+  // Cap scroll delta to prevent huge jumps from trackpad acceleration
+  const cappedDelta = Math.max(-MAX_SCROLL_DELTA, Math.min(MAX_SCROLL_DELTA, e.deltaY));
+  scrollAccumulator += cappedDelta;
 
   if (scrollAccumulator >= SCROLL_THRESHOLD) {
     nextStep();
@@ -465,8 +514,8 @@ function preloadUpcomingViewers(currentIndex) {
 /**
  * Switch to a different IIIF object using viewer cards
  */
-function switchToObject(objectId, stepNumber, x, y, zoom, stepElement) {
-  console.log(`Switching to object: ${objectId} at step ${stepNumber} with position x=${x}, y=${y}, zoom=${zoom}`);
+function switchToObject(objectId, stepNumber, x, y, zoom, stepElement, direction = 'forward') {
+  console.log(`Switching to object: ${objectId} at step ${stepNumber} with position x=${x}, y=${y}, zoom=${zoom} (${direction})`);
 
   // Get or create viewer card for this object
   const newViewerCard = getOrCreateViewerCard(objectId, stepNumber, x, y, zoom);
@@ -479,21 +528,37 @@ function switchToObject(objectId, stepNumber, x, y, zoom, stepElement) {
     const elapsed = Date.now() - startTime;
 
     if (newViewerCard.isReady) {
-      console.log(`Viewer ready, sliding up both text and viewer cards for ${objectId}`);
+      console.log(`Viewer ready, transitioning to ${objectId} (${direction})`);
 
-      // Activate text step and slide up viewer card simultaneously
-      if (stepElement) {
-        stepElement.classList.add('is-active');
-      }
+      if (direction === 'forward') {
+        // Going forward - slide up both text and viewer
+        // Force a reflow to ensure initial state is rendered before animating
+        if (stepElement) {
+          stepElement.offsetHeight; // Force reflow
+          requestAnimationFrame(() => {
+            stepElement.classList.add('is-active');
+          });
+        }
 
-      // Slide up the viewer card
-      newViewerCard.element.classList.remove('card-below');
-      newViewerCard.element.classList.add('card-active');
+        // Slide up the viewer card
+        newViewerCard.element.classList.remove('card-below');
+        newViewerCard.element.classList.add('card-active');
 
-      // Keep old viewer card underneath (don't slide it away)
-      if (currentViewerCard && currentViewerCard !== newViewerCard) {
-        currentViewerCard.element.classList.remove('card-active');
-        // It stays at translateY(0), covered by higher z-index
+        // Keep old viewer card underneath (don't slide it away)
+        if (currentViewerCard && currentViewerCard !== newViewerCard) {
+          currentViewerCard.element.classList.remove('card-active');
+          // It stays at translateY(0), covered by higher z-index
+        }
+      } else {
+        // Going backward - slide down current viewer, reveal previous
+        if (currentViewerCard && currentViewerCard !== newViewerCard) {
+          currentViewerCard.element.classList.remove('card-active');
+          currentViewerCard.element.classList.add('card-below');
+        }
+
+        // The new viewer should already be active underneath, or activate it now
+        newViewerCard.element.classList.remove('card-below');
+        newViewerCard.element.classList.add('card-active');
       }
 
       // Update current viewer card reference
@@ -502,19 +567,33 @@ function switchToObject(objectId, stepNumber, x, y, zoom, stepElement) {
       console.log(`Viewer not ready yet, waiting... (${elapsed}ms elapsed)`);
       setTimeout(slideUpWhenReady, 100);
     } else {
-      console.warn(`Viewer for ${objectId} failed to load after 5 seconds, sliding up anyway`);
+      console.warn(`Viewer for ${objectId} failed to load after 5 seconds, transitioning anyway`);
 
-      // Activate text step and slide up viewer card anyway
-      if (stepElement) {
-        stepElement.classList.add('is-active');
-      }
+      if (direction === 'forward') {
+        // Activate text step and slide up viewer card anyway
+        if (stepElement) {
+          stepElement.offsetHeight; // Force reflow
+          requestAnimationFrame(() => {
+            stepElement.classList.add('is-active');
+          });
+        }
 
-      // Slide up anyway to prevent black screen
-      newViewerCard.element.classList.remove('card-below');
-      newViewerCard.element.classList.add('card-active');
+        // Slide up anyway to prevent black screen
+        newViewerCard.element.classList.remove('card-below');
+        newViewerCard.element.classList.add('card-active');
 
-      if (currentViewerCard && currentViewerCard !== newViewerCard) {
-        currentViewerCard.element.classList.remove('card-active');
+        if (currentViewerCard && currentViewerCard !== newViewerCard) {
+          currentViewerCard.element.classList.remove('card-active');
+        }
+      } else {
+        // Going backward - slide down current viewer
+        if (currentViewerCard && currentViewerCard !== newViewerCard) {
+          currentViewerCard.element.classList.remove('card-active');
+          currentViewerCard.element.classList.add('card-below');
+        }
+
+        newViewerCard.element.classList.remove('card-below');
+        newViewerCard.element.classList.add('card-active');
       }
 
       currentViewerCard = newViewerCard;
