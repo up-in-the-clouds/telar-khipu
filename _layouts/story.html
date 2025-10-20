@@ -59,19 +59,9 @@
               layer2button=step.layer2_button
               layer2_title=step.layer2_title
               layer2_text=step.layer2_text
+              is_last=forloop.last
             %}
           {% endfor %}
-
-          <!-- Outro Step - Return Home -->
-          <div class="story-step story-outro">
-            <div class="outro-content">
-              <h2 class="outro-title">End of Story</h2>
-              <p class="outro-text">Thank you for exploring this story.</p>
-              <a href="{{ '/' | relative_url }}" class="btn-home">
-                Return to Home →
-              </a>
-            </div>
-          </div>
         {% else %}
           {{ content }}
         {% endif %}

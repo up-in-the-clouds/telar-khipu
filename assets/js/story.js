@@ -58,18 +58,14 @@ function initializeFirstViewer() {
 
   console.log('Initializing first viewer for object:', firstObjectId);
 
-  // Set current object
-  currentObject = firstObjectId;
-
   // Get first step coordinates from story data
   const firstStep = window.storyData?.steps?.[0];
   const x = firstStep ? parseFloat(firstStep.x) : undefined;
   const y = firstStep ? parseFloat(firstStep.y) : undefined;
   const zoom = firstStep ? parseFloat(firstStep.zoom) : undefined;
 
-  // Create first viewer card with z-index 1
-  currentViewerCard = createViewerCard(firstObjectId, 1, x, y, zoom);
-  currentViewerCard.element.classList.add('card-active');
+  // Create first viewer card with z-index 1 (preload it, but don't set as current yet)
+  createViewerCard(firstObjectId, 1, x, y, zoom);
 }
 
 /**
@@ -544,21 +540,32 @@ function switchToObject(objectId, stepNumber, x, y, zoom, stepElement, direction
         newViewerCard.element.classList.remove('card-below');
         newViewerCard.element.classList.add('card-active');
 
-        // Keep old viewer card underneath (don't slide it away)
-        if (currentViewerCard && currentViewerCard !== newViewerCard) {
-          currentViewerCard.element.classList.remove('card-active');
-          // It stays at translateY(0), covered by higher z-index
-        }
+        // Old viewer cards keep card-active class and stay at translateY(0)
+        // Z-index handles layering - newer cards appear on top
       } else {
-        // Going backward - slide down current viewer, reveal previous
+        // Going backward - instantly hide current viewer and move it away
         if (currentViewerCard && currentViewerCard !== newViewerCard) {
+          // Instantly hide and move away
+          currentViewerCard.element.style.transition = 'none';
           currentViewerCard.element.classList.remove('card-active');
           currentViewerCard.element.classList.add('card-below');
+          currentViewerCard.element.style.opacity = '0';
+
+          // Re-enable transitions after moving
+          setTimeout(() => {
+            if (currentViewerCard) {
+              currentViewerCard.element.style.transition = '';
+              currentViewerCard.element.style.opacity = '';
+            }
+          }, 50);
         }
 
-        // The new viewer should already be active underneath, or activate it now
-        newViewerCard.element.classList.remove('card-below');
-        newViewerCard.element.classList.add('card-active');
+        // Previous viewer should already be visible underneath
+        // Just ensure it has card-active
+        if (!newViewerCard.element.classList.contains('card-active')) {
+          newViewerCard.element.classList.remove('card-below');
+          newViewerCard.element.classList.add('card-active');
+        }
       }
 
       // Update current viewer card reference
@@ -582,18 +589,30 @@ function switchToObject(objectId, stepNumber, x, y, zoom, stepElement, direction
         newViewerCard.element.classList.remove('card-below');
         newViewerCard.element.classList.add('card-active');
 
-        if (currentViewerCard && currentViewerCard !== newViewerCard) {
-          currentViewerCard.element.classList.remove('card-active');
-        }
+        // Old viewer cards keep card-active and stay at translateY(0)
       } else {
-        // Going backward - slide down current viewer
+        // Going backward - instantly hide current viewer and move it away
         if (currentViewerCard && currentViewerCard !== newViewerCard) {
+          // Instantly hide and move away
+          currentViewerCard.element.style.transition = 'none';
           currentViewerCard.element.classList.remove('card-active');
           currentViewerCard.element.classList.add('card-below');
+          currentViewerCard.element.style.opacity = '0';
+
+          // Re-enable transitions after moving
+          setTimeout(() => {
+            if (currentViewerCard) {
+              currentViewerCard.element.style.transition = '';
+              currentViewerCard.element.style.opacity = '';
+            }
+          }, 50);
         }
 
-        newViewerCard.element.classList.remove('card-below');
-        newViewerCard.element.classList.add('card-active');
+        // Previous viewer should already be visible underneath
+        if (!newViewerCard.element.classList.contains('card-active')) {
+          newViewerCard.element.classList.remove('card-below');
+          newViewerCard.element.classList.add('card-active');
+        }
       }
 
       currentViewerCard = newViewerCard;
