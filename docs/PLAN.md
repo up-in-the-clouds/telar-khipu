@@ -60,7 +60,7 @@ Telar is developed by Adelaida Ávila, Juan Cobo Betancourt, Santiago Muñoz, an
 - **Static Site Generator**: Jekyll 4.3+
 - **IIIF Tile Generation**: Bodleian iiif-static (Python)
 - **Image Viewer**: UniversalViewer 4.0 (with OpenSeadragon)
-- **Scrollytelling**: Scrollama library
+- **Scrollytelling**: Custom discrete step-based card stacking system (enables multiple IIIF objects per story)
 - **CSS Framework**: Bootstrap 5
 - **Data Source**: CSV files (v0.1.0-beta), Google Sheets planned for v0.2
 - **Automation**: GitHub Actions
@@ -80,7 +80,7 @@ Telar is developed by Adelaida Ávila, Juan Cobo Betancourt, Santiago Muñoz, an
 **JavaScript Libraries (CDN):**
 - Bootstrap 5.3
 - UniversalViewer 4.0
-- Scrollama (latest)
+- Custom step-based scrolling (no external library)
 
 ### Why UniversalViewer?
 
@@ -405,10 +405,10 @@ telar/
 - **Scrolling left column:**
   - Story steps with question/answer
   - Buttons to open layer panels
-  - Scrollama integration for step detection
+  - Custom discrete step system with scroll event handling
 
 **Interactions:**
-- Scrollama detects scroll position
+- Custom scroll handler detects step transitions
 - JavaScript updates viewer coordinates (pan/zoom)
 - Opens/closes layer panels
 
@@ -536,7 +536,7 @@ CSS variables make customization straightforward.
 - [x] Homepage layout
 - [x] Story page layout with scrollytelling
 - [x] UniversalViewer integration
-- [x] Scrollama integration with OpenSeadragon API
+- [x] Custom step-based scrolling with OpenSeadragon API
 - [x] Layer panel system (2 layers)
 - [x] Object gallery page
 - [x] Object detail pages
@@ -583,12 +583,12 @@ CSS variables make customization straightforward.
 - [ ] Screen reader testing
 
 **Advanced Features:**
+- [ ] Theme system (implement dynamic theming using project.csv configuration: colors, fonts, logos)
 - [ ] Annotation support (IIIF annotations)
 - [ ] Multi-language support (i18n)
 - [ ] 3D object support
 - [ ] Timeline visualizations
 - [ ] Video embedding
-- [ ] Advanced theming options
 
 **Community:**
 - [ ] Template gallery
