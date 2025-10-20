@@ -16,7 +16,7 @@ Telar is developed by Adelaida Ávila, Juan Cobo Betancourt, Santiago Muñoz, an
 ## Key Features
 
 - **IIIF integration**: Support for both local images (auto-generated tiles) and external IIIF resources
-- **Scrollytelling**: Fixed IIIF viewer with scrolling narrative that controls viewport
+- **Scrollytelling**: Discrete step-based scrolling with support for multiple IIIF objects in a single story - each object preloaded in its own viewer card
 - **Layered panels**: Progressive disclosure with three content layers plus glossary
 - **Objects gallery**: Browsable object grid with detail pages
 - **Minimal computing**: Plain text, static generation, GitHub Pages hosting
@@ -567,7 +567,7 @@ Modify layouts in `_layouts/`:
 
 Core functionality in `assets/js/`:
 - `telar.js`: Base utilities
-- `story.js`: UniversalViewer + Scrollama integration
+- `story.js`: UniversalViewer + custom step-based scrolling system
 
 ## Development
 
@@ -627,7 +627,6 @@ Telar is developed by Adelaida Ávila, Juan Cobo Betancourt, Santiago Muñoz, an
 Telar is built with:
 - [Jekyll](https://jekyllrb.com/) - Static site generator
 - [UniversalViewer](https://universalviewer.io/) - IIIF viewer
-- [Scrollama](https://github.com/russellgoldenberg/scrollama) - Scrollytelling library
 - [Bootstrap 5](https://getbootstrap.com/) - CSS framework
 - [iiif-static](https://github.com/bodleian/iiif-static-choices) - IIIF tile generator
 

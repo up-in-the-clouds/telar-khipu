@@ -2,6 +2,26 @@
 
 All notable changes to Telar will be documented in this file.
 
+## [0.2.0-beta] - 2025-10-20
+
+### Changed
+
+- **Scrolling system overhaul**: Replaced Scrollama library with custom discrete step-based card stacking architecture to enable **multiple IIIF objects within a single story**. Each object gets its own preloaded viewer card that slides up/down as users navigate through steps.
+- **Animation timing**: Reduced viewer pan/zoom animation duration from 36 seconds to 4 seconds for more natural pacing
+- **Cleaner viewer UI**: Hidden UniversalViewer color picker and adjustment panels for distraction-free viewing
+
+### Fixed
+
+- **Critical navigation bug**: Fixed viewer cards getting stuck or invisible after backward→forward navigation cycles
+- **Z-index layering**: Resolved issue where reused viewer cards appeared behind currently visible cards
+- **State management**: Added complete state reset when reusing viewer cards (clears inline styles, transitions, opacity)
+- **Intro handling**: Improved viewer reference management when navigating to/from story intro
+
+### Added
+
+- **Story 2 showcase**: Added comprehensive demo story with rich media examples (images, videos, markdown formatting)
+- **Enhanced logging**: Improved console debugging messages for bounds checking and state transitions
+
 ## [0.1.1-beta] - 2025-10-16
 
 ### Fixed
@@ -53,7 +73,7 @@ All notable changes to Telar will be documented in this file.
 
 - **Framework**: Jekyll 4.3+ static site generator
 - **IIIF Viewer**: UniversalViewer 4.0
-- **Scrollytelling**: Scrollama library
+- **Scrollytelling**: Custom discrete step-based card stacking system
 - **Styling**: Bootstrap 5
 - **Image Processing**: Python iiif-static library
 
