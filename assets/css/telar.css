@@ -817,3 +817,21 @@ h1, h2, h3, h4, h5, h6 {
     height: 150px;
   }
 }
+
+/* Hide UniversalViewer UI controls for cleaner viewing */
+.uv .leftPanel,
+.uv .rightPanel,
+.uv .footerPanel .options,
+.uv .headerPanel .options,
+.uv .moreInfo,
+.uv .download,
+.uv .share,
+.uv .bookmark,
+.uv .toggle {
+  display: none !important;
+}
+
+/* Keep only essential navigation controls */
+.uv .footerPanel .zoom {
+  display: block;
+}

@@ -198,6 +198,13 @@ function getOrCreateViewerCard(objectId, zIndex, x, y, zoom) {
     existing.element.style.zIndex = zIndex;
     existing.zIndex = zIndex;
 
+    // CRITICAL FIX: Reset card state in case it was left in card-below from previous navigation
+    // This ensures the card can properly transition when reactivated
+    console.log(`Resetting viewer card state for ${objectId}`);
+    existing.element.classList.remove('card-below');
+    existing.element.style.opacity = ''; // Clear any inline opacity
+    existing.element.style.transition = ''; // Clear any disabled transitions
+
     // For existing viewers, just snap to new position immediately
     if (!isNaN(x) && !isNaN(y) && !isNaN(zoom)) {
       if (existing.isReady) {
@@ -303,9 +310,13 @@ function initializeStepController() {
  * Navigate to a specific step
  */
 function goToStep(newIndex, direction = 'forward') {
-  // Bounds check
-  if (newIndex < 0 || newIndex >= allSteps.length) {
-    console.log(`Step ${newIndex} out of bounds`);
+  // Bounds check with improved logging
+  if (newIndex < 0) {
+    console.log(`⚠️ Cannot go to step ${newIndex}: already at first step (0)`);
+    return;
+  }
+  if (newIndex >= allSteps.length) {
+    console.log(`⚠️ Cannot go to step ${newIndex}: already at last step (${allSteps.length - 1})`);
     return;
   }
 
@@ -333,6 +344,9 @@ function goToStep(newIndex, direction = 'forward') {
       intro.style.zIndex = '10000'; // Restore high z-index
       intro.style.transform = 'translateY(0)';
     }
+    // Clear current viewer reference so next forward movement triggers fresh switchToObject
+    currentViewerCard = null;
+    currentObject = null;
   }
 
   // When going backward, deactivate the old step (slide it down)
@@ -350,14 +364,25 @@ function goToStep(newIndex, direction = 'forward') {
   const zoom = parseFloat(newStep.dataset.zoom);
 
   // Check if we need to switch objects or just pan/zoom current object
-  if (objectId && objectId !== currentObject) {
+  // Improved detection: check both objectId AND that currentViewerCard matches
+  // Special case: always switch when leaving intro (Step 0), even if viewer card exists
+  const isLeavingIntro = (oldIndex === 0 && newIndex > 0);
+
+  if (objectId && (!currentViewerCard || currentViewerCard.objectId !== objectId || isLeavingIntro)) {
     // Switching to different object - wait for both to be ready
-    console.log(`Switching to new object: ${objectId}`);
+    console.log(`Switching to new object: ${objectId}${isLeavingIntro ? ' (leaving intro)' : ''}`);
     switchToObject(objectId, newIndex, x, y, zoom, newStep, direction);
     currentObject = objectId;
   } else {
     // Same object - activate text immediately, animate viewer
     console.log(`Same object, activating text and animating viewer`);
+
+    // Defensive fix: ensure viewer card is active when going forward
+    // This prevents stuck viewers after backward→forward navigation
+    if (direction === 'forward' && currentViewerCard) {
+      currentViewerCard.element.classList.remove('card-below');
+      currentViewerCard.element.classList.add('card-active');
+    }
 
     // When going backward, don't add is-active (step is already visible underneath)
     // When going forward, force reflow before animating
@@ -536,9 +561,15 @@ function switchToObject(objectId, stepNumber, x, y, zoom, stepElement, direction
           });
         }
 
-        // Slide up the viewer card
+        // Slide up the viewer card with complete state reset
+        // This ensures reused cards are fully visible after backward→forward cycles
+        newViewerCard.element.style.transition = ''; // Clear any disabled transitions
+        newViewerCard.element.style.opacity = ''; // Clear any inline opacity from backward nav
         newViewerCard.element.classList.remove('card-below');
         newViewerCard.element.classList.add('card-active');
+
+        // CRITICAL: Update z-index to ensure card appears on top
+        newViewerCard.element.style.zIndex = newViewerCard.zIndex;
 
         // Old viewer cards keep card-active class and stay at translateY(0)
         // Z-index handles layering - newer cards appear on top
@@ -664,7 +695,7 @@ function animateViewerToPosition(viewerCard, x, y, zoom) {
   const originalAnimationTime = osdViewer.animationTime;
   const originalSpringStiffness = osdViewer.springStiffness;
 
-  osdViewer.animationTime = 36.0;  // Seconds for animation - extremely slow, cinematic
+  osdViewer.animationTime = 4.0;  // Seconds for animation - smooth and cinematic
   osdViewer.springStiffness = 0.8;  // Lower = smoother, less bouncy
 
   console.log(`Set animation time to ${osdViewer.animationTime}s, spring stiffness to ${osdViewer.springStiffness}`);
@@ -677,7 +708,7 @@ function animateViewerToPosition(viewerCard, x, y, zoom) {
   setTimeout(() => {
     osdViewer.animationTime = originalAnimationTime;
     osdViewer.springStiffness = originalSpringStiffness;
-  }, 36100);
+  }, 4100);
 }
 
 /**
