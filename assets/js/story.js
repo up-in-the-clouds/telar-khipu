@@ -3,21 +3,24 @@
  * Handles scrollytelling interactions for story pages
  */
 
-let uvInstance;
-let osdViewer; // OpenSeadragon viewer from UV
 let scroller;
 let currentObject = null;
+let currentViewerCard = null; // Currently active viewer card
+let currentStepNumber = null; // Track current step to prevent duplicate processing
 let panelStack = [];
 let objectsIndex = {}; // Quick lookup for object data
-let isViewerReady = false; // Track if UV is fully initialized
-let pendingZoom = null; // Queue zoom operations if viewer isn't ready
 let isPanelOpen = false; // Track if any panel is open
 let scrollLockActive = false; // Track if scroll-lock is active
+
+// Viewer card management
+let viewerCards = []; // Array of { objectId, element, uvInstance, osdViewer, isReady, pendingZoom }
+let viewerCardCounter = 0;
+const MAX_VIEWER_CARDS = 3;
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
   buildObjectsIndex();
-  initializeViewer();
+  initializeFirstViewer();
   initializeScrollama();
   initializePanels();
   initializeScrollLock();
@@ -34,10 +37,9 @@ function buildObjectsIndex() {
 }
 
 /**
- * Initialize UniversalViewer with IIIF support
+ * Initialize first viewer card on page load
  */
-function initializeViewer() {
-  // Get first object from story data
+function initializeFirstViewer() {
   const firstObjectId = window.storyData?.firstObject;
 
   if (!firstObjectId) {
@@ -45,61 +47,184 @@ function initializeViewer() {
     return;
   }
 
-  // Set current object immediately to prevent unnecessary switching
+  console.log('Initializing first viewer for object:', firstObjectId);
+
+  // Set current object
   currentObject = firstObjectId;
 
-  // Get manifest URL for first object
-  const manifestUrl = getManifestUrl(firstObjectId);
+  // Get first step coordinates from story data
+  const firstStep = window.storyData?.steps?.[0];
+  const x = firstStep ? parseFloat(firstStep.x) : undefined;
+  const y = firstStep ? parseFloat(firstStep.y) : undefined;
+  const zoom = firstStep ? parseFloat(firstStep.zoom) : undefined;
 
+  // Create first viewer card with z-index 1
+  currentViewerCard = createViewerCard(firstObjectId, 1, x, y, zoom);
+  currentViewerCard.element.classList.add('card-active');
+}
+
+/**
+ * Create a new viewer card for an object
+ */
+function createViewerCard(objectId, zIndex, x, y, zoom) {
+  const container = document.getElementById('viewer-cards-container');
+
+  // Create card element - stays off-screen initially
+  const cardElement = document.createElement('div');
+  cardElement.className = 'viewer-card card-below';
+  cardElement.style.zIndex = zIndex;
+  cardElement.dataset.object = objectId;
+
+  // Create viewer instance container
+  const viewerId = `viewer-instance-${viewerCardCounter}`;
+  const viewerDiv = document.createElement('div');
+  viewerDiv.className = 'viewer-instance';
+  viewerDiv.id = viewerId;
+
+  cardElement.appendChild(viewerDiv);
+  container.appendChild(cardElement);
+
+  console.log(`Created viewer card for ${objectId} with z-index ${zIndex}, will snap to x=${x}, y=${y}, zoom=${zoom}`);
+
+  // Get manifest URL
+  const manifestUrl = getManifestUrl(objectId);
   if (!manifestUrl) {
-    console.error('Could not determine manifest URL for:', firstObjectId);
-    return;
+    console.error('Could not determine manifest URL for:', objectId);
+    return null;
   }
 
-  console.log('Initializing UniversalViewer with:', manifestUrl);
-
-  // Initialize UniversalViewer
-  var urlAdaptor = new UV.IIIFURLAdaptor();
+  // Initialize UV in this card
+  const urlAdaptor = new UV.IIIFURLAdaptor();
   const data = urlAdaptor.getInitialData({
     manifest: manifestUrl,
     embedded: true
   });
 
-  uvInstance = UV.init('viewer-container', data);
+  const uvInstance = UV.init(viewerId, data);
   urlAdaptor.bindTo(uvInstance);
 
-  // Listen for UV events to access OpenSeadragon
+  // Track the card with pending position
+  const viewerCard = {
+    objectId,
+    element: cardElement,
+    uvInstance,
+    osdViewer: null,
+    isReady: false,
+    pendingZoom: (!isNaN(x) && !isNaN(y) && !isNaN(zoom)) ? { x, y, zoom, snap: true } : null,
+    zIndex
+  };
+
+  // Listen for UV initialization
   uvInstance.on('created', function() {
-    // Wait for OpenSeadragon to be fully initialized
     setTimeout(function() {
       if (uvInstance._assignedContentHandler) {
-        // Try to get viewer directly
+        let newViewer = null;
+
+        // Try direct viewer access FIRST (this path works reliably)
         if (uvInstance._assignedContentHandler.viewer) {
-          osdViewer = uvInstance._assignedContentHandler.viewer;
-          isViewerReady = true;
-
-          // Execute any pending zoom operation
-          if (pendingZoom) {
-            animateToPosition(pendingZoom.x, pendingZoom.y, pendingZoom.zoom);
-            pendingZoom = null;
-          }
-        } else if (uvInstance._assignedContentHandler.extension) {
-          // Get viewer through extension
+          newViewer = uvInstance._assignedContentHandler.viewer;
+          console.log(`Got viewer via direct access for ${objectId}`);
+        }
+        // Fallback to extension path
+        else if (uvInstance._assignedContentHandler.extension) {
           const ext = uvInstance._assignedContentHandler.extension;
-
           if (ext.centerPanel && ext.centerPanel.viewer) {
-            osdViewer = ext.centerPanel.viewer;
-            isViewerReady = true;
+            newViewer = ext.centerPanel.viewer;
+            console.log(`Got viewer via extension path for ${objectId}`);
+          }
+        }
 
-            if (pendingZoom) {
-              animateToPosition(pendingZoom.x, pendingZoom.y, pendingZoom.zoom);
-              pendingZoom = null;
+        if (newViewer) {
+          viewerCard.osdViewer = newViewer;
+          viewerCard.isReady = true;
+          console.log(`Viewer card for ${objectId} is ready`);
+
+          // Hide UV controls via JavaScript
+          setTimeout(() => {
+            const leftPanel = cardElement.querySelector('.leftPanel');
+            if (leftPanel) {
+              leftPanel.style.display = 'none';
+              leftPanel.style.visibility = 'hidden';
             }
+          }, 100);
+
+          // Execute pending position snap if any
+          if (viewerCard.pendingZoom) {
+            if (viewerCard.pendingZoom.snap) {
+              // Snap immediately (for new object load)
+              snapViewerToPosition(viewerCard, viewerCard.pendingZoom.x, viewerCard.pendingZoom.y, viewerCard.pendingZoom.zoom);
+            } else {
+              // Animate smoothly (for same object)
+              animateViewerToPosition(viewerCard, viewerCard.pendingZoom.x, viewerCard.pendingZoom.y, viewerCard.pendingZoom.zoom);
+            }
+            viewerCard.pendingZoom = null;
           }
         }
       }
-    }, 3000);
+    }, 2000);
   });
+
+  viewerCards.push(viewerCard);
+  viewerCardCounter++;
+
+  // Cleanup old viewers if we exceed maximum
+  if (viewerCards.length > MAX_VIEWER_CARDS) {
+    const oldest = viewerCards.shift();
+    destroyViewerCard(oldest);
+  }
+
+  return viewerCard;
+}
+
+/**
+ * Get existing viewer card or create new one
+ */
+function getOrCreateViewerCard(objectId, zIndex, x, y, zoom) {
+  // Debug: log current state
+  console.log(`getOrCreateViewerCard called for ${objectId}`);
+  console.log(`Current viewerCards: ${viewerCards.map(vc => vc.objectId).join(', ')}`);
+
+  // Check if we already have a viewer for this object
+  const existing = viewerCards.find(vc => vc.objectId === objectId);
+
+  if (existing) {
+    console.log(`Reusing existing viewer card for ${objectId}`);
+    // Update z-index if needed
+    existing.element.style.zIndex = zIndex;
+    existing.zIndex = zIndex;
+
+    // For existing viewers, just snap to new position immediately
+    if (!isNaN(x) && !isNaN(y) && !isNaN(zoom)) {
+      if (existing.isReady) {
+        snapViewerToPosition(existing, x, y, zoom);
+      } else {
+        existing.pendingZoom = { x, y, zoom, snap: true };
+      }
+    }
+
+    return existing;
+  }
+
+  // Create new viewer card
+  console.log(`Creating new viewer card for ${objectId}`);
+  return createViewerCard(objectId, zIndex, x, y, zoom);
+}
+
+/**
+ * Destroy a viewer card and clean up resources
+ */
+function destroyViewerCard(viewerCard) {
+  console.log(`Destroying viewer card for ${viewerCard.objectId}`);
+
+  // Remove from DOM
+  if (viewerCard.element && viewerCard.element.parentNode) {
+    viewerCard.element.parentNode.removeChild(viewerCard.element);
+  }
+
+  // TODO: Properly dispose UV instance if API provides method
+  // For now, just remove reference
+  viewerCard.uvInstance = null;
+  viewerCard.osdViewer = null;
 }
 
 /**
@@ -167,9 +292,9 @@ function initializeScrollama() {
  */
 function handleStepEnter(response) {
   const step = response.element;
-  const stepNumber = step.dataset.step;
+  const stepNumber = parseInt(step.dataset.step);
 
-  // Add active class
+  // Add active class for border highlight
   step.classList.add('is-active');
 
   // Get step data
@@ -179,25 +304,36 @@ function handleStepEnter(response) {
   const zoom = parseFloat(step.dataset.zoom);
   const region = step.dataset.region;
 
-
-  // Check if we need to switch objects
+  // Check if we need to switch objects or just pan/zoom current object
   if (objectId && objectId !== currentObject) {
-    switchObject(objectId);
-  }
-
-  // Animate to new position
-  if (!isNaN(x) && !isNaN(y) && !isNaN(zoom)) {
-    if (isViewerReady) {
-      // Viewer is ready, animate immediately
-      setTimeout(() => animateToPosition(x, y, zoom), 100);
-    } else {
-      // Queue the zoom operation for when viewer is ready
-      pendingZoom = { x, y, zoom };
-    }
-  } else if (region) {
-    // If region is specified instead of x/y/zoom
-    if (isViewerReady) {
-      setTimeout(() => animateToRegion(region), 300);
+    // Switching to different object - pass target position for off-screen snap
+    switchToObject(objectId, stepNumber, x, y, zoom);
+    currentObject = objectId;
+  } else {
+    // Same object - smooth animate to new position
+    if (currentViewerCard && !isNaN(x) && !isNaN(y) && !isNaN(zoom)) {
+      console.log(`Same object animation: x=${x}, y=${y}, zoom=${zoom}, isReady=${currentViewerCard.isReady}`);
+      if (currentViewerCard.isReady) {
+        animateViewerToPosition(currentViewerCard, x, y, zoom);
+      } else {
+        console.warn('Viewer not ready, queueing zoom');
+        // Queue the zoom operation for when viewer is ready
+        currentViewerCard.pendingZoom = { x, y, zoom, snap: false };
+        // Set up a watcher to process when ready
+        const checkReady = setInterval(() => {
+          if (currentViewerCard.isReady) {
+            clearInterval(checkReady);
+            if (currentViewerCard.pendingZoom && !currentViewerCard.pendingZoom.snap) {
+              animateViewerToPosition(currentViewerCard, currentViewerCard.pendingZoom.x, currentViewerCard.pendingZoom.y, currentViewerCard.pendingZoom.zoom);
+              currentViewerCard.pendingZoom = null;
+            }
+          }
+        }, 100);
+      }
+    } else if (currentViewerCard && region) {
+      if (currentViewerCard.isReady) {
+        setTimeout(() => animateViewerToRegion(currentViewerCard, region), 300);
+      }
     }
   }
 
@@ -214,69 +350,68 @@ function handleStepExit(response) {
 }
 
 /**
- * Switch to a different IIIF object
+ * Switch to a different IIIF object using viewer cards
  */
-function switchObject(objectId) {
-  if (!uvInstance) return;
+function switchToObject(objectId, stepNumber, x, y, zoom) {
+  console.log(`Switching to object: ${objectId} at step ${stepNumber} with position x=${x}, y=${y}, zoom=${zoom}`);
 
-  const manifestUrl = getManifestUrl(objectId);
+  // Get or create viewer card for this object
+  const newViewerCard = getOrCreateViewerCard(objectId, stepNumber, x, y, zoom);
 
-  console.log('Switching to object:', objectId, 'manifest:', manifestUrl);
+  // Wait for viewer to be ready and positioned before sliding up
+  const startTime = Date.now();
+  const MAX_WAIT_TIME = 5000; // 5 seconds max
 
-  // Mark viewer as not ready while switching
-  isViewerReady = false;
+  const slideUpWhenReady = () => {
+    const elapsed = Date.now() - startTime;
 
-  // Update UV with new manifest
-  var urlAdaptor = new UV.IIIFURLAdaptor();
-  const data = urlAdaptor.getInitialData({
-    manifest: manifestUrl,
-    embedded: true
-  });
+    if (newViewerCard.isReady) {
+      console.log(`Viewer ready, sliding up card for ${objectId}`);
+      // Slide up the new viewer card
+      newViewerCard.element.classList.remove('card-below');
+      newViewerCard.element.classList.add('card-active');
 
-  // Reload UV with new manifest
-  uvInstance.set(data);
-  currentObject = objectId;
+      // Keep old viewer card underneath (don't slide it away)
+      if (currentViewerCard && currentViewerCard !== newViewerCard) {
+        currentViewerCard.element.classList.remove('card-active');
+        // It stays at translateY(0), covered by higher z-index
+      }
 
-  // Set up a function to check for viewer readiness
-  const checkViewerReady = () => {
-    const extension = uvInstance.extension;
-    if (extension && extension.centerPanel && extension.centerPanel.viewer) {
-      const newViewer = extension.centerPanel.viewer;
-
-      // Set up a one-time 'open' event listener for when the image is fully loaded
-      newViewer.world.addOnceHandler('add-item', function() {
-        // Wait a brief moment for the image to be fully rendered
-        setTimeout(() => {
-          osdViewer = newViewer;
-          isViewerReady = true;
-          console.log('OpenSeadragon viewer updated and image loaded');
-
-          // Execute any pending zoom operation
-          if (pendingZoom) {
-            animateToPosition(pendingZoom.x, pendingZoom.y, pendingZoom.zoom);
-            pendingZoom = null;
-          }
-        }, 100);
-      });
+      // Update current viewer card reference
+      currentViewerCard = newViewerCard;
+    } else if (elapsed < MAX_WAIT_TIME) {
+      console.log(`Viewer not ready yet, waiting... (${elapsed}ms elapsed)`);
+      setTimeout(slideUpWhenReady, 100);
     } else {
-      // Viewer not ready yet, check again
-      setTimeout(checkViewerReady, 100);
+      console.warn(`Viewer for ${objectId} failed to load after 5 seconds, sliding up anyway`);
+      // Slide up anyway to prevent black screen
+      newViewerCard.element.classList.remove('card-below');
+      newViewerCard.element.classList.add('card-active');
+
+      if (currentViewerCard && currentViewerCard !== newViewerCard) {
+        currentViewerCard.element.classList.remove('card-active');
+      }
+
+      currentViewerCard = newViewerCard;
     }
   };
 
-  // Start checking for viewer readiness
-  checkViewerReady();
+  // Start checking if ready
+  slideUpWhenReady();
 }
 
 /**
- * Animate viewer to specific position using OpenSeadragon directly
+ * Animate a viewer card to specific position using OpenSeadragon
  */
-function animateToPosition(x, y, zoom) {
-  if (!osdViewer) {
-    console.warn('OpenSeadragon viewer not ready');
+function animateViewerToPosition(viewerCard, x, y, zoom) {
+  if (!viewerCard || !viewerCard.osdViewer) {
+    console.warn('Viewer card or OpenSeadragon viewer not ready for animation');
     return;
   }
 
+  console.log(`Animating viewer to position: x=${x}, y=${y}, zoom=${zoom} over 36 seconds`);
+
+  const osdViewer = viewerCard.osdViewer;
   const viewport = osdViewer.viewport;
 
   // Get home zoom for reference
@@ -296,8 +431,9 @@ function animateToPosition(x, y, zoom) {
   // Our zoom values (1, 2.5, 3, etc.) are relative to home zoom
   const actualZoom = homeZoom * zoom;
 
+  console.log(`OSD coordinates - point: ${point.x}, ${point.y}, zoom: ${actualZoom}, homeZoom: ${homeZoom}`);
+
   // Configure OpenSeadragon viewer for smooth animations
-  // These settings control the physics of the animation
   osdViewer.gestureSettingsMouse.clickToZoom = false;
   osdViewer.gestureSettingsTouch.clickToZoom = false;
 
@@ -305,12 +441,14 @@ function animateToPosition(x, y, zoom) {
   const originalAnimationTime = osdViewer.animationTime;
   const originalSpringStiffness = osdViewer.springStiffness;
 
-  osdViewer.animationTime = 36.0;  // Seconds for animation - extremely slow, cinematic (3x slower)
-  osdViewer.springStiffness = 0.8;  // Lower = smoother, less bouncy (very fluid)
+  osdViewer.animationTime = 36.0;  // Seconds for animation - extremely slow, cinematic
+  osdViewer.springStiffness = 0.8;  // Lower = smoother, less bouncy
+
+  console.log(`Set animation time to ${osdViewer.animationTime}s, spring stiffness to ${osdViewer.springStiffness}`);
 
   // Use viewport methods with immediate flag set to false for smooth animation
-  viewport.panTo(point, false);  // false = don't snap immediately
-  viewport.zoomTo(actualZoom, point, false);  // false = animate smoothly
+  viewport.panTo(point, false);
+  viewport.zoomTo(actualZoom, point, false);
 
   // Reset after animation
   setTimeout(() => {
@@ -320,12 +458,46 @@ function animateToPosition(x, y, zoom) {
 }
 
 /**
- * Animate viewer to named region using OpenSeadragon
+ * Snap viewer to position immediately (no animation) - for initial load
+ */
+function snapViewerToPosition(viewerCard, x, y, zoom) {
+  if (!viewerCard || !viewerCard.osdViewer) {
+    console.warn('Viewer card or OpenSeadragon viewer not ready for snap');
+    return;
+  }
+
+  const osdViewer = viewerCard.osdViewer;
+  const viewport = osdViewer.viewport;
+
+  // Get home zoom for reference
+  const homeZoom = viewport.getHomeZoom();
+
+  // Get image aspect ratio
+  const imageBounds = viewport.getHomeBounds();
+
+  // Calculate point
+  const point = {
+    x: imageBounds.x + (x * imageBounds.width),
+    y: imageBounds.y + (y * imageBounds.height)
+  };
+
+  // Calculate zoom
+  const actualZoom = homeZoom * zoom;
+
+  console.log(`Snapping to position immediately: x=${x}, y=${y}, zoom=${zoom}`);
+
+  // Use immediate flag (true) to snap instantly
+  viewport.panTo(point, true);
+  viewport.zoomTo(actualZoom, point, true);
+}
+
+/**
+ * Animate viewer card to named region using OpenSeadragon
  * Region format: "x,y,width,height" (normalized 0-1 coordinates)
  */
-function animateToRegion(region) {
-  if (!osdViewer) {
-    console.warn('OpenSeadragon viewer not ready');
+function animateViewerToRegion(viewerCard, region) {
+  if (!viewerCard || !viewerCard.osdViewer) {
+    console.warn('Viewer card or OpenSeadragon viewer not ready');
     return;
   }
 
@@ -338,10 +510,9 @@ function animateToRegion(region) {
   }
 
   const [x, y, width, height] = parts;
-  // Use a simple object instead of OpenSeadragon.Rect
   const rect = { x: x, y: y, width: width, height: height };
 
-  osdViewer.viewport.fitBounds(rect, true);
+  viewerCard.osdViewer.viewport.fitBounds(rect, true);
 }
 
 /**
@@ -629,12 +800,14 @@ function closeAllPanels() {
 
 // Export for debugging
 window.TelarStory = {
-  uvInstance,
-  osdViewer,
+  viewerCards,
+  currentViewerCard,
   scroller,
-  switchObject,
-  animateToPosition,
+  switchToObject,
+  animateViewerToPosition,
   openPanel,
   getManifestUrl,
-  closeAllPanels
+  closeAllPanels,
+  createViewerCard,
+  getOrCreateViewerCard
 };
