@@ -1,11 +1,11 @@
 # Telar User Documentation
 
-**Version:** 0.1.0-beta | **Release Date:** October 14, 2025
+**Version:** 0.2.0-beta | **Release Date:** October 20, 2025
 
 Complete guide to creating digital storytelling exhibitions with Telar.
 
 > **⚠️ Beta Release Note**
-> This documentation covers v0.1.0-beta which uses CSV files for content management. Google Sheets integration is planned for v0.2.
+> This documentation covers v0.2.0-beta which uses CSV files for content management. Google Sheets integration is planned for a future release.
 
 ## Table of Contents
 

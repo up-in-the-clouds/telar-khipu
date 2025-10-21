@@ -1,12 +1,12 @@
 # Google Sheets Template for Telar
 
 > **🚧 FUTURE FEATURE - NOT YET IMPLEMENTED**
-> This documentation is preserved for the **v0.2 release** when Google Sheets integration will be available.
-> **For v0.1.0-beta:** Use CSV files in `components/structures/` instead. See [DOCS.md](DOCS.md) for current workflow.
+> This documentation is preserved for the **v0.3 release** when Google Sheets integration will be available.
+> **For v0.2.0-beta:** Use CSV files in `components/structures/` instead. See [DOCS.md](DOCS.md) for current workflow.
 
 ---
 
-This document describes the structure of the Google Sheets template that will be used for Telar exhibitions in v0.2.
+This document describes the structure of the Google Sheets template that will be used for Telar exhibitions in v0.3.
 
 ## Template Structure
 

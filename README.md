@@ -1,11 +1,11 @@
 # Telar
 
-![Version](https://img.shields.io/badge/version-0.1.1--beta-orange) ![License](https://img.shields.io/badge/license-MIT-blue)
+![Version](https://img.shields.io/badge/version-0.2.0--beta-orange) ![License](https://img.shields.io/badge/license-MIT-blue)
 
 A minimal computing framework for creating digital storytelling exhibitions with IIIF images and scrollytelling narratives.
 
-> **⚠️ Beta Release - v0.1.1**
-> This is a beta release for testing. The current workflow uses CSV files and markdown for content editing. Google Sheets integration is planned for v0.2.
+> **⚠️ Beta Release - v0.2.0-beta**
+> This release introduces multi-object story support with improved scrolling. The current workflow uses CSV files and markdown for content editing. Google Sheets integration is planned for a future release.
 
 ## Overview
 
@@ -46,14 +46,24 @@ Once you're ready, choose one of the two workflows below based on your needs and
 #### Initial Setup
 
 1. **Use this template** - Click the green "Use this template" button above to create your own copy
-2. **Enable GitHub Pages**:
+2. **Configure site settings**:
+   - Navigate to `_config.yml` in your repository
+   - Click the pencil icon to edit
+   - Update these settings:
+     - `title`: Your exhibition name
+     - `description`: A brief description of your exhibition
+     - `baseurl`: `"/your-repository-name"` (include the quotes)
+     - `url`: `"https://your-username.github.io"` (include the quotes)
+     - `author` and `email` (optional)
+   - Commit changes
+3. **Enable GitHub Pages**:
    - Go to your new repository
    - Click **Settings** tab
    - Click **Pages** in left sidebar
    - Under "Source", select **GitHub Actions**
    - Click **Save**
-3. **Wait 2-5 minutes** for the initial build to complete
-4. **View your site** at `https://[your-username].github.io/[repository-name]/`
+4. **Wait 2-5 minutes** for the initial build to complete
+5. **View your site** at `https://[your-username].github.io/[repository-name]/`
 
 #### Step 1: Gather Your Images
 
@@ -212,6 +222,15 @@ bundle install
 # Install Python dependencies (for IIIF generation)
 pip install -r requirements.txt
 ```
+
+**Configure your site settings:**
+
+Edit `_config.yml` and update:
+- `title`: Your exhibition name
+- `description`: A brief description of your exhibition
+- `baseurl`: `"/your-repository-name"` for GitHub Pages, or `""` for root domain
+- `url`: Your site URL (e.g., `"https://your-username.github.io"`)
+- `author` and `email` (optional)
 
 #### Core Commands
 
@@ -642,11 +661,10 @@ For issues, questions, or contributions:
 
 ## Roadmap
 
-### Planned for v0.2
-- [ ] **Google Sheets integration**: Edit content via web interface without CSV files
-- [ ] **Improved documentation**: Video tutorials and examples
-
 ### Future Features
+
+- [ ] **Google Sheets integration (v0.3)**: Edit content via web interface without CSV files
+- [ ] **Improved documentation**: Video tutorials and examples
 - [ ] **Theme system**: Customizable color schemes, typography, and layout options via project.csv configuration
 - [ ] **Visual story editor**: Point-and-click coordinate selection
 - [ ] **Annotation support**: Clickable markers on IIIF images that open panels with additional information (IIIF annotations)

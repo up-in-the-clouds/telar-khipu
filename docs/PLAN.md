@@ -62,7 +62,7 @@ Telar is developed by Adelaida Ávila, Juan Cobo Betancourt, Santiago Muñoz, an
 - **Image Viewer**: UniversalViewer 4.0 (with OpenSeadragon)
 - **Scrollytelling**: Custom discrete step-based card stacking system (enables multiple IIIF objects per story)
 - **CSS Framework**: Bootstrap 5
-- **Data Source**: CSV files (v0.1.0-beta), Google Sheets planned for v0.2
+- **Data Source**: CSV files (v0.2.0-beta), Google Sheets planned for future release
 - **Automation**: GitHub Actions
 - **Hosting**: GitHub Pages
 
@@ -556,9 +556,9 @@ CSS variables make customization straightforward.
 - [x] Coordinate identification tool
 - [x] Template repository setup
 
-### Planned for v0.2
+### Future Features
 
-**Google Sheets Integration:**
+**Google Sheets Integration (v0.3):**
 - [ ] Google Sheet template with 5+ tabs
 - [ ] GitHub Actions fetch from published sheets
 - [ ] Instructions tab with usage guide
@@ -569,7 +569,7 @@ CSS variables make customization straightforward.
 - [ ] Visual story editor (point-and-click coordinate selection)
 - [ ] Improved documentation (video tutorials, examples)
 
-### Future Features
+**Additional Planned Features:**
 
 **User Experience:**
 - [ ] Mobile-optimized responsive design
@@ -628,7 +628,7 @@ CSS variables make customization straightforward.
 
 ## Roadmap
 
-### v0.2 (Next Release)
+### v0.3 (Next Release)
 
 **Focus:** Web-based authoring with Google Sheets
 
@@ -640,7 +640,7 @@ CSS variables make customization straightforward.
 3. Visual coordinate selection tool
 4. Video tutorials and improved onboarding
 
-### v0.3 and Beyond
+### v0.4 and Beyond
 
 **Focus:** Enhanced accessibility and advanced features
 
