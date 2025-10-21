@@ -238,7 +238,7 @@ def load_object_metadata(object_id):
         print(f"  ⚠️  Could not load metadata: {e}")
     return {}
 
-def generate_iiif_tiles(source_dir='images/objects', output_dir='iiif/objects', base_url=None):
+def generate_iiif_tiles(source_dir='components/images/objects', output_dir='iiif/objects', base_url=None):
     """
     Generate IIIF tiles for all images in source directory
 
@@ -335,8 +335,8 @@ def main():
     )
     parser.add_argument(
         '--source-dir',
-        default='images/objects',
-        help='Source directory containing images (default: images/objects)'
+        default='components/images/objects',
+        help='Source directory containing images (default: components/images/objects)'
     )
     parser.add_argument(
         '--output-dir',
