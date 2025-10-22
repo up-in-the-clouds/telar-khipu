@@ -1,0 +1,206 @@
+---
+layout: default
+---
+
+<div class="container my-5">
+  <div class="row">
+    <div class="col-12">
+      <h1>{{ page.title }}</h1>
+    </div>
+    <div class="col-12">
+        <article class="page-content">
+          {{ content }}
+        </article>
+    </div>
+  </div>
+
+  {% if site.objects.size > 0 %}
+  <div class="collection-grid">
+    {% for object in site.objects %}
+    <a href="{{ object.url | relative_url }}" class="collection-item">
+      <div class="collection-item-image" {% if object.iiif_manifest %}data-iiif-manifest="{{ object.iiif_manifest }}"{% endif %}>
+        {% if object.thumbnail %}
+        {%- comment -%}Use explicit thumbnail if provided{%- endcomment -%}
+        <img src="{{ object.thumbnail | relative_url }}" alt="{{ object.title }}">
+        {% elsif object.iiif_manifest and object.iiif_manifest contains 'info.json' %}
+        {%- comment -%}For IIIF Image API, use standard thumbnail pattern{%- endcomment -%}
+        <img src="{{ object.iiif_manifest | replace: 'info.json', 'full/!400,400/0/default.jpg' }}" alt="{{ object.title }}" class="iiif-thumbnail">
+        {% elsif object.iiif_manifest %}
+        {%- comment -%}For IIIF manifests, JavaScript will load thumbnail{%- endcomment -%}
+        <div class="manifest-thumbnail-placeholder bg-light d-flex align-items-center justify-content-center" style="height: 250px;">
+          <span class="text-muted">Loading...</span>
+        </div>
+        {% elsif object.object_id %}
+        {%- comment -%}For local objects, load thumbnail via info.json{%- endcomment -%}
+        <div class="local-iiif-thumbnail" data-info-json="{{ '/iiif/objects/' | append: object.object_id | append: '/info.json' | relative_url }}">
+          <div class="manifest-thumbnail-placeholder bg-light d-flex align-items-center justify-content-center" style="height: 250px;">
+            <span class="text-muted">Loading...</span>
+          </div>
+        </div>
+        {% else %}
+        <div class="placeholder-image bg-secondary d-flex align-items-center justify-content-center" style="height: 250px;">
+          <span class="text-white">No image</span>
+        </div>
+        {% endif %}
+      </div>
+      <h3>{{ object.title }}</h3>
+      {% if object.period %}
+      <p class="text-muted mb-0">{{ object.period }}</p>
+      {% endif %}
+      {% if object.creator %}
+      <p class="text-muted mb-0">{{ object.creator }}</p>
+      {% endif %}
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="row">
+    <div class="col-12">
+      <div class="alert alert-info">
+        <p class="mb-0">No objects in the collection yet. Add object files to the <code>_objects/</code> directory to populate the collection.</p>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+/**
+ * Load thumbnails from IIIF manifests and info.json
+ */
+document.addEventListener('DOMContentLoaded', function() {
+  // Handle local IIIF thumbnails from info.json
+  const localItems = document.querySelectorAll('.local-iiif-thumbnail[data-info-json]');
+  localItems.forEach(function(item) {
+    const infoUrl = item.getAttribute('data-info-json');
+
+    fetch(infoUrl)
+      .then(response => response.json())
+      .then(info => {
+        // Get the largest available size from sizes array (first element)
+        const sizes = info.sizes || [];
+        let thumbnailSize = sizes[0]; // Get largest size (first in array)
+
+        if (thumbnailSize) {
+          const baseUrl = info.id || info['@id'];
+          // Use base URL directly - it already points to the image service
+          const thumbnailUrl = `${baseUrl}/full/${thumbnailSize.width},/0/default.jpg`;
+
+          const img = document.createElement('img');
+          img.src = thumbnailUrl;
+          img.alt = item.closest('.collection-item').querySelector('h3').textContent;
+
+          const placeholder = item.querySelector('.manifest-thumbnail-placeholder');
+          if (placeholder) {
+            placeholder.replaceWith(img);
+          }
+        }
+      })
+      .catch(error => {
+        console.error('Error loading IIIF info.json:', infoUrl, error);
+        const placeholder = item.querySelector('.manifest-thumbnail-placeholder');
+        if (placeholder) {
+          placeholder.innerHTML = '<span class="text-danger">Failed to load</span>';
+        }
+      });
+  });
+
+  // Handle external IIIF manifest thumbnails
+  const items = document.querySelectorAll('.collection-item-image[data-iiif-manifest]');
+
+  items.forEach(function(item) {
+    const manifestUrl = item.getAttribute('data-iiif-manifest');
+
+    // Skip if it's an Image API info.json (handled in template)
+    if (manifestUrl.includes('info.json')) {
+      return;
+    }
+
+    // Fetch manifest to extract larger canvas image
+    fetch(manifestUrl)
+      .then(response => response.json())
+      .then(manifest => {
+        let imageServiceUrl = null;
+        let fallbackImageUrl = null;
+
+        // IIIF Presentation API 2.1
+        if (manifest.sequences && manifest.sequences[0] && manifest.sequences[0].canvases) {
+          const firstCanvas = manifest.sequences[0].canvases[0];
+          if (firstCanvas && firstCanvas.images && firstCanvas.images[0]) {
+            const resource = firstCanvas.images[0].resource;
+
+            // Try to get image service for resizing
+            if (resource.service) {
+              const service = Array.isArray(resource.service) ? resource.service[0] : resource.service;
+              imageServiceUrl = service['@id'] || service.id;
+            }
+
+            // Fallback to full image URL
+            if (!imageServiceUrl && resource['@id']) {
+              fallbackImageUrl = resource['@id'];
+            }
+          }
+        }
+        // IIIF Presentation API 3.0
+        else if (manifest.items && manifest.items[0]) {
+          const firstCanvas = manifest.items[0];
+          if (firstCanvas.items && firstCanvas.items[0] && firstCanvas.items[0].items) {
+            const annotationBody = firstCanvas.items[0].items[0].body;
+
+            // Try to get image service for resizing
+            if (annotationBody.service && annotationBody.service.length > 0) {
+              imageServiceUrl = annotationBody.service[0].id || annotationBody.service[0]['@id'];
+            }
+
+            // Fallback to full image URL
+            if (!imageServiceUrl && annotationBody.id) {
+              fallbackImageUrl = annotationBody.id;
+            }
+          }
+        }
+
+        let thumbnailUrl = null;
+
+        // If we have an image service, request a 400px thumbnail
+        if (imageServiceUrl) {
+          // Remove trailing slash if present
+          imageServiceUrl = imageServiceUrl.replace(/\/$/, '');
+          thumbnailUrl = `${imageServiceUrl}/full/!400,400/0/default.jpg`;
+        }
+        // Otherwise use fallback image (will be scaled by CSS)
+        else if (fallbackImageUrl) {
+          thumbnailUrl = fallbackImageUrl;
+        }
+
+        // If we found a thumbnail, replace placeholder
+        if (thumbnailUrl) {
+          const img = document.createElement('img');
+          img.src = thumbnailUrl;
+          img.alt = item.closest('.collection-item').querySelector('h3').textContent;
+          img.className = 'iiif-thumbnail';
+
+          // Replace placeholder
+          const placeholder = item.querySelector('.manifest-thumbnail-placeholder');
+          if (placeholder) {
+            placeholder.replaceWith(img);
+          }
+        } else {
+          console.warn('No image found in manifest:', manifestUrl);
+          // Show "no image" placeholder
+          const placeholder = item.querySelector('.manifest-thumbnail-placeholder');
+          if (placeholder) {
+            placeholder.innerHTML = '<span class="text-muted">No image</span>';
+          }
+        }
+      })
+      .catch(error => {
+        console.error('Error loading manifest thumbnail:', manifestUrl, error);
+        // Show error placeholder
+        const placeholder = item.querySelector('.manifest-thumbnail-placeholder');
+        if (placeholder) {
+          placeholder.innerHTML = '<span class="text-danger">Failed to load</span>';
+        }
+      });
+  });
+});
+</script>

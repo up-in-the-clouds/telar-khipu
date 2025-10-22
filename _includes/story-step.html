@@ -1,0 +1,49 @@
+<!--
+  Story Step Component
+  Used to render individual story steps with data attributes for Scrollama
+-->
+
+<div class="story-step"
+     data-step="{{ include.step_number }}"
+     data-object="{{ include.object_id }}"
+     data-x="{{ include.x }}"
+     data-y="{{ include.y }}"
+     data-zoom="{{ include.zoom }}"
+     data-region="{{ include.region }}"
+     style="z-index: {{ include.step_number }}">
+
+  <!-- Main content wrapper -->
+  <div class="step-content">
+    <!-- Question (Main Heading) -->
+    <h2 class="step-question">{{ include.question }}</h2>
+
+    <!-- Answer (Main Content) -->
+    <div class="step-answer">
+      {{ include.answer | markdownify }}
+
+      <!-- Layer 1 Panel Trigger -->
+      {% if (include.layer1_title and include.layer1_title != "") or (include.layer1_text and include.layer1_text != "") %}
+      <p>
+        <button class="panel-trigger" data-panel="layer1" data-step="{{ include.step_number }}">
+          {% if include.layer1button and include.layer1button != "" %}
+            {{ include.layer1button }}
+          {% else %}
+            Learn more
+          {% endif %} →
+        </button>
+      </p>
+      {% endif %}
+
+      <!-- Layer 2 Panel Trigger: Dynamically added by JavaScript inside layer1 panel -->
+    </div>
+  </div>
+
+  <!-- Return Home Button (only on last step) - positioned at bottom -->
+  {% if include.is_last %}
+  <div class="step-home-button">
+    <a href="{{ '/' | relative_url }}" class="btn-home">
+      Return to Home →
+    </a>
+  </div>
+  {% endif %}
+</div>

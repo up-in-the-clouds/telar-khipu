@@ -1,0 +1,51 @@
+---
+layout: default
+---
+
+<div class="container my-5">
+  <div class="row">
+    <div class="col-lg-8 mx-auto">
+      <a href="{{ '/glossary/' | relative_url }}" class="btn btn-sm btn-outline-secondary mb-3">
+        ← Back to Glossary
+      </a>
+
+      <h1>{{ page.title }}</h1>
+
+      <div class="glossary-content mt-4">
+        {{ content }}
+      </div>
+
+      <!-- Related Terms -->
+      {% if page.related_terms %}
+      <div class="related-terms mt-5 pt-4 border-top">
+        <h3>Related Terms</h3>
+        <ul class="list-unstyled">
+          {% for related_term_id in page.related_terms %}
+            {% assign related_term = site.glossary | where: "term_id", related_term_id | first %}
+            {% if related_term %}
+            <li class="mb-2">
+              <a href="{{ related_term.url | relative_url }}">{{ related_term.title }}</a>
+            </li>
+            {% endif %}
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      <!-- Appears in Chapters -->
+      {% assign appearances = site.chapters | where_exp: "chapter", "chapter.glossary_terms contains page.term_id" %}
+      {% if appearances.size > 0 %}
+      <div class="appears-in mt-5 pt-4 border-top">
+        <h3>Appears in</h3>
+        <ul class="list-unstyled">
+          {% for chapter in appearances %}
+          <li class="mb-2">
+            <a href="{{ chapter.url | relative_url }}">{{ chapter.chapter_number }}. {{ chapter.title }}</a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>

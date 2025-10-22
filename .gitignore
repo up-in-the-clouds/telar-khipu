@@ -1,0 +1,35 @@
+# Jekyll
+_site/
+.sass-cache/
+.jekyll-cache/
+.jekyll-metadata
+
+# Ruby
+*.gem
+.bundle
+vendor/
+
+# Node
+node_modules/
+package-lock.json
+
+# System
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment
+.env
+
+# Build artifacts
+*.log
+
+# IIIF Generated Tiles
+# TODO: Remove this when testing GitHub Actions workflow
+# Tiles should be tracked in production for optimization
+iiif/objects/

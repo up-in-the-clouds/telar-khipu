@@ -1,0 +1,84 @@
+<!--
+  Layered Panel System
+  Panels are dynamically populated from chapter data
+-->
+
+<!-- Layer 1 Panel (Primary - Full-width offcanvas) -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="panel-layer1" data-bs-backdrop="false">
+  <div class="offcanvas-header">
+    <button type="button" class="btn btn-sm btn-outline-secondary" id="panel-layer1-back">
+      ← Back
+    </button>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="px-3">
+    <h5 class="offcanvas-title" id="panel-layer1-title">Panel Title</h5>
+  </div>
+  <div class="offcanvas-body">
+    <div id="panel-layer1-content">
+      <!-- Content populated by JavaScript -->
+    </div>
+  </div>
+</div>
+
+<!-- Layer 2 Panel (Secondary - Stacked on top of Layer 1) -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="panel-layer2" data-bs-backdrop="false">
+  <div class="offcanvas-header">
+    <button type="button" class="btn btn-sm btn-outline-secondary" id="panel-layer2-back">
+      ← Back
+    </button>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="px-3">
+    <h5 class="offcanvas-title" id="panel-layer2-title">Panel Title</h5>
+  </div>
+  <div class="offcanvas-body">
+    <div id="panel-layer2-content">
+      <!-- Content populated by JavaScript -->
+    </div>
+  </div>
+</div>
+
+<!-- Glossary Panel (Can appear from anywhere) -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="panel-glossary" data-bs-backdrop="false">
+  <div class="offcanvas-header">
+    <button type="button" class="btn btn-sm btn-outline-secondary" id="panel-glossary-back" style="display: none;">
+      ← Back
+    </button>
+    <h5 class="offcanvas-title" id="panel-glossary-title">Glossary Term</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div id="panel-glossary-content">
+      <!-- Content populated by JavaScript -->
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Panel stacking - ensure proper z-index */
+  .offcanvas {
+    z-index: 1050;
+  }
+
+  #panel-layer2 {
+    z-index: 1060;
+  }
+
+  #panel-glossary {
+    z-index: 1070;
+  }
+
+  /* Panel content styling */
+  .offcanvas-body img {
+    max-width: 300px;
+    height: auto;
+    border-radius: 4px;
+    margin: 1rem 0;
+  }
+
+  .offcanvas-body p {
+    line-height: 1.8;
+    margin-bottom: 1rem;
+  }
+</style>

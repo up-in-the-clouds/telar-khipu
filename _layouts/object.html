@@ -1,0 +1,420 @@
+---
+layout: default
+---
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+<style>
+  /* Coordinator tools button styling */
+  .btn-developer {
+    background: #c8d8e8 !important;
+    color: #2c3e50 !important;
+    border: 1px solid #b0c8d8 !important;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+
+  .btn-developer:hover {
+    background: #2c3e50 !important;
+    color: #fff !important;
+    border-color: #2c3e50 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(44, 62, 80, 0.15);
+  }
+
+  .btn-developer i {
+    margin-right: 0.5rem;
+  }
+
+  /* Copy button styling */
+  .btn-copy {
+    background: #c8d8e8;
+    color: #2c3e50;
+    border: 1px solid #b0c8d8;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+
+  .btn-copy:hover {
+    background: #b0c8d8;
+    color: #2c3e50;
+    border-color: #98b8c8;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(44, 62, 80, 0.15);
+  }
+</style>
+
+<div class="container my-5">
+  <div class="row">
+    <div class="col-12">
+      <a href="{{ '/objects/' | relative_url }}" class="btn btn-sm btn-outline-secondary mb-3">
+        ← Back to Collection
+      </a>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Object Viewer -->
+    <div class="col-lg-8">
+      <div id="object-viewer" style="width: 100%; height: 600px; background: #000;"></div>
+
+      <!-- Coordinate Tools Button -->
+      {% if page.object_id %}
+      <div class="mt-3">
+        <div id="coordinateButton">
+          <button class="btn btn-developer btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#coordinatePanel" aria-expanded="false">
+            <i class="bi bi-search"></i> Identify coordinates
+          </button>
+        </div>
+
+        <!-- Collapsible Coordinate Panel -->
+        <div class="collapse" id="coordinatePanel">
+          <div class="card" style="background-color: #2c3e50; color: #c8d8e8; border-radius: 0; position: relative;">
+            <div class="card-body" style="padding-right: 3rem;">
+              <!-- Close Button -->
+              <button type="button" class="btn-close btn-close-white" data-bs-toggle="collapse" data-bs-target="#coordinatePanel" style="position: absolute; top: 0.5rem; right: 0.5rem;"></button>
+
+              <div class="row">
+                <!-- Instructions -->
+                <div class="col-md-7">
+                  <h6 style="color: #c8d8e8; font-weight: 600; margin-bottom: 1rem; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.875rem;">Instructions</h6>
+                  <p style="color: #c8d8e8; line-height: 1.6; margin-bottom: 0.5rem;">
+                    Use this panel to identify the coordinates of locations in an image for your story. Coordinates update as you pan/zoom the image above with your mouse by clicking, dragging, and scrolling. 
+                  </p>
+                  <p style="color: #c8d8e8; line-height: 1.6; margin-bottom: 0;">
+                    Once you identify a location make a note of the X, Y, and Zoom values, so you can include them in your structure spreadsheet. You can also press the buttons to the right to copy all three at once, or an entire row also including the image identifier.
+                  </p>
+                </div>
+
+                <!-- Current Coordinates Table and Buttons -->
+                <div class="col-md-5">
+                  <div style="padding-top: 2rem;">
+                    <div style="max-width: 280px; margin: 0 auto;">
+                      <dl class="row mb-4">
+                        <dt class="col-sm-6" style="color: #c8d8e8; text-align: right; display: flex; align-items: center; justify-content: flex-end; margin-bottom: 0.5rem;">X</dt>
+                        <dd class="col-sm-6" style="color: #c8d8e8; background-color: #1a252f; border: 1px solid #445566; padding: 0.25rem 0.5rem; border-radius: 4px; margin-bottom: 0.5rem; text-align: center;"><code id="coord-x" style="color: #c8d8e8;">0.500</code></dd>
+
+                        <dt class="col-sm-6" style="color: #c8d8e8; text-align: right; display: flex; align-items: center; justify-content: flex-end; margin-bottom: 0.5rem;">Y</dt>
+                        <dd class="col-sm-6" style="color: #c8d8e8; background-color: #1a252f; border: 1px solid #445566; padding: 0.25rem 0.5rem; border-radius: 4px; margin-bottom: 0.5rem; text-align: center;"><code id="coord-y" style="color: #c8d8e8;">0.500</code></dd>
+
+                        <dt class="col-sm-6" style="color: #c8d8e8; text-align: right; display: flex; align-items: center; justify-content: flex-end; margin-bottom: 0.5rem;">Zoom</dt>
+                        <dd class="col-sm-6" style="color: #c8d8e8; background-color: #1a252f; border: 1px solid #445566; padding: 0.25rem 0.5rem; border-radius: 4px; margin-bottom: 0.5rem; text-align: center;"><code id="coord-zoom" style="color: #c8d8e8;">1.0</code></dd>
+                      </dl>
+                    </div>
+
+                    <!-- Copy Buttons -->
+                    <div class="d-flex gap-2">
+                      <button class="btn btn-sm btn-copy" id="copy-coords" style="flex: 1;">
+                        <i class="bi bi-clipboard"></i> Copy x,y,zoom
+                      </button>
+                      <button class="btn btn-sm btn-copy" id="copy-csv" style="flex: 1;">
+                        <i class="bi bi-file-earmark-spreadsheet"></i> Copy entire row
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Object Metadata -->
+    <div class="col-lg-4">
+      <h1>{{ page.title }}</h1>
+
+      {% if page.description %}
+      <p class="lead">{{ page.description }}</p>
+      {% endif %}
+
+      <dl class="row mt-4">
+        {% if page.creator %}
+        <dt class="col-sm-4">Creator</dt>
+        <dd class="col-sm-8">{{ page.creator }}</dd>
+        {% endif %}
+
+        {% if page.period %}
+        <dt class="col-sm-4">Period</dt>
+        <dd class="col-sm-8">{{ page.period }}</dd>
+        {% endif %}
+
+        {% if page.medium %}
+        <dt class="col-sm-4">Medium</dt>
+        <dd class="col-sm-8">{{ page.medium }}</dd>
+        {% endif %}
+
+        {% if page.dimensions %}
+        <dt class="col-sm-4">Dimensions</dt>
+        <dd class="col-sm-8">{{ page.dimensions }}</dd>
+        {% endif %}
+
+        {% if page.location %}
+        <dt class="col-sm-4">Location</dt>
+        <dd class="col-sm-8">{{ page.location }}</dd>
+        {% endif %}
+
+        {% if page.credit %}
+        <dt class="col-sm-4">Credit</dt>
+        <dd class="col-sm-8">{{ page.credit }}</dd>
+        {% endif %}
+
+        {% if page.iiif_manifest %}
+        <dt class="col-sm-4">IIIF Manifest</dt>
+        <dd class="col-sm-8"><a href="{{ page.iiif_manifest }}" target="_blank" rel="noopener">View manifest</a></dd>
+        {% elsif page.object_id %}
+        <dt class="col-sm-4">IIIF Manifest</dt>
+        <dd class="col-sm-8"><a href="{{ '/iiif/objects/' | append: page.object_id | append: '/manifest.json' | relative_url }}" target="_blank" rel="noopener">View manifest</a></dd>
+        {% endif %}
+      </dl>
+
+      <!-- Long Description -->
+      {% if content %}
+      <div class="object-content mt-4 pt-4 border-top">
+        {{ content }}
+      </div>
+      {% endif %}
+
+      <!-- Related Stories -->
+      {% assign related_stories = site.stories | where_exp: "story", "story.objects contains page.object_id" %}
+      {% if related_stories.size > 0 %}
+      <div class="related-stories mt-4 pt-4 border-top">
+        <h3>Appears in Stories</h3>
+        <ul class="list-unstyled">
+          {% for story in related_stories %}
+          <li class="mb-2">
+            <a href="{{ story.url | relative_url }}">{{ story.story_number }}. {{ story.title }}</a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- UniversalViewer IIIF Viewer -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/universalviewer@4.0.0/dist/uv.css">
+<script src="https://cdn.jsdelivr.net/npm/universalviewer@4.0.0/dist/umd/UV.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    {% if page.iiif_manifest %}
+    const manifestUrl = '{{ page.iiif_manifest }}';
+    {% elsif page.object_id %}
+    const manifestUrl = '{{ site.baseurl }}/iiif/objects/{{ page.object_id }}/manifest.json';
+    {% else %}
+    console.error('No IIIF source specified');
+    return;
+    {% endif %}
+
+    console.log('Loading IIIF resource with UniversalViewer:', manifestUrl);
+
+    // Clear localStorage to prevent UV from restoring cached viewport state
+    try {
+      localStorage.removeItem('uv');
+      console.log('Cleared UV localStorage');
+    } catch (e) {
+      console.warn('Could not clear localStorage:', e);
+    }
+
+    // Clear URL hash to prevent UV from restoring previous viewport state
+    if (window.location.hash) {
+      console.log('Clearing URL hash to reset viewport');
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+
+    // Initialize UniversalViewer with IIIF manifest
+    // Use embedded: true to disable UV's state persistence
+    var urlAdaptor = new UV.IIIFURLAdaptor();
+    const data = urlAdaptor.getInitialData({
+      manifest: manifestUrl,
+      embedded: true  // true = disable state persistence in URL
+    });
+
+    var uv = UV.init('object-viewer', data);
+    // Don't bind urlAdaptor to prevent UV from updating URL with viewport state
+    // urlAdaptor.bindTo(uv);
+
+    // Store UV instance globally for coordinate tracking
+    window.uvInstance = uv;
+
+    // Set up coordinate tracking when UV is ready - use multiple attempts at different timings
+    uv.on('created', function() {
+      console.log('UV created event fired');
+
+      // Try immediately
+      setTimeout(function() {
+        console.log('First attempt to setup tracking (100ms)');
+        setupCoordinateTracking();
+      }, 100);
+
+      // Try again after 500ms
+      setTimeout(function() {
+        console.log('Second attempt to setup tracking (500ms)');
+        setupCoordinateTracking();
+      }, 500);
+
+      // And again after 2 seconds as fallback
+      setTimeout(function() {
+        console.log('Third attempt to setup tracking (2000ms)');
+        setupCoordinateTracking();
+      }, 2000);
+    });
+  });
+
+  // Coordinate tracking functionality
+  let osdViewer = null;
+  let updateInterval = null;
+
+  let trackingSetup = false;
+
+  function setupCoordinateTracking() {
+    // Try to access OpenSeadragon viewer from UniversalViewer
+    let viewer = null;
+    if (window.uvInstance && window.uvInstance._assignedContentHandler) {
+      if (window.uvInstance._assignedContentHandler.viewer) {
+        viewer = window.uvInstance._assignedContentHandler.viewer;
+      } else if (window.uvInstance._assignedContentHandler.extension) {
+        const ext = window.uvInstance._assignedContentHandler.extension;
+        if (ext.centerPanel && ext.centerPanel.viewer) {
+          viewer = ext.centerPanel.viewer;
+        }
+      }
+    }
+
+    if (!viewer) {
+      console.warn('Could not access OpenSeadragon viewer for coordinate tracking (viewer not ready yet)');
+      return;
+    }
+
+    // Store viewer reference globally
+    osdViewer = viewer;
+    console.log('Got OSD viewer reference, world items:', osdViewer.world.getItemCount());
+
+    // If no items loaded yet, we can set constraints before tiles load
+    if (osdViewer.world.getItemCount() === 0) {
+      console.log('No items loaded yet - setting up viewport for when image loads');
+
+      // Reset immediately when image opens
+      osdViewer.addHandler('open', function() {
+        console.log('OSD open event - forcing goHome()');
+        setTimeout(function() {
+          osdViewer.viewport.goHome(true);
+        }, 100);
+      });
+    } else {
+      // Items already loaded, force viewport to home
+      console.log('Items already loaded, forcing goHome()');
+      osdViewer.viewport.goHome(true);
+    }
+
+    // Set up event handlers only once
+    if (!trackingSetup) {
+      trackingSetup = true;
+      console.log('Setting up coordinate tracking event handlers');
+
+      // Listen for 'add-item' event to reset again after tiles load
+      osdViewer.world.addHandler('add-item', function() {
+        console.log('Image loaded (add-item event), resetting to home position');
+        setTimeout(function() {
+          osdViewer.viewport.goHome(true);
+        }, 50);
+      });
+
+      // Listen for 'open-failed' to catch any errors
+      osdViewer.addHandler('open-failed', function(event) {
+        console.error('OpenSeadragon open failed:', event);
+      });
+
+      // Add viewport change handlers
+      osdViewer.addHandler('animation', updateCoordinates);
+      osdViewer.addHandler('animation-finish', updateCoordinates);
+      osdViewer.addHandler('zoom', updateCoordinates);
+      osdViewer.addHandler('pan', updateCoordinates);
+
+      // Update periodically
+      updateInterval = setInterval(updateCoordinates, 500);
+
+      // Initial update
+      updateCoordinates();
+    }
+  }
+
+  function updateCoordinates() {
+    if (!osdViewer || !osdViewer.viewport) return;
+
+    try {
+      const viewport = osdViewer.viewport;
+      const center = viewport.getCenter();
+      const bounds = viewport.getHomeBounds();
+
+      // Convert to normalized 0-1 coordinates
+      const x = Math.max(0, Math.min(1, (center.x - bounds.x) / bounds.width));
+      const y = Math.max(0, Math.min(1, (center.y - bounds.y) / bounds.height));
+
+      // Get zoom relative to home zoom
+      const homeZoom = viewport.getHomeZoom();
+      const currentZoom = viewport.getZoom();
+      const zoom = Math.max(0.1, Math.min(10, currentZoom / homeZoom));
+
+      // Update display
+      document.getElementById('coord-x').textContent = x.toFixed(3);
+      document.getElementById('coord-y').textContent = y.toFixed(3);
+      document.getElementById('coord-zoom').textContent = zoom.toFixed(1);
+    } catch (error) {
+      console.error('Error updating coordinates:', error);
+    }
+  }
+
+  // Copy button functionality and panel visibility
+  document.addEventListener('DOMContentLoaded', function() {
+    // Hide/show button when panel opens/closes
+    const coordinatePanel = document.getElementById('coordinatePanel');
+    const coordinateButton = document.getElementById('coordinateButton');
+
+    if (coordinatePanel && coordinateButton) {
+      coordinatePanel.addEventListener('show.bs.collapse', function() {
+        coordinateButton.style.display = 'none';
+      });
+
+      coordinatePanel.addEventListener('hide.bs.collapse', function() {
+        coordinateButton.style.display = 'block';
+      });
+    }
+
+    document.getElementById('copy-coords').addEventListener('click', function() {
+      const x = document.getElementById('coord-x').textContent;
+      const y = document.getElementById('coord-y').textContent;
+      const zoom = document.getElementById('coord-zoom').textContent;
+      const text = `${x},${y},${zoom}`;
+
+      navigator.clipboard.writeText(text).then(function() {
+        const btn = document.getElementById('copy-coords');
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="bi bi-check-circle"></i> Copied!';
+        setTimeout(function() {
+          btn.innerHTML = originalHTML;
+        }, 2000);
+      });
+    });
+
+    document.getElementById('copy-csv').addEventListener('click', function() {
+      const objectId = '{{ page.object_id }}';
+      const x = document.getElementById('coord-x').textContent;
+      const y = document.getElementById('coord-y').textContent;
+      const zoom = document.getElementById('coord-zoom').textContent;
+      const text = `1,"Your question","Your answer","${objectId}",${x},${y},${zoom},"","","",""`;
+
+      navigator.clipboard.writeText(text).then(function() {
+        const btn = document.getElementById('copy-csv');
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="bi bi-check-circle"></i> Copied!';
+        setTimeout(function() {
+          btn.innerHTML = originalHTML;
+        }, 2000);
+      });
+    });
+  });
+</script>

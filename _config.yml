@@ -1,0 +1,91 @@
+# Telar - Digital Storytelling Framework
+# https://github.com/UCSB-AMPLab/telar
+
+# Site Settings
+title: Telar
+description: "Telar (Spanish for 'loom') is a static site generator built on Jekyll that weaves together IIIF images, text, and layered contextual information into interactive digital narrative exhibitions. Telar is developed by Adelaida Ávila, Juan Cobo Betancourt, Santiago Muñoz, and students and scholars at the UCSB and UT Archives, Memory, and Preservation Labs."
+baseurl: "/telar"
+url: "https://ampl.clair.ucsb.edu"
+author: ""
+email: ""
+
+# Build Settings
+markdown: kramdown
+permalink: pretty
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+  - .github
+  - README.md
+  - docs/
+  - scripts/
+
+# Collections Directory (all auto-generated collections in one place)
+collections_dir: _jekyll-files
+
+# Collections
+collections:
+  stories:
+    output: true
+    permalink: /stories/:name/
+  objects:
+    output: true
+    permalink: /objects/:name/
+  glossary:
+    output: true
+    permalink: /glossary/:name/
+
+# Tell Jekyll not to expect dates for these collections
+future: true
+show_drafts: false
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+      type: "stories"
+    values:
+      layout: "story"
+  - scope:
+      path: ""
+      type: "objects"
+    values:
+      layout: "object"
+  - scope:
+      path: ""
+      type: "glossary"
+    values:
+      layout: "glossary"
+
+# Telar Settings
+telar:
+  version: "0.2.0-beta"
+  release_date: "2025-10-20"
+  project_title: "" # Overridden by _data/project.json
+  tagline: ""
+  primary_color: "#2c3e50" # Paisajes Colonial default
+  secondary_color: "#8b4513"
+  font_headings: "Playfair Display"
+  font_body: "Source Sans Pro"
+  logo: "" # Path to logo image
+
+# OpenSeadragon Settings
+openseadragon:
+  prefixUrl: "/assets/images/openseadragon/"
+  minZoomLevel: 0
+  maxZoomLevel: 5
+  animationTime: 1.5
+  visibilityRatio: 1.0
+
+# Plugins
+plugins:
+  - jekyll-seo-tag
+
+# WEBrick server configuration for development (enables CORS for IIIF)
+webrick:
+  headers:
+    Access-Control-Allow-Origin: "*"
+    Access-Control-Allow-Methods: "GET, POST, OPTIONS"
+    Access-Control-Allow-Headers: "Content-Type"

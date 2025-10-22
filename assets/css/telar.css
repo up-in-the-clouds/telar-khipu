@@ -1,0 +1,837 @@
+/* Telar - Digital Storytelling Framework CSS */
+
+/* CSS Variables */
+:root {
+  --color-primary: #2c3e50;
+  --color-secondary: #8b4513;
+  --font-headings: 'Playfair Display', serif;
+  --font-body: 'Source Sans Pro', sans-serif;
+}
+
+/* Typography */
+body {
+  font-family: 'Source Sans Pro', sans-serif;
+  color: #333;
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', serif;
+  color: #2c3e50;
+}
+
+/* Navigation */
+.site-header .navbar-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  color: #2c3e50;
+}
+
+/* Footer */
+.site-footer {
+  border-top: 1px solid #dee2e6;
+}
+
+.footer-link {
+  color: #6c757d;
+  text-decoration: none;
+}
+
+.footer-link:hover {
+  color: #2c3e50;
+  text-decoration: underline;
+}
+
+/* Page Content */
+.page-content {
+  font-size: 1.25rem;
+  font-weight: 300;
+}
+
+.page-content h1 {
+  margin-bottom: 1.5rem;
+  font-weight: 400;
+}
+
+.page-content h2 {
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  font-weight: 400;
+}
+
+.page-content p {
+  margin-bottom: 1.5rem;
+}
+
+.page-content a {
+  color: #2c3e50;
+  text-decoration: underline;
+}
+
+.page-content a:hover {
+  color: #8b4513;
+}
+
+/* Story Layout - Split Screen with Card Stacking */
+.story-container {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.narrative-column {
+  flex: 0 0 40%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #fff;
+  position: relative;
+  scroll-snap-type: y proximity;
+  scroll-padding-top: 10vh;
+}
+
+.viewer-column {
+  flex: 1;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  background: #000;
+  overflow: hidden;
+}
+
+/* Viewer Card Stacking System */
+#viewer-cards-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.viewer-card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.4s ease-out, opacity 0.4s ease-out;
+}
+
+.card-below {
+  transform: translateY(100%);
+  opacity: 0;
+}
+
+.card-active {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Story Steps Container - Fixed height for absolute positioning */
+.story-steps {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Story Step - Absolute positioned cards that stack */
+.story-step {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  padding: 2rem;
+  background: #fff;
+  border-left: 3px solid transparent;
+  transform: translateY(100%);
+  opacity: 0;
+  transition:
+    border-color 0.3s ease,
+    opacity 0.4s ease-out,
+    transform 0.4s ease-out;
+
+  /* Flex layout for content and button */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Main content wrapper - centered vertically */
+.step-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Active state - slides up to visible position */
+.story-step.is-active {
+  border-left-color: #2c3e50;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Return Home Button - at bottom of last step */
+.step-home-button {
+  padding-top: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-top: 1px solid #e0e0e0;
+  width: 100%;
+}
+
+/* Intro Step - Full screen title card spanning both columns */
+.story-intro {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-left: none !important;
+  background: #f5f7fa;
+  transform: translateY(0) !important;
+  opacity: 1 !important;
+}
+
+.intro-content {
+  text-align: center;
+  max-width: 600px;
+  padding: 2rem;
+}
+
+.intro-title {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+  line-height: 1.2;
+}
+
+.intro-description {
+  font-size: 1.25rem;
+  color: #5a6c7d;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.intro-hint {
+  margin-top: 3rem;
+  opacity: 0.6;
+}
+
+.btn-home {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  text-decoration: none;
+  color: #5a6c7d;
+  padding: 0.5rem 1rem;
+  border: 1px solid #cbd5e0;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.8);
+  transition: all 0.3s ease;
+}
+
+.btn-home:hover {
+  background: white;
+  color: #2c3e50;
+  border-color: #2c3e50;
+}
+
+/* Outro Step - End card in narrative column only */
+.story-outro {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-left: none !important;
+  background: #f5f7fa;
+}
+
+.outro-content {
+  text-align: center;
+  max-width: 600px;
+  padding: 2rem;
+}
+
+.outro-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+}
+
+.outro-text {
+  font-size: 1.25rem;
+  margin-bottom: 2rem;
+  color: #5a6c7d;
+}
+
+.story-step h2 {
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
+}
+
+.story-step p {
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Panels - Colonial Landscapes Style */
+.panel-trigger {
+  display: inline-block;
+  padding: 0.5rem 1.25rem;
+  background: #E8DCC4;
+  color: #2c3e50;
+  text-decoration: none;
+  cursor: pointer;
+  font-weight: 600;
+  border-radius: 20px;
+  border: none;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.panel-trigger:hover {
+  background: #D4C5A8;
+  color: #1a252f;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Layer 1 Panel - Light blue background, wide coverage */
+#panel-layer1 {
+  width: 65% !important;
+  max-width: 900px;
+  background: #A8C5D4;
+}
+
+#panel-layer1 .offcanvas-header {
+  background: #A8C5D4;
+  border-bottom: none;
+  padding: 1.5rem 2rem;
+}
+
+#panel-layer1 .offcanvas-body {
+  background: #A8C5D4;
+  color: #2c3e50;
+  padding: 2rem;
+  font-size: 1.05rem;
+  line-height: 1.8;
+}
+
+#panel-layer1 .offcanvas-title {
+  color: #ffffff;
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: 400;
+}
+
+/* Layer 2 Panel - Dark purple background, narrower than layer1 */
+#panel-layer2 {
+  width: 55% !important;
+  max-width: 800px;
+  background: #3d2645;
+}
+
+#panel-layer2 .offcanvas-header {
+  background: #3d2645;
+  border-bottom: none;
+  padding: 1.5rem 2rem;
+}
+
+#panel-layer2 .offcanvas-body {
+  background: #3d2645;
+  color: #ffffff;
+  padding: 2rem;
+  font-size: 1.05rem;
+  line-height: 1.8;
+}
+
+#panel-layer2 .offcanvas-title {
+  color: #ffffff;
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: 400;
+}
+
+/* Panel buttons styling */
+#panel-layer1 .btn-close,
+#panel-layer2 .btn-close {
+  filter: brightness(0) invert(1);
+  opacity: 0.7;
+}
+
+#panel-layer1 .btn-close:hover,
+#panel-layer2 .btn-close:hover {
+  opacity: 1;
+}
+
+#panel-layer1-back,
+#panel-layer2-back {
+  background: rgba(255,255,255,0.2);
+  color: #ffffff;
+  border: 1px solid rgba(255,255,255,0.3);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+}
+
+#panel-layer1-back:hover,
+#panel-layer2-back:hover {
+  background: rgba(255,255,255,0.3);
+  color: #ffffff;
+}
+
+/* Glossary Panel - Cream/beige background */
+#panel-glossary {
+  width: 65% !important;
+  max-width: 900px;
+  background: #F5EDE1;
+}
+
+#panel-glossary .offcanvas-header {
+  background: #F5EDE1;
+  border-bottom: none;
+  padding: 1.5rem 2rem;
+}
+
+#panel-glossary .offcanvas-body {
+  background: #F5EDE1;
+  color: #5d4037;
+  padding: 2rem;
+  font-size: 1.05rem;
+  line-height: 1.8;
+}
+
+#panel-glossary .offcanvas-title {
+  color: #8b4513;
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: 400;
+}
+
+#panel-glossary .btn-close {
+  filter: none;
+  opacity: 0.7;
+}
+
+#panel-glossary .btn-close:hover {
+  opacity: 1;
+}
+
+#panel-glossary-back {
+  background: rgba(139,69,19,0.1);
+  color: #8b4513;
+  border: 1px solid rgba(139,69,19,0.2);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+}
+
+#panel-glossary-back:hover {
+  background: rgba(139,69,19,0.15);
+  color: #8b4513;
+}
+
+/* Viewer Containers */
+#viewer-container {
+  width: 100%;
+  height: 100%;
+}
+
+#object-viewer {
+  width: 100%;
+  height: 600px;
+}
+
+/* UniversalViewer - Clean Story Viewer Display */
+/* Hide all UV controls in story pages for clean presentation */
+.viewer-instance .headerPanel,
+.viewer-instance .footerPanel,
+.viewer-instance .leftPanel,
+.viewer-instance .rightPanel,
+.viewer-instance .mobilePanel,
+.viewer-instance .btn,
+.viewer-instance .download,
+.viewer-instance .share,
+.viewer-instance .embed,
+.viewer-instance .more,
+.viewer-instance .pagingToggle,
+.viewer-instance .searchButton,
+.viewer-instance .bookmark,
+.viewer-instance .zoomIn,
+.viewer-instance .zoomOut,
+.viewer-instance .goHome {
+  display: none !important;
+}
+
+/* Extra aggressive hiding for left panel thumbnails/color bars */
+.viewer-card .leftPanel,
+.viewer-card .thumbsView,
+.viewer-card .galleryView,
+.uv .leftPanel,
+.uv .thumbsView,
+.uv .galleryView {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  width: 0 !important;
+}
+
+/* Keep only the essential image viewing area */
+.viewer-instance .centerPanel {
+  top: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+}
+
+/* Remove UV branding, titles, and info overlays */
+.viewer-instance .informationBox,
+.viewer-instance .moreInfoButton,
+.viewer-instance .attribution,
+.viewer-instance .title,
+.viewer-instance .subtitle,
+.viewer-instance .titlePanel,
+.viewer-instance .metadata,
+.viewer-instance h1,
+.viewer-instance h2 {
+  display: none !important;
+}
+
+/* UniversalViewer - Clean Object Page Display */
+/* Hide all UV controls on object pages for clean presentation */
+#object-viewer .headerPanel,
+#object-viewer .footerPanel,
+#object-viewer .leftPanel,
+#object-viewer .rightPanel,
+#object-viewer .mobilePanel,
+#object-viewer .btn,
+#object-viewer .download,
+#object-viewer .share,
+#object-viewer .embed,
+#object-viewer .more,
+#object-viewer .pagingToggle,
+#object-viewer .searchButton,
+#object-viewer .bookmark,
+#object-viewer .zoomIn,
+#object-viewer .zoomOut,
+#object-viewer .goHome {
+  display: none !important;
+}
+
+/* Keep only the essential image viewing area */
+#object-viewer .centerPanel {
+  top: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+}
+
+/* Remove UV branding, titles, and info overlays */
+#object-viewer .informationBox,
+#object-viewer .moreInfoButton,
+#object-viewer .attribution,
+#object-viewer .title,
+#object-viewer .subtitle,
+#object-viewer .titlePanel,
+#object-viewer .metadata,
+#object-viewer h1,
+#object-viewer h2 {
+  display: none !important;
+}
+
+/* Story Cards - Paisajes Colonial Style */
+.story-card {
+  display: block;
+  color: inherit;
+  transition: transform 0.3s ease;
+}
+
+.story-card:hover {
+  transform: translateY(-5px);
+}
+
+.story-card .card {
+  transition: box-shadow 0.3s ease;
+}
+
+.story-card:hover .card {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15) !important;
+}
+
+.story-card .card-body {
+  text-align: left;
+}
+
+.story-card h3 {
+  font-family: 'Playfair Display', serif;
+  color: #2c3e50;
+  font-size: 1.2rem;
+  margin-top: 1rem;
+  font-weight: 400;
+}
+
+.story-thumbnail {
+  width: 100%;
+  border-radius: 0.25rem 0.25rem 0 0;
+}
+
+.story-thumbnail-placeholder {
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem;
+  font-weight: 700;
+  border-radius: 0.25rem 0.25rem 0 0;
+}
+
+/* Collection Gallery */
+.collection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 2rem;
+  padding: 2rem 0;
+}
+
+.collection-item {
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.3s ease;
+}
+
+.collection-item:hover {
+  transform: translateY(-5px);
+}
+
+.collection-item img {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.collection-item h3 {
+  font-size: 1.2rem;
+  margin-top: 1rem;
+}
+
+/* Glossary Index */
+.glossary-list {
+  padding: 2rem 0;
+}
+
+.glossary-letter {
+  margin-top: 3rem;
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+  color: #2c3e50;
+  border-bottom: 2px solid #2c3e50;
+  padding-bottom: 0.5rem;
+}
+
+.glossary-term {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border-left: 3px solid #8b4513;
+  background: #f8f9fa;
+}
+
+.glossary-term h3 {
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Global Button Styling - Rounded like panel-trigger buttons */
+.btn {
+  border-radius: 20px !important;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Footnotes Styling */
+/* Footnote reference links in text (superscript numbers) */
+.offcanvas-body a[href^="#_ftn"] {
+  font-size: 0.75em;
+  vertical-align: super;
+  line-height: 0;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0 0.15em;
+}
+
+/* Layer 1 (light blue) footnote references */
+#panel-layer1 .offcanvas-body a[href^="#_ftn"] {
+  color: #2c3e50;
+}
+
+#panel-layer1 .offcanvas-body a[href^="#_ftn"]:hover {
+  color: #1a252f;
+  text-decoration: underline;
+}
+
+/* Layer 2 (dark purple) footnote references */
+#panel-layer2 .offcanvas-body a[href^="#_ftn"] {
+  color: #A8C5D4;
+}
+
+#panel-layer2 .offcanvas-body a[href^="#_ftn"]:hover {
+  color: #C5DBE8;
+  text-decoration: underline;
+}
+
+/* Horizontal rule separator before footnotes */
+.offcanvas-body hr {
+  margin: 2.5rem 0 1.5rem 0;
+  border: 0;
+  border-top: 2px solid rgba(0,0,0,0.1);
+  opacity: 0.5;
+}
+
+#panel-layer2 .offcanvas-body hr {
+  border-top-color: rgba(255,255,255,0.2);
+}
+
+/* Footnote section styling */
+.offcanvas-body p:has(a[href^="#_ftnref"]) {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin-bottom: 0.75rem;
+  opacity: 0.9;
+}
+
+/* Footnote number at start of footnote */
+.offcanvas-body a[href^="#_ftnref"] {
+  font-size: 0.85em;
+  text-decoration: none;
+  font-weight: 600;
+  margin-right: 0.5em;
+}
+
+/* Layer 1 footnote numbers */
+#panel-layer1 .offcanvas-body a[href^="#_ftnref"] {
+  color: #5d4037;
+}
+
+#panel-layer1 .offcanvas-body a[href^="#_ftnref"]:hover {
+  color: #2c3e50;
+  text-decoration: underline;
+}
+
+/* Layer 2 footnote numbers */
+#panel-layer2 .offcanvas-body a[href^="#_ftnref"] {
+  color: #D4C5A8;
+}
+
+#panel-layer2 .offcanvas-body a[href^="#_ftnref"]:hover {
+  color: #E8DCC4;
+  text-decoration: underline;
+}
+
+/* Blockquote Styling */
+.offcanvas-body blockquote {
+  margin: 1.5rem 0;
+  padding: 1rem 1.5rem;
+  border-left: 4px solid;
+  font-style: italic;
+  position: relative;
+}
+
+/* Layer 1 (light blue) blockquotes */
+#panel-layer1 .offcanvas-body blockquote {
+  border-left-color: #2c3e50;
+  background: rgba(44, 62, 80, 0.05);
+  color: #2c3e50;
+}
+
+/* Layer 2 (dark purple) blockquotes */
+#panel-layer2 .offcanvas-body blockquote {
+  border-left-color: #A8C5D4;
+  background: rgba(168, 197, 212, 0.1);
+  color: #C5DBE8;
+}
+
+/* Blockquote paragraph spacing */
+.offcanvas-body blockquote p {
+  margin-bottom: 0;
+}
+
+.offcanvas-body blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+/* Panel Images */
+.offcanvas-body img {
+  max-width: 300px;
+  height: auto;
+  display: block;
+  margin: 1rem 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .story-container {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .narrative-column {
+    flex: 1;
+    order: 2;
+  }
+
+  .viewer-column {
+    flex: 1;
+    order: 1;
+    position: relative;
+    height: 60vh;
+    margin-bottom: 2rem;
+  }
+
+  .story-step {
+    min-height: 50vh;
+  }
+
+  .collection-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+  }
+
+  .collection-item img {
+    height: 150px;
+  }
+}
+
+/* Hide UniversalViewer UI controls for cleaner viewing */
+.uv .leftPanel,
+.uv .rightPanel,
+.uv .footerPanel .options,
+.uv .headerPanel .options,
+.uv .moreInfo,
+.uv .download,
+.uv .share,
+.uv .bookmark,
+.uv .toggle {
+  display: none !important;
+}
+
+/* Keep only essential navigation controls */
+.uv .footerPanel .zoom {
+  display: block;
+}

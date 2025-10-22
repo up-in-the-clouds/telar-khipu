@@ -1,0 +1,62 @@
+[
+  {
+    "step": 1,
+    "question": "Why was this map drawn?",
+    "answer": "This 1614 map was created as legal evidence in a land ownership dispute presented by the crown prosecutor against Francisco Maldonado y Mendoza.",
+    "object": "example-bogota-1614",
+    "x": "0.5",
+    "y": "0.5",
+    "zoom": "1.0",
+    "layer1_button": "",
+    "layer2_button": "",
+    "layer1_title": "Legal Evidence in Colonial Courts",
+    "layer1_text": "<p>Imperial officers were ordered to explore and document the territory to determine ownership. This legal painting served as evidence in colonial courts.</p>",
+    "layer2_title": "Francisco Maldonado y Mendoza",
+    "layer2_text": "<p>Born in Spain in 1551, Francisco Maldonado y Mendoza moved to Santa Fe de Bogotá in 1583. After marrying Jerónima de Orrego in 1586, he began purchasing estates in the Bogotá savannah. By the mid-1590s, he became encomendero of the Bogotá Indigenous community and owned one of the most prosperous cattle ranches in the New Kingdom of Granada.</p>"
+  },
+  {
+    "step": 2,
+    "question": "What does the map show?",
+    "answer": "The map depicts the Bogotá savannah, a high plateau in the northern Andes originally occupied by the Indigenous Muisca people.",
+    "object": "example-bogota-1614",
+    "x": "0.25",
+    "y": "0.35",
+    "zoom": "2.5",
+    "layer1_button": "",
+    "layer2_button": "",
+    "layer1_title": "",
+    "layer1_text": "",
+    "layer2_title": "",
+    "layer2_text": ""
+  },
+  {
+    "step": 3,
+    "question": "Is it a map or a painting?",
+    "answer": "This unique 'legal painting' functions as both map and landscape art, rare for being signed by its creator Juan de Aguilar Rendón.",
+    "object": "example-bogota-1614",
+    "x": "0.75",
+    "y": "0.3",
+    "zoom": "3.0",
+    "layer1_button": "",
+    "layer2_button": "",
+    "layer1_title": "Variable Scaling for Legal Purposes",
+    "layer1_text": "<p>Unlike contemporary precise maps, this painting uses flexible, variable scaling to emphasize certain territorial features for legal purposes.</p>",
+    "layer2_title": "Maps Across Cultures",
+    "layer2_text": "<p>Different societies create maps through various mediums. For example, the Kogi people use looms as geographical representations. Maps can be visual, oral, mental, or embodied in cultural artifacts—challenging European assumptions about cartographic representation.</p>"
+  },
+  {
+    "step": 4,
+    "question": "Who were the owners of this land?",
+    "answer": "The land belonged to Francisco Maldonado y Mendoza and became the center of the Marquisate of San Jorge.",
+    "object": "example-bogota-1614",
+    "x": "0.6",
+    "y": "0.7",
+    "zoom": "2.2",
+    "layer1_button": "",
+    "layer2_button": "",
+    "layer1_title": "The Marquisate of San Jorge",
+    "layer1_text": "<p>The territory was transformed into a 'mayorazgo' (entailed estate) that would be passed down to the eldest child, consolidating Spanish landownership.</p>",
+    "layer2_title": "",
+    "layer2_text": ""
+  }
+]

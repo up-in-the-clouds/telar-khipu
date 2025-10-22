@@ -1,0 +1,13 @@
+# Python dependencies for Telar
+# Used by GitHub Actions for data processing and IIIF generation
+
+# Data processing
+pandas>=2.0.0
+pyyaml>=6.0
+markdown>=3.0.0
+
+# IIIF tile generation
+iiif>=1.0.0
+
+# Image processing (required by iiif-static)
+Pillow>=10.0.0

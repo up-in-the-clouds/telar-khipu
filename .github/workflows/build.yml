@@ -1,0 +1,117 @@
+name: Build and Deploy Telar Site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:  # Allow manual trigger
+  schedule:
+    - cron: '0 0 * * *'  # Daily at midnight (optional, for auto-updates from Google Sheets)
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Google Sheets integration - commented out for now, using committed data files
+      # Uncomment and configure GOOGLE_SHEETS_URL secret when ready to use
+      # - name: Fetch data from Google Sheets
+      #   env:
+      #     GOOGLE_SHEETS_URL: ${{ secrets.GOOGLE_SHEETS_URL }}
+      #   if: ${{ env.GOOGLE_SHEETS_URL != '' }}
+      #   run: |
+      #     # Create data directory if it doesn't exist
+      #     mkdir -p _data
+      #
+      #     # Fetch Project Setup (tab 2)
+      #     curl -L "${GOOGLE_SHEETS_URL}&gid=PROJECT_SETUP_GID&output=csv" -o _data/project.csv
+      #
+      #     # Fetch Objects (tab 3)
+      #     curl -L "${GOOGLE_SHEETS_URL}&gid=OBJECTS_GID&output=csv" -o _data/objects.csv
+      #
+      #     # Fetch Glossary (tab 4)
+      #     curl -L "${GOOGLE_SHEETS_URL}&gid=GLOSSARY_GID&output=csv" -o _data/glossary.csv
+      #
+      #     # Fetch Chapter tabs (tab 5+)
+      #     # Note: You'll need to add GIDs for each chapter tab
+      #     # curl -L "${GOOGLE_SHEETS_URL}&gid=CHAPTER_1_GID&output=csv" -o _data/chapter-1.csv
+
+      - name: Convert CSV to JSON
+        run: |
+          python scripts/csv_to_json.py
+
+      - name: Generate Jekyll collections
+        run: |
+          python scripts/generate_collections.py
+
+      - name: Build Jekyll site
+        run: |
+          bundle exec jekyll build
+
+      - name: Generate IIIF tiles into _site
+        run: |
+          # Check if source images directory exists
+          if [ -d "components/images/objects" ]; then
+            # Extract URL and baseurl from _config.yml
+            SITE_URL=$(python3 -c "import yaml; config=yaml.safe_load(open('_config.yml')); print(config.get('url', ''))")
+            BASE_URL=$(python3 -c "import yaml; config=yaml.safe_load(open('_config.yml')); print(config.get('baseurl', ''))")
+            FULL_URL="${SITE_URL}${BASE_URL}"
+
+            echo "Generating IIIF tiles with base URL: $FULL_URL"
+
+            python scripts/generate_iiif.py \
+              --source-dir components/images/objects \
+              --output-dir _site/iiif/objects \
+              --base-url "$FULL_URL"
+          else
+            echo "No components/images/objects directory found. Skipping IIIF generation."
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Commit generated files
+        if: github.event_name != 'pull_request'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          # Only add files that exist
+          git add _data/*.json 2>/dev/null || true
+          git add _jekyll-files/ 2>/dev/null || true
+          git add iiif/ 2>/dev/null || true
+          # Only commit and push if there are changes
+          if ! git diff --quiet || ! git diff --staged --quiet; then
+            git commit -m "Update data and IIIF tiles"
+            git push
+          else
+            echo "No changes to commit"
+          fi

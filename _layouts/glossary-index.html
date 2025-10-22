@@ -1,0 +1,36 @@
+---
+layout: default
+---
+
+<div class="container my-5">
+  <div class="row">
+    <div class="col-lg-10 mx-auto">
+      <h1>{{ page.title }}</h1>
+      <article class="page-content">
+        {{ content }}
+      </article>
+      {% if site.glossary.size > 0 %}
+      <div class="glossary-list">
+        {% assign glossary_by_letter = site.glossary | group_by_exp: "item", "item.title | slice: 0 | upcase" | sort: "name" %}
+
+        {% for letter_group in glossary_by_letter %}
+        <h2 class="glossary-letter">{{ letter_group.name }}</h2>
+
+        {% assign sorted_terms = letter_group.items | sort: "title" %}
+        {% for term in sorted_terms %}
+        <div class="glossary-term">
+          <h3>
+            <a href="{{ term.url | relative_url }}">{{ term.title }}</a>
+          </h3>
+        </div>
+        {% endfor %}
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="alert alert-info">
+        <p class="mb-0">No glossary terms available yet. Add glossary files to the <code>_glossary/</code> directory to populate the glossary.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>

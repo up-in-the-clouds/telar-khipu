@@ -1,0 +1,31 @@
+[
+  {
+    "project_title": "Your Exhibition Title",
+    "tagline": "A brief description of your exhibition",
+    "author": "Your Name or Institution",
+    "email": "contact@example.com",
+    "primary_color": "#2c3e50",
+    "secondary_color": "#8b4513",
+    "font_headings": "Playfair Display, serif",
+    "font_body": "Source Sans Pro, sans-serif",
+    "logo": "/assets/images/site/logo.png",
+    "stories": [
+      {
+        "number": "1",
+        "title": "Example Telar Story"
+      },
+      {
+        "number": "2",
+        "title": "Showcase of Telar features"
+      },
+      {
+        "number": "3",
+        "title": "Chapter 3"
+      },
+      {
+        "number": "4",
+        "title": "Conclusion"
+      }
+    ]
+  }
+]
