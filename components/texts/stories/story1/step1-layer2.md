@@ -1,5 +1,5 @@
 ---
-title: Francisco Maldonado y Mendoza
+title: About this study
 ---
 
-Born in Spain in 1551, Francisco Maldonado y Mendoza moved to Santa Fe de Bogotá in 1583. After marrying Jerónima de Orrego in 1586, he began purchasing estates in the Bogotá savannah. By the mid-1590s, he became encomendero of the Bogotá Indigenous community and owned one of the most prosperous cattle ranches in the New Kingdom of Granada.
+Despite many years in the AD&A Museum's collection, the khipu had not formally been studied. In this project we undertook study of the khipu to learn its object history and try to understand when and how it may have been used - as well as inform others about its existence. We have shared our information with the Khipu Field Guide which maintains an open access database of studied khipus across the world.
