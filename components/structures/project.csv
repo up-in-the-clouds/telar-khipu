@@ -21,7 +21,7 @@ logo,/assets/images/site/logo.png
 # This section lists all stories in your exhibition. Used to generate story navigation.
 # Format: story_number,story_title
 STORIES,
-1,Andean Object Stories
+1,Example Telar Story
 2,Showcase of Telar features
 3,Chapter 3
 4,Conclusion
