@@ -10,4 +10,4 @@ Given its physical complexity, creating a 3D model of the khipu was a process of
 
 The scanning process itself was long and required numerous passes over the khipu due to the dense clustering of cords. One cord is packed with topographical information, which the scanner detects. The twists and turns of the spun cords and complex knots create innumerable peaks and valleys for the scanner to process. When these cords are viewed together, the amount of information that the scanner has to work with is enormous.
 
-![Khipu close up](/components/images/objects/img09.webp)
+![Khipu close up](/components/images/objects/img09.jpg)
