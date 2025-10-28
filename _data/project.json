@@ -1,5 +1,11 @@
 [
   {
-    "stories": []
+    "stories": [
+      {
+        "number": "1",
+        "title": "Andean Object Stories",
+        "subtitle": "An introduction to digital storytelling"
+      }
+    ]
   }
 ]
