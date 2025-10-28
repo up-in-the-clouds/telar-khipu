@@ -27,9 +27,9 @@ logo: "" # Path to logo image (optional)
 #    - If using GitHub Pages: GitHub Actions will automatically discover tab GIDs and fetch CSVs
 #    - If running locally: Run `python3 scripts/fetch_google_sheets.py` before building
 google_sheets:
-  enabled: false
-  shared_url: "https://docs.google.com/spreadsheets/d/18dJWy9wkLD7Muokigg4wp85c3Vsjuphdrn0g51pwkGY/edit"
-  published_url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vT9eeRoyQCr1j-1uDaWBm-rgZNXtn9A-mepL0I4dqDTx2-E_6gbVD-8x0DYDVhppiAzrFpd20_9cr3z/pubhtml"
+  enabled: true
+  shared_url: "https://docs.google.com/spreadsheets/d/1nOFRgHwzp2zEmAszYC7o3cT63At_gQBBACGLfJwFCwc/edit"
+  published_url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSMmpcjrRDV7pxg2Gzm6FL-7YAx1XYUV9DfIvz_7QmNq_acGmi9SqO0g6G3pDh_itcjp_v2y9Rus54s/pubhtml"
 
 #
 #
