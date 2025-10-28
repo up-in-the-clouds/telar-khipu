@@ -8,7 +8,7 @@ baseurl: "/telar-khipu"
 url: "https://up-in-the-clouds.github.io"
 author: ""
 email: ""
-telar_theme: "santa-barbara" # Options: paisajes, neogranadina, santa-barbara, austin, or custom
+telar_theme: "paisajes" # Options: paisajes, neogranadina, santa-barbara, austin, or custom
 logo: "" # Path to logo image (optional)
 
 # Google Sheets Integration (optional)
