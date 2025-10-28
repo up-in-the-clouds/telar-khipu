@@ -7,8 +7,10 @@ medium: "Oil on canvas, cartographic painting"
 dimensions: ""
 location: "Archivo General de Indias"
 credit: "Archivo General de Indias, Seville"
-thumbnail: 
-iiif_manifest: 
+thumbnail: ""
+iiif_manifest: ""
+object_warning: ""
+object_warning_short: "nan"
 layout: object
 ---
 

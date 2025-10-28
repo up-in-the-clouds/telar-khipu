@@ -8,17 +8,25 @@
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <!-- Google Fonts -->
+  <!-- Google Fonts - Dynamic based on theme -->
+  {% assign theme = site.data.themes[site.telar_theme] %}
+  {% assign heading_font = theme.fonts.headings | remove: "'" | split: ',' | first | strip %}
+  {% assign body_font = theme.fonts.body | remove: "'" | split: ',' | first | strip %}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Source+Sans+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family={{ heading_font | replace: ' ', '+' }}:wght@400;700&family={{ body_font | replace: ' ', '+' }}:wght@300;400;600;700&display=swap" rel="stylesheet">
 
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="{{ '/assets/css/telar.css' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/css/telar.css' | relative_url }}?v={{ site.telar.version }}">
 
   {% seo %}
 </head>
 <body class="story-page">
+  <!-- Fixed Back to Home Button -->
+  <a href="{{ '/' | relative_url }}" class="btn-home">
+    ← Back to Home
+  </a>
+
   <div class="story-container">
     <!-- Left Column: Card Stacking Narrative -->
     <div class="narrative-column">
@@ -27,40 +35,72 @@
         <!-- Intro Step - Full screen title card -->
         <div class="story-step story-intro" data-step="0" data-step-index="0">
           <div class="intro-content">
-            <h1 class="intro-title">{{ page.story_number }}. {{ page.title }}</h1>
+            <h1 class="intro-title">{{ page.story_number }}.</h1>
+            <h1 class="intro-title">{{ page.title }}</h1>
+            {% if page.subtitle %}
+            <h2 class="intro-subtitle">{{ page.subtitle }}</h2>
+            {% endif %}
             {% if page.description %}
             <p class="intro-description">{{ page.description }}</p>
             {% endif %}
+
+            {% if page.data_file %}
+              {% assign data_file_name = page.data_file %}
+              {% assign steps = site.data[data_file_name] %}
+              {% if steps.size > 0 and steps[0]._metadata %}
+                {% assign metadata = steps[0] %}
+                {% if metadata.viewer_warnings.size > 0 %}
+                  <div class="alert alert-warning mt-4" role="alert" style="max-width: 600px; text-align: left;">
+                    <strong>⚠️ Configuration Issues Detected</strong>
+                    <p class="mb-2 mt-2"><small>The following steps have content or configuration issues:</small></p>
+                    <ul class="mb-2" style="font-size: 0.9rem;">
+                    {% for warning in metadata.viewer_warnings %}
+                      <li>
+                        <strong>Step {{ warning.step }}</strong>
+                        {% if warning.type == 'viewer' %}
+                          image viewer: {{ warning.message | markdownify | remove: '<p>' | remove: '</p>' | strip }}
+                        {% elsif warning.type == 'panel' %}
+                          {{ warning.message | markdownify | remove: '<p>' | remove: '</p>' | strip }}
+                        {% endif %}
+                      </li>
+                    {% endfor %}
+                    </ul>
+                    <p class="mb-0"><small>You can still scroll to preview your story, but elements will not work as expected.</small></p>
+                  </div>
+                {% endif %}
+              {% endif %}
+            {% endif %}
+
             <div class="intro-hint">
               <p class="text-muted">
                 <small>Press ↓ or scroll to begin</small>
               </p>
             </div>
           </div>
-          <a href="{{ '/' | relative_url }}" class="btn-home">
-            ← Back to Home
-          </a>
         </div>
         {% if page.data_file %}
           {% assign data_file_name = page.data_file %}
           {% assign steps = site.data[data_file_name] %}
           {% for step in steps %}
-            {% include story-step.html
-              step_number=step.step
-              question=step.question
-              answer=step.answer
-              object_id=step.object
-              x=step.x
-              y=step.y
-              zoom=step.zoom
-              layer1button=step.layer1_button
-              layer1_title=step.layer1_title
-              layer1_text=step.layer1_text
-              layer2button=step.layer2_button
-              layer2_title=step.layer2_title
-              layer2_text=step.layer2_text
-              is_last=forloop.last
-            %}
+            {% unless step._metadata %}
+              {% include story-step.html
+                step_number=step.step
+                question=step.question
+                answer=step.answer
+                object_id=step.object
+                x=step.x
+                y=step.y
+                zoom=step.zoom
+                layer1button=step.layer1_button
+                layer1_title=step.layer1_title
+                layer1_text=step.layer1_text
+                layer2button=step.layer2_button
+                layer2_title=step.layer2_title
+                layer2_text=step.layer2_text
+                viewer_warning=step.viewer_warning
+                is_last=forloop.last
+              %}
+            {% endunless %}
           {% endfor %}
         {% else %}
           {{ content }}
@@ -68,28 +108,7 @@
       </div>
 
       <!-- Story Navigation -->
-      <div class="story-navigation mt-5 pt-4 border-top">
-        <div class="row">
-          {% if page.previous_story %}
-          <div class="col-6">
-            <a href="{{ page.previous_story | relative_url }}" class="btn btn-outline-primary">
-              ← Previous Story
-            </a>
-          </div>
-          {% endif %}
-
-          <div class="col-6 text-end">
-            {% if page.next_story %}
-            <a href="{{ page.next_story | relative_url }}" class="btn btn-primary">
-              Next Story →
-            </a>
-            {% else %}
-            <a href="{{ '/' | relative_url }}" class="btn btn-outline-primary">
-              Return Home
-            </a>
-            {% endif %}
-          </div>
-        </div>
+      <div class="story-navigation" style="padding-bottom: 2rem;">
       </div>
     </div>
 
@@ -122,9 +141,13 @@
     // Load steps from data file
     {% assign data_file_name = page.data_file %}
     {% assign steps_data = site.data[data_file_name] %}
+    {% assign first_step = steps_data[0] %}
+    {% if first_step._metadata %}
+      {% assign first_step = steps_data[1] %}
+    {% endif %}
     window.storyData = {
       steps: {{ steps_data | jsonify }},
-      firstObject: "{{ steps_data[0].object }}"
+      firstObject: "{{ first_step.object }}"
     };
     {% else %}
     window.storyData = {

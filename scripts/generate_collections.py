@@ -4,6 +4,7 @@ Generate Jekyll collection markdown files from JSON data
 """
 
 import json
+import shutil
 from pathlib import Path
 
 def generate_objects():
@@ -12,6 +13,12 @@ def generate_objects():
         objects = json.load(f)
 
     objects_dir = Path('_jekyll-files/_objects')
+
+    # Clean up old files to remove orphaned objects
+    if objects_dir.exists():
+        shutil.rmtree(objects_dir)
+        print(f"✓ Cleaned up old object files")
+
     objects_dir.mkdir(parents=True, exist_ok=True)
 
     for obj in objects:
@@ -31,8 +38,10 @@ medium: "{obj.get('medium', '')}"
 dimensions: "{obj.get('dimensions', '')}"
 location: "{obj.get('location', '')}"
 credit: "{obj.get('credit', '')}"
-thumbnail: {obj.get('thumbnail', '')}
-iiif_manifest: {obj.get('iiif_manifest', '')}
+thumbnail: "{obj.get('thumbnail', '')}"
+iiif_manifest: "{obj.get('iiif_manifest', '')}"
+object_warning: "{obj.get('object_warning', '')}"
+object_warning_short: "{obj.get('object_warning_short', '')}"
 layout: object
 ---
 
@@ -54,6 +63,12 @@ def generate_glossary():
         return
 
     glossary_dir = Path('_jekyll-files/_glossary')
+
+    # Clean up old files to remove orphaned glossary terms
+    if glossary_dir.exists():
+        shutil.rmtree(glossary_dir)
+        print(f"✓ Cleaned up old glossary files")
+
     glossary_dir.mkdir(parents=True, exist_ok=True)
 
     for source_file in source_dir.glob('*.md'):
@@ -96,32 +111,47 @@ layout: glossary
         print(f"✓ Generated {filepath}")
 
 def generate_stories():
-    """Generate story markdown files based on project.json stories list"""
+    """Generate story markdown files based on project.csv stories list"""
 
-    # Parse project.csv directly to get stories
+    import csv
+
+    # Parse project.csv to get stories (now with order, title, subtitle columns)
     stories = []
     with open('components/structures/project.csv', 'r') as f:
-        in_stories = False
-        for line in f:
-            if 'STORIES' in line:
-                in_stories = True
+        reader = csv.DictReader(f)
+        for row in reader:
+            order = row.get('order', '').strip() if row.get('order') else ''
+            title = row.get('title', '').strip() if row.get('title') else ''
+            subtitle = row.get('subtitle', '').strip() if row.get('subtitle') else ''
+
+            # Skip rows with empty order or title
+            if not order or not title:
                 continue
-            if in_stories:
-                parts = line.strip().split(',')
-                if len(parts) >= 2 and parts[0].strip():
-                    story_num = parts[0].strip()
-                    story_title = parts[1].strip().strip('"')
-                    stories.append({
-                        'number': story_num,
-                        'title': story_title
-                    })
+
+            story_entry = {
+                'number': order,
+                'title': title
+            }
+
+            # Add subtitle if present
+            if subtitle:
+                story_entry['subtitle'] = subtitle
+
+            stories.append(story_entry)
 
     stories_dir = Path('_jekyll-files/_stories')
+
+    # Clean up old files to remove orphaned stories
+    if stories_dir.exists():
+        shutil.rmtree(stories_dir)
+        print(f"✓ Cleaned up old story files")
+
     stories_dir.mkdir(parents=True, exist_ok=True)
 
     for story in stories:
         story_num = story['number']
         story_title = story['title']
+        story_subtitle = story.get('subtitle', '')
 
         # Check if story data file exists
         data_file = Path(f'_data/story-{story_num}.json')
@@ -131,14 +161,21 @@ def generate_stories():
 
         filepath = stories_dir / f"story-{story_num}.md"
 
-        content = f"""---
+        # Build frontmatter
+        frontmatter = f"""---
 story_number: {story_num}
 title: "{story_title}"
-layout: story
+"""
+        if story_subtitle:
+            frontmatter += f'subtitle: "{story_subtitle}"\n'
+
+        frontmatter += f"""layout: story
 data_file: story-{story_num}
 ---
 
 """
+
+        content = frontmatter
 
         with open(filepath, 'w') as f:
             f.write(content)

@@ -57,6 +57,13 @@ layout: default
   <div class="row">
     <!-- Object Viewer -->
     <div class="col-lg-8">
+      {% if page.object_warning and page.object_warning != "" %}
+      <div class="alert alert-danger mb-3" role="alert">
+        <strong>⚠️ Image Viewer Unavailable</strong>
+        <p class="mb-0 mt-2">{{ page.object_warning | markdownify | remove: '<p>' | remove: '</p>' | strip }}</p>
+      </div>
+      {% endif %}
+
       <div id="object-viewer" style="width: 100%; height: 600px; background: #000;"></div>
 
       <!-- Coordinate Tools Button -->
@@ -75,42 +82,57 @@ layout: default
               <!-- Close Button -->
               <button type="button" class="btn-close btn-close-white" data-bs-toggle="collapse" data-bs-target="#coordinatePanel" style="position: absolute; top: 0.5rem; right: 0.5rem;"></button>
 
-              <div class="row">
+              <div class="row" style="padding-top: 1rem;">
                 <!-- Instructions -->
-                <div class="col-md-7">
-                  <h6 style="color: #c8d8e8; font-weight: 600; margin-bottom: 1rem; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.875rem;">Instructions</h6>
-                  <p style="color: #c8d8e8; line-height: 1.6; margin-bottom: 0.5rem;">
-                    Use this panel to identify the coordinates of locations in an image for your story. Coordinates update as you pan/zoom the image above with your mouse by clicking, dragging, and scrolling. 
-                  </p>
-                  <p style="color: #c8d8e8; line-height: 1.6; margin-bottom: 0;">
-                    Once you identify a location make a note of the X, Y, and Zoom values, so you can include them in your structure spreadsheet. You can also press the buttons to the right to copy all three at once, or an entire row also including the image identifier.
-                  </p>
+                <div class="col-md-6">
+                  <div style="padding-left: 2rem;">
+                    <h6 style="color: #c8d8e8; font-weight: 600; margin-bottom: 1rem; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.875rem;">Instructions</h6>
+                    <p style="color: #c8d8e8; line-height: 1.6; margin-bottom: 0.5rem;">
+                      Use this panel to identify the coordinates of locations in an image for your story. Coordinates update as you pan/zoom the image above with your mouse by clicking, dragging, and scrolling.
+                    </p>
+                    <p style="color: #c8d8e8; line-height: 1.6; margin-bottom: 0;">
+                      Once you identify a location make a note of the X, Y, and Zoom values, so you can include them in your structure spreadsheet. You can also press the buttons to the right to copy all three coordinates at once.
+                    </p>
+                  </div>
                 </div>
 
                 <!-- Current Coordinates Table and Buttons -->
-                <div class="col-md-5">
+                <div class="col-md-6">
                   <div style="padding-top: 2rem;">
                     <div style="max-width: 280px; margin: 0 auto;">
-                      <dl class="row mb-4">
+                      <dl class="row mb-0">
                         <dt class="col-sm-6" style="color: #c8d8e8; text-align: right; display: flex; align-items: center; justify-content: flex-end; margin-bottom: 0.5rem;">X</dt>
-                        <dd class="col-sm-6" style="color: #c8d8e8; background-color: #1a252f; border: 1px solid #445566; padding: 0.25rem 0.5rem; border-radius: 4px; margin-bottom: 0.5rem; text-align: center;"><code id="coord-x" style="color: #c8d8e8;">0.500</code></dd>
+                        <dd class="col-sm-6" style="position: relative; color: #c8d8e8; background-color: #1a252f; border: 1px solid #445566; padding: 0.25rem 0.5rem; border-radius: 4px; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center;">
+                          <code id="coord-x" style="color: #c8d8e8;">0.500</code>
+                          <button class="btn btn-sm" id="copy-x" style="position: absolute; top: 50%; right: 0.25rem; transform: translateY(-50%); background-color: #1a252f; color: #c8d8e8; border: none; padding: 0.125rem 0.25rem; font-size: 0.75rem;" title="Copy X coordinate">
+                            <i class="bi bi-clipboard"></i>
+                          </button>
+                        </dd>
 
                         <dt class="col-sm-6" style="color: #c8d8e8; text-align: right; display: flex; align-items: center; justify-content: flex-end; margin-bottom: 0.5rem;">Y</dt>
-                        <dd class="col-sm-6" style="color: #c8d8e8; background-color: #1a252f; border: 1px solid #445566; padding: 0.25rem 0.5rem; border-radius: 4px; margin-bottom: 0.5rem; text-align: center;"><code id="coord-y" style="color: #c8d8e8;">0.500</code></dd>
+                        <dd class="col-sm-6" style="position: relative; color: #c8d8e8; background-color: #1a252f; border: 1px solid #445566; padding: 0.25rem 0.5rem; border-radius: 4px; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center;">
+                          <code id="coord-y" style="color: #c8d8e8;">0.500</code>
+                          <button class="btn btn-sm" id="copy-y" style="position: absolute; top: 50%; right: 0.25rem; transform: translateY(-50%); background-color: #1a252f; color: #c8d8e8; border: none; padding: 0.125rem 0.25rem; font-size: 0.75rem;" title="Copy Y coordinate">
+                            <i class="bi bi-clipboard"></i>
+                          </button>
+                        </dd>
 
                         <dt class="col-sm-6" style="color: #c8d8e8; text-align: right; display: flex; align-items: center; justify-content: flex-end; margin-bottom: 0.5rem;">Zoom</dt>
-                        <dd class="col-sm-6" style="color: #c8d8e8; background-color: #1a252f; border: 1px solid #445566; padding: 0.25rem 0.5rem; border-radius: 4px; margin-bottom: 0.5rem; text-align: center;"><code id="coord-zoom" style="color: #c8d8e8;">1.0</code></dd>
-                      </dl>
-                    </div>
+                        <dd class="col-sm-6" style="position: relative; color: #c8d8e8; background-color: #1a252f; border: 1px solid #445566; padding: 0.25rem 0.5rem; border-radius: 4px; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center;">
+                          <code id="coord-zoom" style="color: #c8d8e8;">1.0</code>
+                          <button class="btn btn-sm" id="copy-zoom" style="position: absolute; top: 50%; right: 0.25rem; transform: translateY(-50%); background-color: #1a252f; color: #c8d8e8; border: none; padding: 0.125rem 0.25rem; font-size: 0.75rem;" title="Copy Zoom level">
+                            <i class="bi bi-clipboard"></i>
+                          </button>
+                        </dd>
 
-                    <!-- Copy Buttons -->
-                    <div class="d-flex gap-2">
-                      <button class="btn btn-sm btn-copy" id="copy-coords" style="flex: 1;">
-                        <i class="bi bi-clipboard"></i> Copy x,y,zoom
-                      </button>
-                      <button class="btn btn-sm btn-copy" id="copy-csv" style="flex: 1;">
-                        <i class="bi bi-file-earmark-spreadsheet"></i> Copy entire row
-                      </button>
+                        <!-- Copy Button Row -->
+                        <dt class="col-sm-6"></dt>
+                        <dd class="col-sm-6" style="margin-bottom: 0;">
+                          <button class="btn btn-sm btn-copy w-100" id="copy-coords">
+                            <i class="bi bi-clipboard"></i> Copy x,y,zoom
+                          </button>
+                        </dd>
+                      </dl>
                     </div>
                   </div>
                 </div>
@@ -161,12 +183,27 @@ layout: default
         <dd class="col-sm-8">{{ page.credit }}</dd>
         {% endif %}
 
-        {% if page.iiif_manifest %}
+        {% if page.iiif_manifest and page.iiif_manifest != "" %}
         <dt class="col-sm-4">IIIF Manifest</dt>
-        <dd class="col-sm-8"><a href="{{ page.iiif_manifest }}" target="_blank" rel="noopener">View manifest</a></dd>
+        <dd class="col-sm-8">
+          <div style="position: relative; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 0.5rem 3rem 0.5rem 0.75rem; overflow: hidden;">
+            <code style="color: #2c3e50; font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;">{{ page.iiif_manifest }}</code>
+            <button class="btn btn-sm" id="copy-manifest" data-manifest="{{ page.iiif_manifest }}" style="position: absolute; top: 50%; right: 0.5rem; transform: translateY(-50%); background-color: transparent; border: none; color: #2c3e50; padding: 0.25rem;" title="Copy manifest URL">
+              <i class="bi bi-clipboard"></i>
+            </button>
+          </div>
+        </dd>
         {% elsif page.object_id %}
         <dt class="col-sm-4">IIIF Manifest</dt>
-        <dd class="col-sm-8"><a href="{{ '/iiif/objects/' | append: page.object_id | append: '/manifest.json' | relative_url }}" target="_blank" rel="noopener">View manifest</a></dd>
+        <dd class="col-sm-8">
+          {% assign manifest_url = site.url | append: site.baseurl | append: '/iiif/objects/' | append: page.object_id | append: '/manifest.json' %}
+          <div style="position: relative; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 0.5rem 3rem 0.5rem 0.75rem; overflow: hidden;">
+            <code style="color: #2c3e50; font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;">{{ manifest_url }}</code>
+            <button class="btn btn-sm" id="copy-manifest" data-manifest="{{ manifest_url }}" style="position: absolute; top: 50%; right: 0.5rem; transform: translateY(-50%); background-color: transparent; border: none; color: #2c3e50; padding: 0.25rem;" title="Copy manifest URL">
+              <i class="bi bi-clipboard"></i>
+            </button>
+          </div>
+        </dd>
         {% endif %}
       </dl>
 
@@ -200,7 +237,7 @@ layout: default
 <script src="https://cdn.jsdelivr.net/npm/universalviewer@4.0.0/dist/umd/UV.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    {% if page.iiif_manifest %}
+    {% if page.iiif_manifest and page.iiif_manifest != "" %}
     const manifestUrl = '{{ page.iiif_manifest }}';
     {% elsif page.object_id %}
     const manifestUrl = '{{ site.baseurl }}/iiif/objects/{{ page.object_id }}/manifest.json';
@@ -400,21 +437,69 @@ layout: default
       });
     });
 
-    document.getElementById('copy-csv').addEventListener('click', function() {
-      const objectId = '{{ page.object_id }}';
-      const x = document.getElementById('coord-x').textContent;
-      const y = document.getElementById('coord-y').textContent;
-      const zoom = document.getElementById('coord-zoom').textContent;
-      const text = `1,"Your question","Your answer","${objectId}",${x},${y},${zoom},"","","",""`;
+    // Copy manifest URL button
+    const copyManifestBtn = document.getElementById('copy-manifest');
+    if (copyManifestBtn) {
+      copyManifestBtn.addEventListener('click', function() {
+        const manifestUrl = this.getAttribute('data-manifest');
 
-      navigator.clipboard.writeText(text).then(function() {
-        const btn = document.getElementById('copy-csv');
-        const originalHTML = btn.innerHTML;
-        btn.innerHTML = '<i class="bi bi-check-circle"></i> Copied!';
-        setTimeout(function() {
-          btn.innerHTML = originalHTML;
-        }, 2000);
+        navigator.clipboard.writeText(manifestUrl).then(function() {
+          const btn = document.getElementById('copy-manifest');
+          const originalHTML = btn.innerHTML;
+          btn.innerHTML = '<i class="bi bi-check-circle"></i>';
+          setTimeout(function() {
+            btn.innerHTML = originalHTML;
+          }, 2000);
+        }).catch(function(err) {
+          console.error('Failed to copy manifest URL:', err);
+        });
       });
-    });
+    }
+
+    // Individual coordinate copy buttons
+    const copyXBtn = document.getElementById('copy-x');
+    if (copyXBtn) {
+      copyXBtn.addEventListener('click', function() {
+        const x = document.getElementById('coord-x').textContent;
+        navigator.clipboard.writeText(x).then(function() {
+          const btn = document.getElementById('copy-x');
+          const originalHTML = btn.innerHTML;
+          btn.innerHTML = '<i class="bi bi-check-circle"></i>';
+          setTimeout(function() {
+            btn.innerHTML = originalHTML;
+          }, 2000);
+        });
+      });
+    }
+
+    const copyYBtn = document.getElementById('copy-y');
+    if (copyYBtn) {
+      copyYBtn.addEventListener('click', function() {
+        const y = document.getElementById('coord-y').textContent;
+        navigator.clipboard.writeText(y).then(function() {
+          const btn = document.getElementById('copy-y');
+          const originalHTML = btn.innerHTML;
+          btn.innerHTML = '<i class="bi bi-check-circle"></i>';
+          setTimeout(function() {
+            btn.innerHTML = originalHTML;
+          }, 2000);
+        });
+      });
+    }
+
+    const copyZoomBtn = document.getElementById('copy-zoom');
+    if (copyZoomBtn) {
+      copyZoomBtn.addEventListener('click', function() {
+        const zoom = document.getElementById('coord-zoom').textContent;
+        navigator.clipboard.writeText(zoom).then(function() {
+          const btn = document.getElementById('copy-zoom');
+          const originalHTML = btn.innerHTML;
+          btn.innerHTML = '<i class="bi bi-check-circle"></i>';
+          setTimeout(function() {
+            btn.innerHTML = originalHTML;
+          }, 2000);
+        });
+      });
+    }
   });
 </script>
